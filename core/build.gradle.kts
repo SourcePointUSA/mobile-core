@@ -1,11 +1,28 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 import java.io.ByteArrayOutputStream
 
 plugins {
-    kotlin("multiplatform")
-    kotlin("native.cocoapods")
-    kotlin("plugin.serialization") version "1.9.22"
-    id("com.android.library")
+    kotlin("multiplatform") version "1.9.23"
+    kotlin("native.cocoapods") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
+    id("org.openapi.generator") version "6.3.0"
+    id("com.github.ben-manes.versions") version "0.50.0"
+    id("com.android.library") version "8.3.0"
+}
+
+val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
+val apiDescriptionFile = layout.projectDirectory.file("wrapper.openapi.json")
+val apiRootName = "com.sourcepoint.wrapper.client"
+
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec.set(apiDescriptionFile.toString())
+    outputDir.set(generatedSourcesPath.toString())
+    apiPackage.set("$apiRootName.api")
+    invokerPackage.set("$apiRootName.invoker")
+    modelPackage.set("$apiRootName.model")
+    configOptions.set(mapOf("library" to "multiplatform"))
 }
 
 val coreVersion = "0.0.3"
@@ -44,9 +61,10 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "3.0.0-beta-1"
-        val coroutinesVersion = "1.7.3"
+        val ktorVersion = "2.3.9"
+        val coroutinesVersion = "1.8.0"
         val settingsVersion = "1.1.1"
+        val dataTimeVersion = "0.5.0"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
@@ -55,8 +73,10 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dataTimeVersion")
             }
         }
+        commonMain.kotlin.srcDir("$generatedSourcesPath/src/main/kotlin")
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -66,7 +86,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-android:$ktorVersion")
+                implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
         val appleMain by getting {
@@ -83,12 +103,21 @@ android {
     defaultConfig {
         minSdk = 22
     }
+    packaging {
+        resources.excludes += "DebugProbesKt.bin"
+    }
 }
 
-val sourceDir = "${project.buildDir}/cocoapods/publish/debug"
-val destDir = "${project.buildDir}/cocoapods/pod"
+val sourceDir = "${layout.projectDirectory}/cocoapods/publish/debug"
+val destDir = "${layout.projectDirectory}/cocoapods/pod"
 val gitRepoUrl = "https://github.com/SourcepointUSA/SPMobileCore.git"
 val podVersion = kotlin.cocoapods.version
+
+tasks.named("openApiGenerate").configure { dependsOn("packageDebugResources") }
+
+tasks.withType<KotlinCompile<*>>().configureEach {
+    dependsOn("openApiGenerate")
+}
 
 tasks.register("podCloneOrPullGitRepo") {
     doLast {

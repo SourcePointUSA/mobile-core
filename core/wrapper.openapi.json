@@ -1,0 +1,48 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SP Wrapper API",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://cdn.privacy-mgmt.com",
+            "description": "prod"
+        }
+    ],
+    "paths": {
+        "/wrapper/v2/meta-data": {
+            "get": {
+                "summary": "Get property metadata",
+                "parameters": [
+                    {
+                        "name": "accountId",
+                        "in": "query",
+                        "description": "Portal accountId",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 22
+                        }
+                    },
+                    {
+                        "name": "propertyId",
+                        "in": "query",
+                        "description": "propertyId (found in portal)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 17801
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Metadata fetched sucessfully"
+                    }
+                }
+            }
+        }
+    },
+    "tags": []
+}
