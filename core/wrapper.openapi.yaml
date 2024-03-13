@@ -1,0 +1,122 @@
+---
+openapi: 3.0.4
+info:
+  title: SP Wrapper API
+  version: 1.0.0
+servers:
+  # change it to https://preprod-cdn.privacy-mgmt.com in order to point the SDK to preprod
+  - url: https://cdn.privacy-mgmt.com
+    description: Wrapper Api CDN
+components:
+  parameters:
+    env:
+      name: env
+      description: The env param
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - prod
+    scriptType:
+      name: scriptType
+      description: The client SDK type performing the request
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - mobile-core
+    scriptVersion:
+      name: scriptVersion
+      description: The version of the client SDK performing the request
+      in: query
+      required: true
+      schema:
+        type: string
+    accountId:
+      name: accountId
+      in: query
+      description: Portal account id
+      required: true
+      schema:
+        type: integer
+    propertyId:
+      name: propertyId
+      in: query
+      description: Portal property id
+      required: true
+      schema:
+        type: integer
+  schemas:
+    MetaDataCampaignResponse:
+      type: object
+      required: [ "applies", "sampleRate" ]
+      properties:
+        applies:
+          type: boolean
+        sampleRate:
+          type: number
+          format: float
+    MetaDataGDPRCampaignResponse:
+      allOf:
+        - $ref: '#/components/schemas/MetaDataCampaignResponse'
+        - type: object
+          required:  [ "additionsChangeDate", "legalBasisChangeDate", "_id" ]
+          properties:
+            _id:
+              type: string
+            additionsChangeDate:
+              type: string
+            legalBasisChangeDate:
+              type: string
+    MetaDataUSNATCampaignResponse:
+      allOf:
+        - $ref: '#/components/schemas/MetaDataCampaignResponse'
+        - type: object
+          required: [ "additionsChangeDate", "_id" ]
+          properties:
+            _id:
+              type: string
+            additionsChangeDate:
+              type: string
+            applicableSections:
+              type: array
+              items:
+                type: integer
+paths:
+  "/wrapper/v2/meta-data":
+    get:
+      operationId: "getMetaData"
+      summary: Get property metadata
+      parameters:
+        - $ref: '#/components/parameters/env'
+        - $ref: '#/components/parameters/scriptType'
+        - $ref: '#/components/parameters/scriptVersion'
+        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/propertyId'
+        - name: metadata
+          in: query
+          description: The campaigns you want to get the metadata for
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ccpa:
+                    type: object
+      responses:
+        '200':
+          description: Metadata fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ccpa:
+                    $ref: '#/components/schemas/MetaDataCampaignResponse'
+                  gdpr:
+                    $ref: '#/components/schemas/MetaDataGDPRCampaignResponse'
+                  usnat:
+                    $ref: '#/components/schemas/MetaDataCampaignResponse'

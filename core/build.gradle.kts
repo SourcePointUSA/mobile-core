@@ -6,14 +6,26 @@ plugins {
     kotlin("multiplatform") version "1.9.23"
     kotlin("native.cocoapods") version "1.9.23"
     kotlin("plugin.serialization") version "1.9.23"
-    id("org.openapi.generator") version "6.3.0"
+    id("org.openapi.generator") version "7.4.0"
     id("com.github.ben-manes.versions") version "0.50.0"
     id("com.android.library") version "8.3.0"
+    id("com.github.gmazzo.buildconfig") version "5.3.5"
 }
 
+val coreVersion = "0.0.1"
+
 val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
-val apiDescriptionFile = layout.projectDirectory.file("wrapper.openapi.json")
+val apiDescriptionFile = layout.projectDirectory.file("wrapper.openapi.yaml")
 val apiRootName = "com.sourcepoint.wrapper.client"
+val sourceDir = "${layout.projectDirectory}/cocoapods/publish/debug"
+val destDir = "${layout.projectDirectory}/cocoapods/pod"
+val gitRepoUrl = "https://github.com/SourcepointUSA/SPMobileCore.git"
+val podVersion = kotlin.cocoapods.version
+val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 15"
+// this generates a kotlin file with constants that can be used inside the project
+buildConfig {
+    buildConfigField("Version", coreVersion)
+}
 
 openApiGenerate {
     generatorName.set("kotlin")
@@ -22,10 +34,12 @@ openApiGenerate {
     apiPackage.set("$apiRootName.api")
     invokerPackage.set("$apiRootName.invoker")
     modelPackage.set("$apiRootName.model")
-    configOptions.set(mapOf("library" to "multiplatform"))
+    configOptions.set(mapOf(
+        "library" to "jvm-ktor",
+        "dateLibrary" to "kotlinx-datetime",
+        "serializationLibrary" to "kotlinx_serialization"
+    ))
 }
-
-val coreVersion = "0.0.3"
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
@@ -65,15 +79,17 @@ kotlin {
         val coroutinesVersion = "1.8.0"
         val settingsVersion = "1.1.1"
         val dataTimeVersion = "0.5.0"
+        val logbackVersion = "1.5.3"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dataTimeVersion")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dataTimeVersion")
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
+                implementation("ch.qos.logback:logback-classic:$logbackVersion")
             }
         }
         commonMain.kotlin.srcDir("$generatedSourcesPath/src/main/kotlin")
@@ -107,11 +123,6 @@ android {
         resources.excludes += "DebugProbesKt.bin"
     }
 }
-
-val sourceDir = "${layout.projectDirectory}/cocoapods/publish/debug"
-val destDir = "${layout.projectDirectory}/cocoapods/pod"
-val gitRepoUrl = "https://github.com/SourcepointUSA/SPMobileCore.git"
-val podVersion = kotlin.cocoapods.version
 
 tasks.named("openApiGenerate").configure { dependsOn("packageDebugResources") }
 
@@ -166,8 +177,6 @@ tasks.register<Exec>("podReleaseToCocoapods") {
 tasks.register("podRelease") {
     dependsOn("podPublishDebugXCFramework", "podCloneOrPullGitRepo", "podCopyDir", "podReleaseToGit")
 }
-
-val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 15"
 
 // FIXME: this does not work for tvOS
 tasks.register<Exec>("bootIOSSimulator") {

@@ -5,10 +5,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ClientTest {
-
     @Test
-    fun gdprApplies() = runTest {
-        val client = Client(accountId = 22, propertyId = 16893, propertyName = "")
-        assertEquals(client.getMetaData(campaigns = MetaDataCampaigns(gdpr = MetaDataCampaigns.Campaign())).gdpr?.applies, true)
+    fun generatedGdprApplies() = runTest {
+        val api = Client(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo")
+        val response = api.getMetaData(MetaDataCampaigns(
+            ccpa = MetaDataCampaigns.Campaign(),
+            gdpr = MetaDataCampaigns.Campaign(),
+            usnat = MetaDataCampaigns.Campaign()
+        ))
+        assertEquals(response.ccpa?.applies, true)
+        assertEquals(response.gdpr?.applies, true)
+        assertEquals(response.usnat?.applies, true)
     }
 }
