@@ -17,14 +17,20 @@ jobs:
   test-ios:
     runs-on: 'macos-latest'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Test
-        run: ./gradlew :core:iosSimulatorArm64Test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - run: ./gradlew :core:iosSimulatorArm64Test
   test-android:
     runs-on: 'macos-latest'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Test
-        run: ./gradlew :core:testDebugUnitTest
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - run: ./gradlew :core:testDebugUnitTest
