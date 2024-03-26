@@ -6,6 +6,7 @@ plugins {
     kotlin("multiplatform") version "1.9.23"
     kotlin("native.cocoapods") version "1.9.23"
     kotlin("plugin.serialization") version "1.9.23"
+    id("maven-publish")
     id("org.openapi.generator") version "7.4.0"
     id("com.github.ben-manes.versions") version "0.50.0"
     id("com.android.library") version "8.3.1"
@@ -69,6 +70,7 @@ kotlin {
         version = coreVersion
         ios.deploymentTarget = "11.0"
         framework {
+            binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
             transitiveExport = true
         }
@@ -124,7 +126,36 @@ android {
     }
 }
 
-tasks.named("openApiGenerate").configure { dependsOn("packageDebugResources") }
+publishing {
+    publications {
+        create<MavenPublication>("default") {
+            groupId = "com.sourcepoint"
+            artifactId = "mobile_core"
+            version = coreVersion
+
+            from(components["kotlin"])
+        }
+    }
+
+    repositories {
+        mavenLocal()
+    }
+}
+
+tasks.named("openApiGenerate").configure {
+    dependsOn("iosSimulatorArm64SourcesJar")
+    dependsOn("iosX64SourcesJar")
+    dependsOn("iosArm64SourcesJar")
+    dependsOn("tvosSimulatorArm64SourcesJar")
+    dependsOn("tvosArm64SourcesJar")
+    dependsOn("tvosX64SourcesJar")
+    dependsOn("sourcesJar")
+    dependsOn("packageDebugResources")
+    dependsOn("packageReleaseResources")
+    dependsOn("mergeReleaseResources")
+    dependsOn("extractDeepLinksForAarRelease")
+    dependsOn("extractDeepLinksDebug")
+}
 
 tasks.withType<KotlinCompile<*>>().configureEach {
     dependsOn("openApiGenerate")

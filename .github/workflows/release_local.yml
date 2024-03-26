@@ -1,4 +1,4 @@
-name: 'Test'
+name: 'Release Local Artifacts'
 on:
   workflow_dispatch:
   push:
@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-ios:
+  release-ios-xcframework:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v4
@@ -21,8 +21,12 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
-      - run: ./gradlew :core:iosSimulatorArm64Test
-  test-android:
+      - run: ./gradlew podPublishXCFramework
+      - uses: actions/upload-artifact@v4
+        with:
+            name: SPMobileCore.xcframework
+            path: ./core/build/cocoapods/publish/release/SPMobileCore.xcframework
+  release-android-aar:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v4
@@ -31,4 +35,8 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
-      - run: ./gradlew :core:testDebugUnitTest
+      - run: ./gradlew :core:publishToMavenLocal
+      - uses: actions/upload-artifact@v4
+        with:
+            name: mobile-core.aar
+            path: ./core/build/outputs/aar/core-release.aar
