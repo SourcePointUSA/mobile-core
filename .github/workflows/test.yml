@@ -1,0 +1,30 @@
+name: 'Test'
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# The `concurrency` key ensures that only a single workflow in the same concurrency group will run at the same time. For more information
+# `concurrency.group` generates a concurrency group name from the workflow name and pull request information. The `||` operator is used to define fallback values.
+# `concurrency.cancel-in-progress` cancels any currently running job or workflow in the same concurrency group.
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  test-ios:
+    runs-on: 'macos-latest'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test
+        run: ./gradlew :core:iosSimulatorArm64Test
+  test-android:
+    runs-on: 'macos-latest'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Test
+        run: ./gradlew :core:testDebugUnitTest
