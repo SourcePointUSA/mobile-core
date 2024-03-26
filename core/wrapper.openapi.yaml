@@ -51,35 +51,30 @@ components:
   schemas:
     MetaDataCampaignResponse:
       type: object
-      required: [ "applies", "sampleRate" ]
+      required: [ "applies", "sampleRate", "additionsChangeDate", "_id" ]
       properties:
         applies:
           type: boolean
         sampleRate:
           type: number
           format: float
+        _id:
+          type: string
+        additionsChangeDate:
+          type: string
     MetaDataGDPRCampaignResponse:
       allOf:
         - $ref: '#/components/schemas/MetaDataCampaignResponse'
         - type: object
-          required:  [ "additionsChangeDate", "legalBasisChangeDate", "_id" ]
+          required:  [ "legalBasisChangeDate" ]
           properties:
-            _id:
-              type: string
-            additionsChangeDate:
-              type: string
             legalBasisChangeDate:
               type: string
     MetaDataUSNATCampaignResponse:
       allOf:
         - $ref: '#/components/schemas/MetaDataCampaignResponse'
         - type: object
-          required: [ "additionsChangeDate", "_id" ]
           properties:
-            _id:
-              type: string
-            additionsChangeDate:
-              type: string
             applicableSections:
               type: array
               items:
@@ -104,7 +99,9 @@ paths:
               schema:
                 type: object
                 properties:
-                  ccpa:
+                  gdpr:
+                    type: object
+                  usnat:
                     type: object
       responses:
         '200':
@@ -114,8 +111,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  ccpa:
-                    $ref: '#/components/schemas/MetaDataCampaignResponse'
                   gdpr:
                     $ref: '#/components/schemas/MetaDataGDPRCampaignResponse'
                   usnat:
