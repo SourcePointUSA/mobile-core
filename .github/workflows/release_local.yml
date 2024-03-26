@@ -1,4 +1,4 @@
-name: 'Release Local Artifacts'
+name: 'Release Local'
 on:
   workflow_dispatch:
   push:
