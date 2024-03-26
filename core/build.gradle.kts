@@ -8,7 +8,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.23"
     id("org.openapi.generator") version "7.4.0"
     id("com.github.ben-manes.versions") version "0.50.0"
-    id("com.android.library") version "8.3.0"
+    id("com.android.library") version "8.3.1"
     id("com.github.gmazzo.buildconfig") version "5.3.5"
 }
 
