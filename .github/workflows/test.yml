@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-ios:
+  ios:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
           java-version: '17'
           cache: 'gradle'
       - run: ./gradlew :core:iosSimulatorArm64Test
-  test-android:
+  android:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v4

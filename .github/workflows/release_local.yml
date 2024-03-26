@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release-ios-xcframework:
+  ios-xcframework:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
         with:
             name: SPMobileCore.xcframework
             path: ./core/build/cocoapods/publish/release/SPMobileCore.xcframework
-  release-android-aar:
+  android-aar:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
-      - run: ./gradlew :core:publishToMavenLocal
+      - run: ./gradlew :core:assembleRelease
       - uses: actions/upload-artifact@v4
         with:
             name: mobile-core.aar
