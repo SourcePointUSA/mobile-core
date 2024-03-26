@@ -126,6 +126,7 @@ android {
 }
 
 tasks.named("openApiGenerate").configure {
+    dependsOn("packageDebugResources")
     dependsOn("packageReleaseResources")
     dependsOn("mergeReleaseResources")
     dependsOn("extractDeepLinksForAarRelease")
