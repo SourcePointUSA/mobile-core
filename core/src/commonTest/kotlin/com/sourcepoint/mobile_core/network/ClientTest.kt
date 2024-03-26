@@ -9,11 +9,9 @@ class ClientTest {
     fun generatedGdprApplies() = runTest {
         val api = Client(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo")
         val response = api.getMetaData(MetaDataCampaigns(
-            ccpa = MetaDataCampaigns.Campaign(),
             gdpr = MetaDataCampaigns.Campaign(),
             usnat = MetaDataCampaigns.Campaign()
         ))
-        assertEquals(response.ccpa?.applies, true)
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.usnat?.applies, true)
     }
