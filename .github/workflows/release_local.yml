@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 # make sure to have only one job from the same "trigger" at any time
 concurrency:
