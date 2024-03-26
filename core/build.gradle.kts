@@ -69,6 +69,7 @@ kotlin {
         version = coreVersion
         ios.deploymentTarget = "11.0"
         framework {
+            binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
             transitiveExport = true
         }
@@ -124,7 +125,13 @@ android {
     }
 }
 
-tasks.named("openApiGenerate").configure { dependsOn("packageDebugResources") }
+tasks.named("openApiGenerate").configure {
+    dependsOn("packageDebugResources")
+    dependsOn("packageReleaseResources")
+    dependsOn("mergeReleaseResources")
+    dependsOn("extractDeepLinksForAarRelease")
+    dependsOn("extractDeepLinksDebug")
+}
 
 tasks.withType<KotlinCompile<*>>().configureEach {
     dependsOn("openApiGenerate")
