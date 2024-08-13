@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTes
 import java.io.ByteArrayOutputStream
 
 plugins {
-    kotlin("multiplatform") version "1.9.23"
-    kotlin("native.cocoapods") version "1.9.23"
-    kotlin("plugin.serialization") version "1.9.23"
+    kotlin("multiplatform") version "1.9.25"
+    kotlin("native.cocoapods") version "1.9.25"
+    kotlin("plugin.serialization") version "1.9.25"
     id("org.openapi.generator") version "7.4.0"
     id("com.github.ben-manes.versions") version "0.50.0"
-    id("com.android.library") version "8.3.1"
+    id("com.android.library") version "8.3.2"
     id("com.github.gmazzo.buildconfig") version "5.3.5"
 }
 
@@ -76,11 +76,11 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "2.3.9"
-        val coroutinesVersion = "1.8.0"
+        val ktorVersion = "2.3.12"
+        val coroutinesVersion = "1.8.1"
         val settingsVersion = "1.1.1"
-        val dataTimeVersion = "0.5.0"
-        val logbackVersion = "1.5.3"
+        val dataTimeVersion = "0.6.0"
+        val logbackVersion = "1.5.6"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
