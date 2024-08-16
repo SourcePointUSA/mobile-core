@@ -3,6 +3,7 @@ package com.sourcepoint.mobile_core.network
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class ClientTest {
     private val api = Client(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo")
@@ -15,5 +16,26 @@ class ClientTest {
         ))
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.usnat?.applies, true)
+    }
+
+    @Test
+    fun getConsentStatusWorks() = runTest {
+        val response = api.getConsentStatus(
+            authId = null,
+            metadata = ConsentStatusMetaData(
+                gdpr = ConsentStatusMetaData.GDPR(
+                    applies = true,
+                    uuid = "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
+                ),
+                usnat = ConsentStatusMetaData.USNat(
+                    applies = true,
+                    uuid = "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
+                )
+            )
+        )
+
+        assertNotEquals("", response.localState)
+        assertEquals("654c39d4-b75d-4aac-925c-6322a7cc1622_28", response.consentStatusData.gdpr?.uuid)
+        assertEquals("11a0fe1c-bd4a-43bb-b179-c015f63882bc_7", response.consentStatusData.usnat?.uuid)
     }
 }

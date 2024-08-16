@@ -16,6 +16,9 @@ import mobile_core.core.BuildConfig
 interface SPClient {
     @Throws(Exception::class)
     suspend fun getMetaData(campaigns: MetaDataMetaDataCampaigns): MetaDataResponse
+
+    @Throws(Exception::class)
+    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusMetaData): GetConsentStatusResponse
 }
 
 // TODO: implement propertyName class?
@@ -47,4 +50,24 @@ class Client(val accountId: Int, val propertyId: Int, val propertyName: String):
     @Throws(Exception::class)
     override suspend fun getMetaData(campaigns: MetaDataMetaDataCampaigns): MetaDataResponse =
         http.get(getMetaDataUrl(campaigns)).body()
+
+    private fun getConsentStatusUrl(authId: String?, metadata: ConsentStatusMetaData) = URLBuilder(baseWrapperUrl)
+        .apply {
+            path("wrapper", "v2", "consent-status")
+            parameters.append("propertyId", propertyId.toString())
+            parameters.append("metadata", metadata.toString())
+            parameters.append("includeData", IncludeData().toString())
+            parameters.appendIfPresent("authId", authId)
+            parameters.append("withSiteActions", "false")
+            parameters.append("hasCsp", "true")
+            parameters.append("env", ENV_PARAM)
+            parameters.append("scriptType", SCRIPT_TYPE)
+            parameters.append("scriptVersion", SCRIPT_VERSION)
+        }.build()
+
+    @Throws(Exception::class)
+    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusMetaData): GetConsentStatusResponse =
+        http.get(getConsentStatusUrl(authId, metadata)).body()
 }
+
+fun ParametersBuilder.appendIfPresent(name: String, value: String?) = value?.let { append(name, it) }
