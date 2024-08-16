@@ -6,7 +6,6 @@ plugins {
     kotlin("multiplatform") version "1.9.25"
     kotlin("native.cocoapods") version "1.9.25"
     kotlin("plugin.serialization") version "1.9.25"
-    id("org.openapi.generator") version "7.4.0"
     id("com.github.ben-manes.versions") version "0.50.0"
     id("com.android.library") version "8.3.2"
     id("com.github.gmazzo.buildconfig") version "5.3.5"
@@ -15,8 +14,6 @@ plugins {
 val coreVersion = "0.0.1"
 
 val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
-val apiDescriptionFile = layout.projectDirectory.file("wrapper.openapi.yaml")
-val apiRootName = "com.sourcepoint.wrapper.client"
 val sourceDir = "${layout.projectDirectory}/cocoapods/publish/debug"
 val destDir = "${layout.projectDirectory}/cocoapods/pod"
 val gitRepoUrl = "https://github.com/SourcepointUSA/SPMobileCore.git"
@@ -25,20 +22,6 @@ val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 15"
 // this generates a kotlin file with constants that can be used inside the project
 buildConfig {
     buildConfigField("Version", coreVersion)
-}
-
-openApiGenerate {
-    generatorName.set("kotlin")
-    inputSpec.set(apiDescriptionFile.toString())
-    outputDir.set(generatedSourcesPath.toString())
-    apiPackage.set("$apiRootName.api")
-    invokerPackage.set("$apiRootName.invoker")
-    modelPackage.set("$apiRootName.model")
-    configOptions.set(mapOf(
-        "library" to "jvm-ktor",
-        "dateLibrary" to "kotlinx-datetime",
-        "serializationLibrary" to "kotlinx_serialization"
-    ))
 }
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
@@ -123,18 +106,6 @@ android {
     packaging {
         resources.excludes += "DebugProbesKt.bin"
     }
-}
-
-tasks.named("openApiGenerate").configure {
-    dependsOn("packageDebugResources")
-    dependsOn("packageReleaseResources")
-    dependsOn("mergeReleaseResources")
-    dependsOn("extractDeepLinksForAarRelease")
-    dependsOn("extractDeepLinksDebug")
-}
-
-tasks.withType<KotlinCompile<*>>().configureEach {
-    dependsOn("openApiGenerate")
 }
 
 tasks.register("podCloneOrPullGitRepo") {
