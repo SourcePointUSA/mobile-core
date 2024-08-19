@@ -1,4 +1,4 @@
-package com.sourcepoint.mobile_core.network
+package com.sourcepoint.mobile_core.network.requests
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

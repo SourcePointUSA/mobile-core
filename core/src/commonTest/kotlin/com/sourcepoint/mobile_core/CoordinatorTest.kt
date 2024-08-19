@@ -1,7 +1,7 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
-import com.sourcepoint.mobile_core.network.MetaDataMetaDataCampaigns
+import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

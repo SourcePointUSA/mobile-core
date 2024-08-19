@@ -1,5 +1,8 @@
 package com.sourcepoint.mobile_core.network
 
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusMetaData
+import com.sourcepoint.mobile_core.network.requests.IncludeData
+import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
 import com.sourcepoint.mobile_core.network.responses.GetConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import io.ktor.client.HttpClient

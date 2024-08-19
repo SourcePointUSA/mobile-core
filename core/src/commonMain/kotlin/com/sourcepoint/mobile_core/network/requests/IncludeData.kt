@@ -1,5 +1,6 @@
-package com.sourcepoint.mobile_core.network
+package com.sourcepoint.mobile_core.network.requests
 
+import com.sourcepoint.mobile_core.network.json
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

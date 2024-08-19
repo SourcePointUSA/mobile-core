@@ -1,5 +1,7 @@
 package com.sourcepoint.mobile_core.network
 
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusMetaData
+import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -10,10 +12,12 @@ class ClientTest {
 
     @Test
     fun generatedGdprApplies() = runTest {
-        val response = api.getMetaData(MetaDataMetaDataCampaigns(
+        val response = api.getMetaData(
+            MetaDataMetaDataCampaigns(
             gdpr = MetaDataMetaDataCampaigns.Campaign(),
             usnat = MetaDataMetaDataCampaigns.Campaign()
-        ))
+        )
+        )
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.usnat?.applies, true)
     }
