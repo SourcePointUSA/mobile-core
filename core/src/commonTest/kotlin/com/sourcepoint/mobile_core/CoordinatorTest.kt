@@ -1,7 +1,7 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
-import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
+import com.sourcepoint.mobile_core.network.requests.MetaData
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -14,7 +14,7 @@ class CoordinatorTest {
         val storage = MapSettings()
         val repository = Repository(storage)
         val coordinator = Coordinator(accountId = 22, propertyId = 16893, propertyName = "",  repository)
-        val campaigns = MetaDataMetaDataCampaigns(gdpr = MetaDataMetaDataCampaigns.Campaign())
+        val campaigns = MetaData.Campaigns(gdpr = MetaData.Campaigns.Campaign())
         val metaData = coordinator.getMetaData(campaigns)
         assertContains(metaData, "/meta-data")
         assertContains(storage.keys, "MetaData")

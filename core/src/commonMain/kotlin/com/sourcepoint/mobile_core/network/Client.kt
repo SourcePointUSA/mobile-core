@@ -1,8 +1,9 @@
 package com.sourcepoint.mobile_core.network
 
-import com.sourcepoint.mobile_core.network.requests.ConsentStatusMetaData
-import com.sourcepoint.mobile_core.network.requests.IncludeData
-import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
+import com.sourcepoint.mobile_core.models.SPPropertyName
+import com.sourcepoint.mobile_core.network.requests.ConsentStatus
+import com.sourcepoint.mobile_core.network.requests.MetaData
+import com.sourcepoint.mobile_core.network.requests.toQueryParams
 import com.sourcepoint.mobile_core.network.responses.GetConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import io.ktor.client.HttpClient
@@ -14,24 +15,16 @@ import io.ktor.http.ParametersBuilder
 import io.ktor.http.URLBuilder
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
-import mobile_core.core.BuildConfig
 
 interface SPClient {
     @Throws(Exception::class)
-    suspend fun getMetaData(campaigns: MetaDataMetaDataCampaigns): MetaDataResponse
+    suspend fun getMetaData(campaigns: MetaData.Campaigns): MetaDataResponse
 
     @Throws(Exception::class)
-    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusMetaData): GetConsentStatusResponse
+    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): GetConsentStatusResponse
 }
 
-// TODO: implement propertyName class?
-class Client(val accountId: Int, val propertyId: Int, val propertyName: String): SPClient {
-    companion object {
-        const val ENV_PARAM = "prod"
-        const val SCRIPT_TYPE = "mobile-core" // TODO: postfix it with the platform the module is running
-        const val SCRIPT_VERSION = BuildConfig.Version
-    }
-
+class Client(val accountId: Int, val propertyId: Int, val propertyName: SPPropertyName): SPClient {
     private val http = HttpClient {
         install(ContentNegotiation) { json(json) }
         install(Logging)
@@ -39,37 +32,40 @@ class Client(val accountId: Int, val propertyId: Int, val propertyName: String):
 
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
 
-    private fun getMetaDataUrl(campaigns: MetaDataMetaDataCampaigns) = URLBuilder(baseWrapperUrl)
+    private fun getMetaDataUrl(campaigns: MetaData.Campaigns) = URLBuilder(baseWrapperUrl)
         .apply {
             path("wrapper", "v2", "meta-data")
-            parameters.append("accountId", accountId.toString())
-            parameters.append("propertyId", propertyId.toString())
-            parameters.append("metadata", campaigns.toString())
-            parameters.append("env", ENV_PARAM)
-            parameters.append("scriptType", SCRIPT_TYPE)
-            parameters.append("scriptVersion", SCRIPT_VERSION)
+            MetaData(
+                accountId = accountId,
+                propertyId = propertyId,
+                metadata = campaigns
+            )
+                .toQueryParams()
+                .map { param ->
+                    param.value?.let { parameters.append(param.key, it) }
+                }
         }.build()
 
     @Throws(Exception::class)
-    override suspend fun getMetaData(campaigns: MetaDataMetaDataCampaigns): MetaDataResponse =
+    override suspend fun getMetaData(campaigns: MetaData.Campaigns): MetaDataResponse =
         http.get(getMetaDataUrl(campaigns)).body()
 
-    private fun getConsentStatusUrl(authId: String?, metadata: ConsentStatusMetaData) = URLBuilder(baseWrapperUrl)
+    private fun getConsentStatusUrl(authId: String?, metadata: ConsentStatus.MetaData) = URLBuilder(baseWrapperUrl)
         .apply {
             path("wrapper", "v2", "consent-status")
-            parameters.append("propertyId", propertyId.toString())
-            parameters.append("metadata", metadata.toString())
-            parameters.append("includeData", IncludeData().toString())
-            parameters.appendIfPresent("authId", authId)
-            parameters.append("withSiteActions", "false")
-            parameters.append("hasCsp", "true")
-            parameters.append("env", ENV_PARAM)
-            parameters.append("scriptType", SCRIPT_TYPE)
-            parameters.append("scriptVersion", SCRIPT_VERSION)
+            ConsentStatus(
+                propertyId = propertyId,
+                authId = authId,
+                metadata = metadata,
+            )
+                .toQueryParams()
+                .map { param ->
+                    param.value?.let { parameters.append(param.key, it) }
+                }
         }.build()
 
     @Throws(Exception::class)
-    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusMetaData): GetConsentStatusResponse =
+    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): GetConsentStatusResponse =
         http.get(getConsentStatusUrl(authId, metadata)).body()
 }
 

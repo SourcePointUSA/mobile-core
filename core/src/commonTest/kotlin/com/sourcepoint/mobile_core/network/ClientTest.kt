@@ -1,7 +1,7 @@
 package com.sourcepoint.mobile_core.network
 
-import com.sourcepoint.mobile_core.network.requests.ConsentStatusMetaData
-import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
+import com.sourcepoint.mobile_core.network.requests.ConsentStatus
+import com.sourcepoint.mobile_core.network.requests.MetaData
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,10 +13,10 @@ class ClientTest {
     @Test
     fun generatedGdprApplies() = runTest {
         val response = api.getMetaData(
-            MetaDataMetaDataCampaigns(
-            gdpr = MetaDataMetaDataCampaigns.Campaign(),
-            usnat = MetaDataMetaDataCampaigns.Campaign()
-        )
+            MetaData.Campaigns(
+                gdpr = MetaData.Campaigns.Campaign(),
+                usnat = MetaData.Campaigns.Campaign()
+            )
         )
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.usnat?.applies, true)
@@ -26,12 +26,12 @@ class ClientTest {
     fun getConsentStatusWorks() = runTest {
         val response = api.getConsentStatus(
             authId = null,
-            metadata = ConsentStatusMetaData(
-                gdpr = ConsentStatusMetaData.GDPR(
+            metadata = ConsentStatus.MetaData(
+                gdpr = ConsentStatus.MetaData.GDPR(
                     applies = true,
                     uuid = "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
                 ),
-                usnat = ConsentStatusMetaData.USNat(
+                usnat = ConsentStatus.MetaData.USNat(
                     applies = true,
                     uuid = "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
                 )
