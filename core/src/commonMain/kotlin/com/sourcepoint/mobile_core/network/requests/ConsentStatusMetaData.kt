@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core.network.requests
 
+import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -15,7 +16,7 @@ data class ConsentStatusMetaData(
         val dateCreated: String? = null,
         val uuid: String? = null,
         val hasLocalData: Boolean = false,
-        val idfaStatus: String? = null
+        val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
     ) {
         override fun toString() = Json.encodeToString(this)
     }
@@ -26,7 +27,7 @@ data class ConsentStatusMetaData(
         val dateCreated: String? = null,
         val uuid: String? = null,
         val hasLocalData: Boolean = false,
-        val idfaStatus: String? = null,
+        val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
         val transitionCCPAAuth: Boolean? = null,
         val optedOut: Boolean? = null
     ) {
