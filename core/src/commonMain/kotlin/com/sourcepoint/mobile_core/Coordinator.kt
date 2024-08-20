@@ -1,7 +1,7 @@
 package com.sourcepoint.mobile_core
 
 import com.sourcepoint.mobile_core.network.Client
-import com.sourcepoint.mobile_core.network.requests.MetaData
+import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.storage.Repository
 
 class Coordinator(
@@ -26,7 +26,7 @@ class Coordinator(
         spClient = Client(accountId, propertyId, propertyName)
     )
 
-    suspend fun getMetaData(campaigns: MetaData.Campaigns): String {
+    suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): String {
         val metaDataResponse = spClient.getMetaData(campaigns)
         val message = """
             The return of /meta-data is:

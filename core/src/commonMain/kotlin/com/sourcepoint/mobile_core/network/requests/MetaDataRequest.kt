@@ -3,7 +3,7 @@ package com.sourcepoint.mobile_core.network.requests
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MetaData(
+data class MetaDataRequest(
     val accountId: Int,
     val propertyId: Int,
     val metadata: Campaigns

@@ -4,7 +4,7 @@ import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ConsentStatus(
+data class ConsentStatusRequest(
     val propertyId: Int,
     val metadata: MetaData,
     val includeData: IncludeData = IncludeData(),
