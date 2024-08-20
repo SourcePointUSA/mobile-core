@@ -9,3 +9,10 @@ val json = Json {
     ignoreUnknownKeys = true
     explicitNulls = false
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+val jsonWithNulls = Json {
+    encodeDefaults = true
+    ignoreUnknownKeys = true
+    explicitNulls = true
+}
