@@ -11,7 +11,7 @@ class ClientTest {
     private val api = Client(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo")
 
     @Test
-    fun generatedGdprApplies() = runTest {
+    fun getMetaData() = runTest {
         val response = api.getMetaData(
             MetaData.Campaigns(
                 gdpr = MetaData.Campaigns.Campaign(),
@@ -23,7 +23,7 @@ class ClientTest {
     }
 
     @Test
-    fun getConsentStatusWorks() = runTest {
+    fun getConsentStatus() = runTest {
         val response = api.getConsentStatus(
             authId = null,
             metadata = ConsentStatus.MetaData(
