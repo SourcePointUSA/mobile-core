@@ -3,7 +3,7 @@ package com.sourcepoint.mobile_core.network
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
-import com.sourcepoint.mobile_core.network.requests.Messages
+import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
@@ -25,7 +25,7 @@ interface SPClient {
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
     @Throws(Exception::class)
-    suspend fun getMessages(request: Messages): MessagesResponse
+    suspend fun getMessages(request: MessagesRequest): MessagesResponse
 }
 
 class Client(
@@ -61,7 +61,7 @@ class Client(
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse =
         http.get(getConsentStatusUrl(authId, metadata)).body()
 
-    private fun getMessagesUrl(request: Messages) =
+    private fun getMessagesUrl(request: MessagesRequest) =
         URLBuilder(baseWrapperUrl)
             .apply {
                 path("wrapper", "v2", "messages")
@@ -69,7 +69,7 @@ class Client(
             }.build()
 
     @Throws(Exception::class)
-    override suspend fun getMessages(request: Messages): MessagesResponse =
+    override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
         http.get(getMessagesUrl(request)).body()
 }
 

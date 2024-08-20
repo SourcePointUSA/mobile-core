@@ -4,8 +4,8 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
-import com.sourcepoint.mobile_core.network.requests.Messages
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
+import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +13,11 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 
 class ClientTest {
-    private val api = Client(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo")
+    private val api = Client(
+        accountId = 22,
+        propertyId = 16893,
+        propertyName = "https://mobile.multicampaign.demo"
+    )
 
     @Test
     fun getMetaData() = runTest {
@@ -44,39 +48,47 @@ class ClientTest {
         )
 
         assertNotEquals("", response.localState)
-        assertEquals("654c39d4-b75d-4aac-925c-6322a7cc1622_28", response.consentStatusData.gdpr?.uuid)
-        assertEquals("11a0fe1c-bd4a-43bb-b179-c015f63882bc_7", response.consentStatusData.usnat?.uuid)
+        assertEquals(
+            "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
+            response.consentStatusData.gdpr?.uuid
+        )
+        assertEquals(
+            "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
+            response.consentStatusData.usnat?.uuid
+        )
     }
 
     @Test
     fun getMessages() = runTest {
-        val response = api.getMessages(Messages(
-            body = Messages.Body(
-                propertyHref = api.propertyName,
-                accountId = api.accountId,
-                campaigns = Messages.Body.Campaigns(
-                    gdpr = Messages.Body.Campaigns.GDPR(
-                        targetingParams = null,
-                        hasLocalData = false,
-                        consentStatus = com.sourcepoint.mobile_core.models.ConsentStatus()
+        val response = api.getMessages(
+            MessagesRequest(
+                body = MessagesRequest.Body(
+                    propertyHref = api.propertyName,
+                    accountId = api.accountId,
+                    campaigns = MessagesRequest.Body.Campaigns(
+                        gdpr = MessagesRequest.Body.Campaigns.GDPR(
+                            targetingParams = null,
+                            hasLocalData = false,
+                            consentStatus = com.sourcepoint.mobile_core.models.ConsentStatus()
+                        ),
+                        usnat = MessagesRequest.Body.Campaigns.USNat(
+                            targetingParams = null,
+                            hasLocalData = false,
+                            consentStatus = com.sourcepoint.mobile_core.models.ConsentStatus()
+                        ),
+                        ios14 = null
                     ),
-                    usnat = Messages.Body.Campaigns.USNat(
-                        targetingParams = null,
-                        hasLocalData = false,
-                        consentStatus = com.sourcepoint.mobile_core.models.ConsentStatus()
-                    ),
-                    ios14 = null
+                    consentLanguage = SPMessageLanguage.ENGLISH,
+                    campaignEnv = SPCampaignEnv.PUBLIC
                 ),
-                consentLanguage = SPMessageLanguage.ENGLISH,
-                campaignEnv = SPCampaignEnv.PUBLIC
-            ),
-            metadata = Messages.MetaData(
-                gdpr = Messages.MetaData.Campaign(applies = true),
-                usnat = Messages.MetaData.Campaign(applies = true)
-            ),
-            localState = null,
-            nonKeyedLocalState = null
-        ))
+                metadata = MessagesRequest.MetaData(
+                    gdpr = MessagesRequest.MetaData.Campaign(applies = true),
+                    usnat = MessagesRequest.MetaData.Campaign(applies = true)
+                ),
+                localState = null,
+                nonKeyedLocalState = null
+            )
+        )
 
         assertNotNull((response.campaigns.find { it.type == "GDPR" } as MessagesResponse.GDPR).tcData)
         assertNotNull((response.campaigns.find { it.type == "usnat" } as MessagesResponse.USNat).gppData)
