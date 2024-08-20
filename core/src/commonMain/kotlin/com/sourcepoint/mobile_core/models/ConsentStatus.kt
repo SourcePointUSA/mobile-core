@@ -4,20 +4,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ConsentStatus (
-    val rejectedAny: Boolean?,
-    val rejectedLI: Boolean?,
-    val consentedAll: Boolean?,
-    val hasConsentData: Boolean?,
-    val consentedToAny: Boolean?,
-    val granularStatus: ConsentStatusGranularStatus?
+    val rejectedAny: Boolean? = null,
+    val rejectedLI: Boolean? = null,
+    val consentedAll: Boolean? = null,
+    val hasConsentData: Boolean? = null,
+    val consentedToAny: Boolean? = null,
+    val granularStatus: ConsentStatusGranularStatus? = null
 ) {
     @Serializable
     data class ConsentStatusGranularStatus (
-        val vendorConsent: String?,
-        val vendorLegInt: String?,
-        val purposeConsent: String?,
-        val purposeLegInt: String?,
-        val previousOptInAll: Boolean?,
-        val defaultConsent: Boolean?
+        val vendorConsent: String? = null,
+        val vendorLegInt: String? = null,
+        val purposeConsent: String? = null,
+        val purposeLegInt: String? = null,
+        val previousOptInAll: Boolean? = null,
+        val defaultConsent: Boolean? = null
     )
 }
