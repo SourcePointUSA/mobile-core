@@ -11,7 +11,6 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
-import io.ktor.http.ParametersBuilder
 import io.ktor.http.URLBuilder
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
@@ -24,49 +23,45 @@ interface SPClient {
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): GetConsentStatusResponse
 }
 
-class Client(val accountId: Int, val propertyId: Int, val propertyName: SPPropertyName): SPClient {
-    private val http = HttpClient {
+class Client(
+    val accountId: Int,
+    val propertyId: Int,
+    val propertyName: SPPropertyName,
+    private val http: HttpClient = HttpClient {
         install(ContentNegotiation) { json(json) }
         install(Logging)
     }
-
+): SPClient {
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
 
-    private fun getMetaDataUrl(campaigns: MetaData.Campaigns) = URLBuilder(baseWrapperUrl)
-        .apply {
-            path("wrapper", "v2", "meta-data")
-            MetaData(
-                accountId = accountId,
-                propertyId = propertyId,
-                metadata = campaigns
-            )
-                .toQueryParams()
-                .map { param ->
-                    param.value?.let { parameters.append(param.key, it) }
-                }
-        }.build()
+    private fun getMetaDataUrl(campaigns: MetaData.Campaigns) =
+        URLBuilder(baseWrapperUrl)
+            .apply {
+                path("wrapper", "v2", "meta-data")
+                withParams(MetaData(accountId = accountId, propertyId = propertyId, metadata = campaigns))
+            }.build()
 
     @Throws(Exception::class)
     override suspend fun getMetaData(campaigns: MetaData.Campaigns): MetaDataResponse =
         http.get(getMetaDataUrl(campaigns)).body()
 
-    private fun getConsentStatusUrl(authId: String?, metadata: ConsentStatus.MetaData) = URLBuilder(baseWrapperUrl)
-        .apply {
-            path("wrapper", "v2", "consent-status")
-            ConsentStatus(
-                propertyId = propertyId,
-                authId = authId,
-                metadata = metadata,
-            )
-                .toQueryParams()
-                .map { param ->
-                    param.value?.let { parameters.append(param.key, it) }
-                }
-        }.build()
+    private fun getConsentStatusUrl(authId: String?, metadata: ConsentStatus.MetaData) =
+        URLBuilder(baseWrapperUrl)
+            .apply {
+                path("wrapper", "v2", "consent-status")
+                withParams(ConsentStatus(propertyId = propertyId, authId = authId, metadata = metadata))
+            }.build()
 
     @Throws(Exception::class)
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): GetConsentStatusResponse =
         http.get(getConsentStatusUrl(authId, metadata)).body()
 }
 
-fun ParametersBuilder.appendIfPresent(name: String, value: String?) = value?.let { append(name, it) }
+// Maps a Serializable class into query params using toQueryParams function
+inline fun <reified T> URLBuilder.withParams(paramsObject: T) where T : Any {
+    paramsObject
+        .toQueryParams()
+        .map { param ->
+            param.value?.let { parameters.append(param.key, it) }
+        }
+}
