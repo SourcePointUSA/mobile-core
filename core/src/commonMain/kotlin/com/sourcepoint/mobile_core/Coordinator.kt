@@ -2,7 +2,6 @@ package com.sourcepoint.mobile_core
 
 import com.sourcepoint.mobile_core.network.Client
 import com.sourcepoint.mobile_core.network.requests.MetaData
-import com.sourcepoint.mobile_core.network.requests.MetaDataMetaDataCampaigns
 import com.sourcepoint.mobile_core.storage.Repository
 
 class Coordinator(

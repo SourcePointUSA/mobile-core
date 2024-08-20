@@ -4,7 +4,7 @@ import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.network.requests.ConsentStatus
 import com.sourcepoint.mobile_core.network.requests.MetaData
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
-import com.sourcepoint.mobile_core.network.responses.GetConsentStatusResponse
+import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -20,7 +20,7 @@ interface SPClient {
     suspend fun getMetaData(campaigns: MetaData.Campaigns): MetaDataResponse
 
     @Throws(Exception::class)
-    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): GetConsentStatusResponse
+    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): ConsentStatusResponse
 }
 
 class Client(
@@ -53,7 +53,7 @@ class Client(
             }.build()
 
     @Throws(Exception::class)
-    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): GetConsentStatusResponse =
+    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatus.MetaData): ConsentStatusResponse =
         http.get(getConsentStatusUrl(authId, metadata)).body()
 }
 

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
-data class GetConsentStatusResponse (
+data class ConsentStatusResponse (
     val consentStatusData: ConsentStatusData,
     val localState: String
 ) {
@@ -77,7 +77,5 @@ data class GetConsentStatusResponse (
                 val consented: Boolean
             )
         }
-
     }
-
 }
