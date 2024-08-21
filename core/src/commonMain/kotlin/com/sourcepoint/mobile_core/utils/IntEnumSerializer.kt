@@ -13,7 +13,10 @@ interface IntEnum {
     val rawValue: Int
 }
 
-class IntEnumSerializer<T>(private val values: EnumEntries<T>) : KSerializer<T> where T : Enum<T>, T : IntEnum {
+open class IntEnumSerializer<T>(
+    private val values: EnumEntries<T>,
+    private val default: T? = null
+) : KSerializer<T> where T : Enum<T>, T : IntEnum {
     private val enumClassName =
         values.firstOrNull()?.let { it::class.simpleName } ?: "Enum"
 
@@ -26,7 +29,7 @@ class IntEnumSerializer<T>(private val values: EnumEntries<T>) : KSerializer<T> 
 
     override fun deserialize(decoder: Decoder): T {
         val intValue = decoder.decodeInt()
-        return values.firstOrNull { it.rawValue == intValue }
-            ?: throw SerializationException("Unknown enum value: $intValue for enum class $enumClassName")
+        return values.find { it.rawValue == intValue } ?: default
+            ?: throw SerializationException("Unknown enum value: $intValue for enum class $enumClassName and no default was provided.")
     }
 }
