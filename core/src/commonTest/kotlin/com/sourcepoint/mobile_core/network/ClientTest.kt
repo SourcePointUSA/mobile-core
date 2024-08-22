@@ -12,6 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class ClientTest {
     private val api = Client(
@@ -59,6 +60,26 @@ class ClientTest {
         )
     }
 
+    private fun assertCampaignConsents(campaign: MessagesResponse.Campaign) {
+        when(campaign) {
+            is MessagesResponse.GDPR -> assertCampaignConsents(campaign)
+            is MessagesResponse.USNat -> assertCampaignConsents(campaign)
+        }
+    }
+
+    private fun assertCampaignConsents(gdpr: MessagesResponse.GDPR) {
+        assertNotEquals("", gdpr.euconsent)
+        assertTrue(gdpr.tcData.isNotEmpty())
+        assertTrue(gdpr.grants.isNotEmpty())
+    }
+
+    private fun assertCampaignConsents(usnat: MessagesResponse.USNat) {
+        assertTrue(usnat.gppData.isNotEmpty())
+        assertTrue(usnat.consentStrings.isNotEmpty())
+        assertTrue(usnat.userConsents.vendors.isEmpty())
+        assertTrue(usnat.userConsents.categories.isNotEmpty())
+    }
+
     @Test
     fun getMessages() = runTest {
         val response = api.getMessages(
@@ -91,9 +112,17 @@ class ClientTest {
             )
         )
 
-        assertNotNull((response.campaigns.find { it.type == "GDPR" } as MessagesResponse.GDPR).tcData)
-        assertNotNull((response.campaigns.find { it.type == "usnat" } as MessagesResponse.USNat).gppData)
-        assertNotEquals("", response.localState)
-        assertNotEquals("", response.nonKeyedLocalState)
+        response.campaigns.forEach { campaign ->
+            assertNotNull(campaign.url)
+            assertNotNull(campaign.message)
+            assertNotNull(campaign.dateCreated)
+            assertNotNull(campaign.messageMetaData)
+            assertNotNull(campaign.webConsentPayload)
+
+            assertCampaignConsents(campaign)
+        }
+
+        assertTrue(response.localState.isNotEmpty())
+        assertTrue(response.nonKeyedLocalState.isNotEmpty())
     }
 }

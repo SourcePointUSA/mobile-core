@@ -1,6 +1,10 @@
 package com.sourcepoint.mobile_core.network.responses
 
+import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.ConsentStrings
+import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
+import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.utils.IntEnum
 import com.sourcepoint.mobile_core.utils.IntEnumSerializer
 import kotlinx.serialization.SerialName
@@ -26,17 +30,39 @@ data class MessagesResponse(
 
     @Serializable
     data class Message(
-        val categories: List<JsonObject>?,
+        val categories: List<GDPRCategory>?,
         val language: SPMessageLanguage?,
         @SerialName("message_json") val messageJson: JsonObject,
         @SerialName("message_choice") val messageChoices: List<JsonObject>,
         @SerialName("site_id") val propertyId: Int
     ) {
         @Serializable
-        enum class GDPRCategory {
-            @SerialName("IAB_PURPOSE") IABPurpose,
-            @SerialName("IAB") IAB,
-            @SerialName("CUSTOM") Custom,
+        data class GDPRCategory(
+            val iabId: Int?,
+            @SerialName("_id") val id: String,
+            val name: String,
+            val description: String,
+            val friendlyDescription: String?,
+            val type: CategoryType?,
+            val disclosureOnly: Boolean?,
+            val requireConsent: Boolean?,
+            val legIntVendors: List<Vendor>?,
+            val requiringConsentVendors: List<Vendor>?,
+            val disclosureOnlyVendors: List<Vendor>?,
+            val vendors: List<Vendor>?
+        ) {
+            @Serializable
+            enum class CategoryType { IAB_PURPOSE, IAB, Unknown, CUSTOM } // TODO implement unknown case/serializer
+            @Serializable
+            data class Vendor(
+                val name: String,
+                val vendorId: String?,
+                val policyUrl: String?,
+                val vendorType: VendorType?
+            ) {
+                @Serializable
+                enum class VendorType { IAB, CUSTOM } // TODO implement unknown case/serializer
+            }
         }
     }
 
@@ -44,13 +70,22 @@ data class MessagesResponse(
     @SerialName("GDPR")
     data class GDPR(
         override val type: String = "GDPR",
-        @SerialName("TCData") val tcData: JsonObject
+        val euconsent: String,
+        val grants: SPGDPRVendorGrants,
+        val childPmId: String?,
+        val expirationDate: String,
+        val consentStatus: ConsentStatus,
+        @SerialName("TCData") val tcData: JsonObject,
     ): Campaign()
 
     @Serializable
     @SerialName("usnat")
     data class USNat(
         override val type: String = "usnat",
+        val expirationDate: String,
+        val consentStatus: ConsentStatus,
+        val consentStrings: ConsentStrings,
+        val userConsents: USNatConsent.USNatUserConsents,
         @SerialName("GPPData") val gppData: JsonObject
     ): Campaign()
 
