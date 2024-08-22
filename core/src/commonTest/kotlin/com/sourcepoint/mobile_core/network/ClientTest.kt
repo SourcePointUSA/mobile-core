@@ -4,6 +4,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import kotlinx.coroutines.test.runTest
@@ -69,12 +70,12 @@ class ClientTest {
                         gdpr = MessagesRequest.Body.Campaigns.GDPR(
                             targetingParams = null,
                             hasLocalData = false,
-                            consentStatus = com.sourcepoint.mobile_core.models.ConsentStatus()
+                            consentStatus = ConsentStatus()
                         ),
                         usnat = MessagesRequest.Body.Campaigns.USNat(
                             targetingParams = null,
                             hasLocalData = false,
-                            consentStatus = com.sourcepoint.mobile_core.models.ConsentStatus()
+                            consentStatus = ConsentStatus()
                         ),
                         ios14 = null
                     ),

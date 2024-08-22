@@ -1,4 +1,4 @@
-package com.sourcepoint.mobile_core.models
+package com.sourcepoint.mobile_core.models.consents
 
 import kotlinx.serialization.Serializable
 
