@@ -3,8 +3,10 @@ package com.sourcepoint.mobile_core.network
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -21,6 +23,9 @@ interface SPClient {
 
     @Throws(Exception::class)
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
+
+    @Throws(Exception::class)
+    suspend fun getMessages(request: MessagesRequest): MessagesResponse
 }
 
 class Client(
@@ -55,6 +60,17 @@ class Client(
     @Throws(Exception::class)
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse =
         http.get(getConsentStatusUrl(authId, metadata)).body()
+
+    private fun getMessagesUrl(request: MessagesRequest) =
+        URLBuilder(baseWrapperUrl)
+            .apply {
+                path("wrapper", "v2", "messages")
+                withParams(request)
+            }.build()
+
+    @Throws(Exception::class)
+    override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
+        http.get(getMessagesUrl(request)).body()
 }
 
 // Maps a Serializable class into query params using toQueryParams function
