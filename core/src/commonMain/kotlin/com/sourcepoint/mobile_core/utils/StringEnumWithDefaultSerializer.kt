@@ -16,12 +16,14 @@ open class StringEnumWithDefaultSerializer<T>(
         values.firstOrNull()?.let { it::class.simpleName } ?: "Enum"
 
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor(enumClassName, PrimitiveKind.INT)
+        PrimitiveSerialDescriptor(enumClassName, PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: T) {
         encoder.encodeString(value.name)
     }
 
-    override fun deserialize(decoder: Decoder): T =
-        values.find { it.name == decoder.decodeString() } ?: default
+    override fun deserialize(decoder: Decoder): T {
+        val stringValue = decoder.decodeString()
+        return values.find { it.name == stringValue } ?: default
+    }
 }

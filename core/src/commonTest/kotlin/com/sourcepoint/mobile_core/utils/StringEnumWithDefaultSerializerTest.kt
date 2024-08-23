@@ -21,17 +21,17 @@ data class DummyWithStringEnum(val enumProperty: StringTestEnum)
 
 class StringEnumWithDefaultSerializerTest {
     @Test
-    fun encodeToIntString() = runTest {
+    fun encodeToString() = runTest {
         assertEquals("\"Foo\"", json.encodeToString(StringTestEnum.Foo))
     }
 
     @Test
-    fun decodeFromInt() = runTest {
-        assertEquals(StringTestEnum.Bar, json.decodeFromString( "\"Bar\""))
+    fun decodeFromString() = runTest {
+        assertEquals(StringTestEnum.Bar, json.decodeFromString("\"Bar\""))
     }
 
     @Test
-    fun encodeToIntInsideObject() = runTest {
+    fun encodeToStringInsideObject() = runTest {
         assertEquals(
             "{\"enumProperty\":\"Foo\"}",
             json.encodeToString(DummyWithStringEnum(enumProperty = StringTestEnum.Foo))
@@ -39,7 +39,7 @@ class StringEnumWithDefaultSerializerTest {
     }
 
     @Test
-    fun decodeFromIntInsideObject() = runTest {
+    fun decodeFromStringInsideObject() = runTest {
         assertEquals(
             DummyWithStringEnum(enumProperty = StringTestEnum.Bar),
             json.decodeFromString("{\"enumProperty\":\"Bar\"}")
