@@ -7,6 +7,7 @@ import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.utils.IntEnum
 import com.sourcepoint.mobile_core.utils.IntEnumSerializer
+import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -21,7 +22,7 @@ data class MessagesResponse(
     sealed class Campaign {
         abstract val type: String
         val url: String? = null
-//        abstract val userConsent: Consent
+//        abstract val userConsent: Consent TODO: decide whether to implement an abstract userConsent attr
         val message: Message? = null
         val messageMetaData: MessageMetaData? = null
         val dateCreated: String? = null
@@ -51,8 +52,16 @@ data class MessagesResponse(
             val disclosureOnlyVendors: List<Vendor>?,
             val vendors: List<Vendor>?
         ) {
-            @Serializable
-            enum class CategoryType { IAB_PURPOSE, IAB, Unknown, CUSTOM } // TODO implement unknown case/serializer
+            @Serializable(with = CategoryType.Serializer::class)
+            enum class CategoryType {
+                IAB_PURPOSE,
+                IAB,
+                Unknown,
+                CUSTOM;
+
+                object Serializer: StringEnumWithDefaultSerializer<CategoryType>(entries, Unknown)
+            }
+
             @Serializable
             data class Vendor(
                 val name: String,
@@ -60,8 +69,16 @@ data class MessagesResponse(
                 val policyUrl: String?,
                 val vendorType: VendorType?
             ) {
-                @Serializable
-                enum class VendorType { IAB, CUSTOM } // TODO implement unknown case/serializer
+                @Serializable(with = VendorType.Serializer::class)
+                enum class VendorType {
+                    IAB,
+                    CUSTOM,
+                    Unknown;
+
+                    object Serializer: StringEnumWithDefaultSerializer<VendorType>(
+                        VendorType.entries, Unknown
+                    )
+                }
             }
         }
     }
