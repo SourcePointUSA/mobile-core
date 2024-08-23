@@ -1,7 +1,6 @@
 package com.sourcepoint.mobile_core.utils
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -23,9 +22,6 @@ open class StringEnumWithDefaultSerializer<T>(
         encoder.encodeString(value.name)
     }
 
-    override fun deserialize(decoder: Decoder): T {
-        val stringValue = decoder.decodeString()
-        return values.find { it.name == stringValue } ?: default
-            ?: throw SerializationException("Unknown enum value: $stringValue for enum class $enumClassName and no default was provided.")
-    }
+    override fun deserialize(decoder: Decoder): T =
+        values.find { it.name == decoder.decodeString() } ?: default
 }
