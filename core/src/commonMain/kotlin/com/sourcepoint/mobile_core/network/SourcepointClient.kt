@@ -11,7 +11,7 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.Logging
+//import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.http.URLBuilder
 import io.ktor.http.path
@@ -32,11 +32,15 @@ class SourcepointClient(
     val accountId: Int,
     val propertyId: Int,
     val propertyName: SPPropertyName,
-    private val http: HttpClient = HttpClient {
-        install(ContentNegotiation) { json(json) }
-        install(Logging)
-    }
+    private val http: HttpClient
 ): SPClient {
+    constructor(accountId: Int, propertyId: Int, propertyName: SPPropertyName) : this(
+        accountId, propertyId, propertyName, HttpClient {
+            install(ContentNegotiation) { json(json) }
+//            install(Logging)
+        }
+    )
+
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
 
     private fun getMetaDataUrl(campaigns: MetaDataRequest.Campaigns) =

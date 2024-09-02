@@ -72,7 +72,7 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
-                implementation("ch.qos.logback:logback-classic:$logbackVersion")
+//                implementation("ch.qos.logback:logback-classic:$logbackVersion")
             }
         }
         commonMain.kotlin.srcDir("$generatedSourcesPath/src/main/kotlin")
