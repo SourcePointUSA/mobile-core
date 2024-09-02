@@ -67,7 +67,6 @@ kotlin {
         val coroutinesVersion = "1.8.1"
         val settingsVersion = "1.1.1"
         val dataTimeVersion = "0.6.0"
-        val logbackVersion = "1.5.6"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
@@ -77,7 +76,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
-//                implementation("ch.qos.logback:logback-classic:$logbackVersion")
             }
         }
         commonMain.kotlin.srcDir("$generatedSourcesPath/src/main/kotlin")
@@ -96,6 +94,7 @@ kotlin {
         val appleMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+
             }
         }
     }
