@@ -28,7 +28,7 @@ interface SPClient {
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
 }
 
-class Client(
+class SourcepointClient(
     val accountId: Int,
     val propertyId: Int,
     val propertyName: SPPropertyName,

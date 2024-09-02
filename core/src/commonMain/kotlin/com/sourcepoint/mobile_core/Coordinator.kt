@@ -1,6 +1,6 @@
 package com.sourcepoint.mobile_core
 
-import com.sourcepoint.mobile_core.network.Client
+import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.storage.Repository
 
@@ -9,21 +9,21 @@ class Coordinator(
     private val propertyId: Int,
     private val propertyName: String,
     private val repository: Repository,
-    private val spClient: Client
+    private val spClient: SourcepointClient
 ) {
     constructor(accountId: Int, propertyId: Int, propertyName: String) : this(
         accountId,
         propertyId,
         propertyName,
         repository = Repository(),
-        spClient = Client(accountId, propertyId, propertyName)
+        spClient = SourcepointClient(accountId, propertyId, propertyName)
     )
     constructor(accountId: Int, propertyId: Int, propertyName: String, repository: Repository) : this(
         accountId,
         propertyId,
         propertyName,
         repository,
-        spClient = Client(accountId, propertyId, propertyName)
+        spClient = SourcepointClient(accountId, propertyId, propertyName)
     )
 
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): String {
