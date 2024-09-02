@@ -5,12 +5,16 @@ plugins {
     kotlin("multiplatform") version "1.9.25"
     kotlin("native.cocoapods") version "1.9.25"
     kotlin("plugin.serialization") version "1.9.25"
-    id("com.github.ben-manes.versions") version "0.50.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
     id("com.android.library") version "8.3.2"
     id("com.github.gmazzo.buildconfig") version "5.3.5"
+    id("maven-publish")
+    id("signing")
 }
-
 val coreVersion = "0.0.1"
+
+group = "com.sourcepoint"
+version = coreVersion
 
 val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
 val sourceDir = "${layout.projectDirectory}/cocoapods/publish/debug"
@@ -28,6 +32,7 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     androidTarget {
+        publishLibraryVariants("release", "debug")
         compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
@@ -100,7 +105,7 @@ android {
     namespace = "com.sourcepoint.mobile_core"
     compileSdk = 34
     defaultConfig {
-        minSdk = 22
+        minSdk = 21
     }
     packaging {
         resources.excludes += "DebugProbesKt.bin"
@@ -176,3 +181,57 @@ tasks.withType<KotlinNativeSimulatorTest>().configureEach {
     standalone.set(false)
     device.set(deviceName)
 }
+//
+//publishing {
+//    publications {
+//        create<MavenPublication>("mavenKotlin") {
+//            from(components["kotlin"])
+//
+//            pom {
+//                name.set("SP Core Module")
+//                description.set("The internal Network & Data layers used by our mobile SDKs")
+//                url.set("https://github.com/SourcePointUSA/mobile-core")
+//
+//                licenses {
+//                    license {
+//                        name.set("The Apache License, Version 2.0")
+//                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+//                    }
+//                }
+//                developers {
+//                    developer {
+//                        id.set("andresilveirah")
+//                        name.set("Andre Herculano")
+//                        email.set("andresilveirah@gmail.com")
+//                    }
+//                }
+//                scm {
+//                    connection.set("scm:git:github.com/SourcePointUSA/mobile-core.git")
+//                    developerConnection.set("scm:git:ssh://github.com/SourcePointUSA/mobile-core.git")
+//                    url.set("https://github.com/SourcePointUSA/mobile-core/tree/main")
+//                }
+//            }
+//        }
+//    }
+//
+//    repositories {
+//        maven {
+//            name = "sonatype"
+//
+//            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+//            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+//            url = if (coreVersion.contains("beta")) snapshotsRepoUrl else releasesRepoUrl
+//            println("url: $url")
+//
+//            credentials {
+//                username = project.findProperty("ossrhUsername") as String?
+//                password = project.findProperty("ossrhPassword") as String?
+//            }
+//        }
+//    }
+//}
+//
+//signing {
+//    useGpgCmd()
+//    sign(publishing.publications["mavenKotlin"])
+//}
