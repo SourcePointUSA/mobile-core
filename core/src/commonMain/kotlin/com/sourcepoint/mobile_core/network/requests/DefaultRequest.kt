@@ -1,7 +1,7 @@
 package com.sourcepoint.mobile_core.network.requests
 
+import com.sourcepoint.core.BuildConfig
 import kotlinx.serialization.Serializable
-import mobile_core.core.BuildConfig
 
 @Serializable
 open class DefaultRequest {

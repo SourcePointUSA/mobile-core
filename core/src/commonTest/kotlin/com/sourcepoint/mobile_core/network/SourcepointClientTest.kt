@@ -14,8 +14,8 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class ClientTest {
-    private val api = Client(
+class SourcepointClientTest {
+    private val api = SourcepointClient(
         accountId = 22,
         propertyId = 16893,
         propertyName = "https://mobile.multicampaign.demo"
