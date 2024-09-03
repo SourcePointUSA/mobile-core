@@ -35,17 +35,9 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
-      - name: Add Gradle Properties
+      - run: ./gradlew publish
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          testVar: ${{ vars.TEST_VAR }}
-        run: |
-          echo "testVar=$TEST_VAR"
-          echo "ossrhUsername=$OSSRH_USERNAME" >> gradle.properties
-          echo "ossrhPassword=$OSSRH_PASSWORD" >> gradle.properties
-          echo "signingKey=$SIGNING_KEY" >> gradle.properties
-          echo "signingPassword=$SIGNING_PASSWORD" >> gradle.properties
-      - run: ./gradlew publish

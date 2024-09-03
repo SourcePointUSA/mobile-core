@@ -181,13 +181,16 @@ tasks.withType<KotlinNativeSimulatorTest>().configureEach {
     device.set(deviceName)
 }
 
+fun fromProjectOrEnv(key: String): String? = findProperty(key) as String? ?: System.getenv(key)
+
 publishing {
     // These values should not be checked in to GitHub.
     // They should be stored in your ~/.gradle/gradle.properties
-    val signingKey: String? by project
-    val signingPassword: String? by project
-    val ossrhUsername: String? by project
-    val ossrhPassword: String? by project
+    // They can also be passed as environment variables
+    val signingKey = fromProjectOrEnv("SIGNING_KEY")
+    val signingPassword = fromProjectOrEnv("SIGNING_PASSWORD")
+    val ossrhUsername = fromProjectOrEnv("OSSRH_USERNAME")
+    val ossrhPassword = fromProjectOrEnv("OSSRH_PASSWORD")
 
     publications {
         withType<MavenPublication>().configureEach() {
