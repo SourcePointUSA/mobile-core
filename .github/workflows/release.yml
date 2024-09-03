@@ -12,20 +12,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ios:
-    runs-on: 'macos-latest'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
-      - run: ./gradlew podPublishXCFramework
-      - uses: actions/upload-artifact@v4
-        with:
-            name: SPMobileCore.xcframework
-            path: ./core/build/cocoapods/publish/release/SPMobileCore.xcframework
+#  ios:
+#    runs-on: 'macos-latest'
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: actions/setup-java@v4
+#        with:
+#          distribution: 'zulu'
+#          java-version: '17'
+#          cache: 'gradle'
+#      - run: ./gradlew podPublishXCFramework
+#      - uses: actions/upload-artifact@v4
+#        with:
+#            name: SPMobileCore.xcframework
+#            path: ./core/build/cocoapods/publish/release/SPMobileCore.xcframework
   android:
     runs-on: 'macos-latest'
     steps:
@@ -35,15 +35,9 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
-      - name: Add Gradle Properties
+      - run: ./gradlew publish
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: |
-          echo "ossrhUsername=${OSSRH_USERNAME}" >> gradle.properties
-          echo "ossrhPassword=${OSSRH_PASSWORD}" >> gradle.properties
-          echo "signingKey=${SIGNING_KEY}" >> gradle.properties
-          echo "signingPassword=${SIGNING_PASSWORD}" >> gradle.properties
-      - run: ./gradlew publish
