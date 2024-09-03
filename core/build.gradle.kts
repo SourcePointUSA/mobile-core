@@ -180,57 +180,61 @@ tasks.withType<KotlinNativeSimulatorTest>().configureEach {
     standalone.set(false)
     device.set(deviceName)
 }
-//
-//publishing {
-//    publications {
-//        create<MavenPublication>("mavenKotlin") {
-//            from(components["kotlin"])
-//
-//            pom {
-//                name.set("SP Core Module")
-//                description.set("The internal Network & Data layers used by our mobile SDKs")
-//                url.set("https://github.com/SourcePointUSA/mobile-core")
-//
-//                licenses {
-//                    license {
-//                        name.set("The Apache License, Version 2.0")
-//                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-//                    }
-//                }
-//                developers {
-//                    developer {
-//                        id.set("andresilveirah")
-//                        name.set("Andre Herculano")
-//                        email.set("andresilveirah@gmail.com")
-//                    }
-//                }
-//                scm {
-//                    connection.set("scm:git:github.com/SourcePointUSA/mobile-core.git")
-//                    developerConnection.set("scm:git:ssh://github.com/SourcePointUSA/mobile-core.git")
-//                    url.set("https://github.com/SourcePointUSA/mobile-core/tree/main")
-//                }
-//            }
-//        }
-//    }
-//
-//    repositories {
-//        maven {
-//            name = "sonatype"
-//
-//            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-//            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-//            url = if (coreVersion.contains("beta")) snapshotsRepoUrl else releasesRepoUrl
-//            println("url: $url")
-//
-//            credentials {
-//                username = project.findProperty("ossrhUsername") as String?
-//                password = project.findProperty("ossrhPassword") as String?
-//            }
-//        }
-//    }
-//}
-//
-//signing {
-//    useGpgCmd()
-//    sign(publishing.publications["mavenKotlin"])
-//}
+
+publishing {
+    // These values should not be checked in to GitHub.
+    // They should be stored in your ~/.gradle/gradle.properties
+    val signingKey: String by project
+    val signingPassword: String by project
+    val ossrhUsername: String by project
+    val ossrhPassword: String by project
+
+    publications {
+        withType<MavenPublication>().configureEach() {
+            pom {
+                name = "SP Core Module"
+                description = "The internal Network & Data layers used by our mobile SDKs"
+                url = "https://github.com/SourcePointUSA/mobile-core"
+
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "andresilveirah"
+                        name = "Andre Herculano"
+                        email = "andresilveirah@gmail.com"
+                    }
+                }
+                scm {
+                    connection = "scm:git:github.com/SourcePointUSA/mobile-core.git"
+                    developerConnection = "scm:git:ssh://github.com/SourcePointUSA/mobile-core.git"
+                    url = "https://github.com/SourcePointUSA/mobile-core/tree/main"
+                }
+            }
+            signing {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+                sign(this@configureEach)
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "sonatype"
+
+            val releasesRepoUrl = uri(project.findProperty("releasesRepoUrl") as String)
+            val snapshotsRepoUrl = uri(findProperty("snapshotsRepoUrl") as String)
+            url = if (coreVersion.contains("beta")) snapshotsRepoUrl else releasesRepoUrl
+            println("Publishing on: $url")
+
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+}
