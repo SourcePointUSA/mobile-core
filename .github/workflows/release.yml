@@ -37,13 +37,13 @@ jobs:
           cache: 'gradle'
       - name: Add Gradle Properties
         env:
-          ossrhUsername: ${{ secrets.ossrhUsername }}
-          ossrhPassword: ${{ secrets.ossrhPassword }}
-          signingKey: ${{ secrets.signingKey }}
-          signingPassword: ${{ secrets.signingPassword }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: |
-          echo "ossrhUsername=${ossrhUsername}" >> gradle.properties
-          echo "ossrhPassword=${ossrhPassword}" >> gradle.properties
-          echo "signingKey=${signingKey}" >> gradle.properties
-          echo "signingPassword=${signingPassword}" >> gradle.properties
+          echo "ossrhUsername=${OSSRH_USERNAME}" >> gradle.properties
+          echo "ossrhPassword=${OSSRH_PASSWORD}" >> gradle.properties
+          echo "signingKey=${SIGNING_KEY}" >> gradle.properties
+          echo "signingPassword=${SIGNING_PASSWORD}" >> gradle.properties
       - run: ./gradlew publish
