@@ -2,8 +2,9 @@ name: 'Release'
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    tags:
+      - '!**-beta**'
+      - '**'
 
 # make sure to have only one job from the same "trigger" at any time
 concurrency:
