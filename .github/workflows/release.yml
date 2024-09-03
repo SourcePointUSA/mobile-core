@@ -1,0 +1,48 @@
+name: 'Release'
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+# make sure to have only one job from the same "trigger" at any time
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    runs-on: 'macos-latest'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - run: ./gradlew podPublishXCFramework
+      - uses: actions/upload-artifact@v4
+        with:
+            name: SPMobileCore.xcframework
+            path: ./core/build/cocoapods/publish/release/SPMobileCore.xcframework
+  android:
+    runs-on: 'macos-latest'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      - name: Add Gradle Properties
+        env:
+          ossrhUsername: ${{ secrets.ossrhUsername }}
+          ossrhPassword: ${{ secrets.ossrhPassword }}
+          signingKey: ${{ secrets.signingKey }}
+          signingPassword: ${{ secrets.signingPassword }}
+        run: |
+          echo "ossrhUsername=${ossrhUsername}" >> gradle.properties
+          echo "ossrhPassword=${ossrhPassword}" >> gradle.properties
+          echo "signingKey=${signingKey}" >> gradle.properties
+          echo "signingPassword=${signingPassword}" >> gradle.properties
+      - run: ./gradlew publish
