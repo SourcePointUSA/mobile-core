@@ -12,7 +12,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.0.2-beta1"
+val coreVersion = "0.0.2-beta2"
 group = "com.sourcepoint"
 version = coreVersion
 
