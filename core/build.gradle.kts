@@ -12,7 +12,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.0.2-beta2"
+val coreVersion = "0.0.2-beta3"
 group = "com.sourcepoint"
 version = coreVersion
 
@@ -111,54 +111,6 @@ android {
     packaging {
         resources.excludes += "DebugProbesKt.bin"
     }
-}
-
-tasks.register("podCloneOrPullGitRepo") {
-//    doLast {
-//        val dir = file(destDir)
-//
-//        if (!dir.exists()) {
-//            dir.mkdirs()
-//            project.exec {
-//                workingDir = dir
-//                commandLine("git", "clone", gitRepoUrl, ".")
-//            }
-//        } else {
-//            project.exec {
-//                workingDir = dir
-//                commandLine("git", "pull")
-//            }
-//        }
-//    }
-}
-
-tasks.register<Copy>("podCopyDir") {
-//    from(sourceDir)
-//    into(destDir)
-//    dependsOn("podPublishDebugXCFramework", "podCloneOrPullGitRepo")
-}
-
-tasks.register<Exec>("podReleaseToGit") {
-//    workingDir = file(destDir)
-//    println(workingDir.path)
-//    println(file(".").path)
-//    commandLine("git", "status")
-//    commandLine("git", "add", ".")
-//    commandLine("git", "status")
-//    commandLine("git", "commit", "-m", "release $podVersion")
-//    commandLine("git", "tag", "-a", podVersion, "-m", podVersion)
-//    commandLine("git", "push", "--tags")
-//    dependsOn("podCopyDir")
-}
-
-tasks.register<Exec>("podReleaseToCocoapods") {
-    workingDir = file(destDir)
-    commandLine("pod", "trunk", "push", "${kotlin.cocoapods.name}.podspec", "--verbose", "--allow-warnings")
-//    dependsOn("podReleaseToGit")
-}
-
-tasks.register("podRelease") {
-    dependsOn("podPublishReleaseXCFramework", "podCloneOrPullGitRepo", "podCopyDir", "podReleaseToGit")
 }
 
 // FIXME: this does not work for tvOS

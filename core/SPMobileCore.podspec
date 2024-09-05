@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'SPMobileCore'
-    spec.version                  = '0.0.2-beta2'
+    spec.version                  = '0.0.2-beta3'
     spec.homepage                 = 'https://github.com/SourcePointUSA/mobile-core.git'
     spec.source                   = { :http=> ''}
     spec.authors                  = 'André Herculano'
