@@ -55,7 +55,8 @@ kotlin {
         source = "{ :git => '$gitRepoUrl', :tag => '$coreVersion' }"
         authors = "André Herculano"
         version = coreVersion
-        ios.deploymentTarget = "11.0"
+        ios.deploymentTarget = "10.0"
+        tvos.deploymentTarget = "10.0"
         framework {
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"

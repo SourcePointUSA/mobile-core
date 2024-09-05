@@ -8,5 +8,11 @@ Pod::Spec.new do |spec|
     spec.summary                  = 'The internal Network & Data layers used by our mobile SDKs'
     spec.vendored_frameworks      = 'SPMobileCore.xcframework'
     spec.libraries                = 'c++'
-    spec.ios.deployment_target = '11.0'
+    spec.ios.deployment_target = '10.0'
+    spec.tvos.deployment_target = '10.0'
+                
+                
+                
+                
+                
 end
