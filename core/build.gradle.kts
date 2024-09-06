@@ -18,8 +18,6 @@ version = coreVersion
 
 val description = "The internal Network & Data layers used by our mobile SDKs"
 val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
-val sourceDir = "${layout.projectDirectory}/cocoapods/publish/debug"
-val destDir = "${layout.projectDirectory}/cocoapods/pod"
 val gitRepoUrl = "https://github.com/SourcePointUSA/mobile-core.git"
 val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 15"
 

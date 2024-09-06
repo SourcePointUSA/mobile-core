@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - '!**-beta**'
       - '**'
 
 # make sure to have only one job from the same "trigger" at any time
@@ -12,20 +11,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-#  ios:
-#    runs-on: 'macos-latest'
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-java@v4
-#        with:
-#          distribution: 'zulu'
-#          java-version: '17'
-#          cache: 'gradle'
-#      - run: ./gradlew podPublishXCFramework
-#      - uses: actions/upload-artifact@v4
-#        with:
-#            name: SPMobileCore.xcframework
-#            path: ./core/build/cocoapods/publish/release/SPMobileCore.xcframework
+  ios:
+    runs-on: 'macos-latest'
+    steps:
+      - uses: actions/checkout@v4
+      - run: pod trunk push --allow-warnings
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
   android:
     runs-on: 'macos-latest'
     steps:
