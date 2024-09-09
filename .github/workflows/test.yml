@@ -26,7 +26,7 @@ jobs:
         with:
           path: |
             ~/.konan/**/*
-          key: kotlin-konan-${{ runner.os }}
+          key: kotlin-konan-${{ runner.os }}-ios
       - run: ./gradlew :core:iosSimulatorArm64Test
   android:
     runs-on: 'macos-latest'
@@ -42,5 +42,5 @@ jobs:
         with:
           path: |
             ~/.konan/**/*
-          key: kotlin-konan-${{ runner.os }}
+          key: kotlin-konan-${{ runner.os }}-android
       - run: ./gradlew :core:testDebugUnitTest
