@@ -15,7 +15,7 @@ data class MetaDataResponse (
         val additionsChangeDate: String,
         val legalBasisChangeDate: String,
         val childPmId: String?,
-        @SerialName("_id") val id: String
+        @SerialName("_id") val vendorListId: String
     )
 
     @Serializable
@@ -23,6 +23,6 @@ data class MetaDataResponse (
         val applies: Boolean,
         val sampleRate: Float,
         val additionsChangeDate: String,
-        @SerialName("_id") val id: String
+        @SerialName("_id") val vendorListId: String
     )
 }
