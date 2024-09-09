@@ -26,7 +26,16 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-          cache: 'gradle'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          add-job-summary: 'on-failure'
+      - name: Cache Kotlin Konan
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.konan/**/*
+          key: kotlin-konan-${{ runner.os }}-android
       - run: ./gradlew publish
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
