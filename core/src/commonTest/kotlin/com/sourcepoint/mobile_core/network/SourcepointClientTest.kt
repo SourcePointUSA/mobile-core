@@ -4,6 +4,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -26,11 +27,13 @@ class SourcepointClientTest {
         val response = api.getMetaData(
             MetaDataRequest.Campaigns(
                 gdpr = MetaDataRequest.Campaigns.Campaign(),
-                usnat = MetaDataRequest.Campaigns.Campaign()
+                usnat = MetaDataRequest.Campaigns.Campaign(),
+                ccpa = MetaDataRequest.Campaigns.Campaign()
             )
         )
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.usnat?.applies, true)
+        assertEquals(response.ccpa?.applies, true)
     }
 
     @Test
@@ -38,13 +41,17 @@ class SourcepointClientTest {
         val response = api.getConsentStatus(
             authId = null,
             metadata = ConsentStatusRequest.MetaData(
-                gdpr = ConsentStatusRequest.MetaData.GDPR(
+                gdpr = ConsentStatusRequest.MetaData.Campaign(
                     applies = true,
                     uuid = "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
                 ),
-                usnat = ConsentStatusRequest.MetaData.USNat(
+                usnat = ConsentStatusRequest.MetaData.USNatCampaign(
                     applies = true,
                     uuid = "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
+                ),
+                ccpa = ConsentStatusRequest.MetaData.Campaign(
+                    applies = true,
+                    uuid = "ebf53e4d-e0da-4f47-95f0-7e286e8124c3",
                 )
             )
         )
@@ -58,12 +65,17 @@ class SourcepointClientTest {
             "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
             response.consentStatusData.usnat?.uuid
         )
+        assertEquals(
+            "ebf53e4d-e0da-4f47-95f0-7e286e8124c3",
+            response.consentStatusData.ccpa?.uuid
+        )
     }
 
     private fun assertCampaignConsents(campaign: MessagesResponse.Campaign) {
         when(campaign) {
             is MessagesResponse.GDPR -> assertCampaignConsents(campaign)
             is MessagesResponse.USNat -> assertCampaignConsents(campaign)
+            is MessagesResponse.CCPA -> assertCampaignConsents(campaign)
         }
     }
 
@@ -78,6 +90,11 @@ class SourcepointClientTest {
         assertTrue(usnat.consentStrings.isNotEmpty())
         assertTrue(usnat.userConsents.vendors.isEmpty())
         assertTrue(usnat.userConsents.categories.isNotEmpty())
+    }
+
+    private fun assertCampaignConsents(ccpa: MessagesResponse.CCPA) {
+        assertTrue(ccpa.gppData.isNotEmpty())
+        assertNotEquals(CCPAConsent.CCPAConsentStatus.Unknown, ccpa.status)
     }
 
     @Test
@@ -105,7 +122,8 @@ class SourcepointClientTest {
                 ),
                 metadata = MessagesRequest.MetaData(
                     gdpr = MessagesRequest.MetaData.Campaign(applies = true),
-                    usnat = MessagesRequest.MetaData.Campaign(applies = true)
+                    usnat = MessagesRequest.MetaData.Campaign(applies = true),
+                    ccpa = MessagesRequest.MetaData.Campaign(applies = true)
                 ),
                 localState = null,
                 nonKeyedLocalState = null

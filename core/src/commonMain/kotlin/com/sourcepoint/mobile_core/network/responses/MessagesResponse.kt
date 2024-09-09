@@ -2,6 +2,7 @@ package com.sourcepoint.mobile_core.network.responses
 
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
@@ -103,6 +104,15 @@ data class MessagesResponse(
         val consentStatus: ConsentStatus,
         val consentStrings: ConsentStrings,
         val userConsents: USNatConsent.USNatUserConsents,
+        @SerialName("GPPData") val gppData: JsonObject
+    ): Campaign()
+
+    @Serializable
+    @SerialName("CCPA")
+    data class CCPA(
+        override val type: String = "CCPA",
+        val expirationDate: String,
+        val status: CCPAConsent.CCPAConsentStatus,
         @SerialName("GPPData") val gppData: JsonObject
     ): Campaign()
 

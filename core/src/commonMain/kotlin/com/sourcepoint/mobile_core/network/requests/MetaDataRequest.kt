@@ -9,7 +9,11 @@ data class MetaDataRequest(
     val metadata: Campaigns
 ): DefaultRequest() {
     @Serializable
-    data class Campaigns(val gdpr: Campaign? = null, val usnat: Campaign? = null) {
+    data class Campaigns(
+        val gdpr: Campaign? = null,
+        val usnat: Campaign? = null,
+        val ccpa: Campaign? = null
+    ) {
         @Serializable
         data class Campaign(val groupPmId: String? = null)
     }

@@ -13,9 +13,9 @@ data class ConsentStatusRequest(
     val hasCsp: Boolean = true
 ): DefaultRequest() {
     @Serializable
-    data class MetaData(val gdpr: GDPR?, val usnat: USNat?) {
+    data class MetaData(val gdpr: Campaign?, val usnat: USNatCampaign?, val ccpa: Campaign?) {
         @Serializable
-        data class GDPR(
+        data class Campaign(
             val applies: Boolean,
             val dateCreated: String? = null,
             val uuid: String? = null,
@@ -24,7 +24,7 @@ data class ConsentStatusRequest(
         )
 
         @Serializable
-        data class USNat(
+        data class USNatCampaign(
             val applies: Boolean,
             val dateCreated: String? = null,
             val uuid: String? = null,

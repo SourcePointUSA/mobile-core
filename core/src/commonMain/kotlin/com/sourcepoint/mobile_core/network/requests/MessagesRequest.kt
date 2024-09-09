@@ -6,6 +6,7 @@ import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPTargetingParams
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -51,11 +52,18 @@ data class MessagesRequest(
                 val hasLocalData: Boolean,
                 val consentStatus: ConsentStatus
             )
+
+            @Serializable
+            data class CCPA(
+                val targetingParams: SPTargetingParams?,
+                val hasLocalData: Boolean,
+                val consentStatus: CCPAConsent.CCPAConsentStatus
+            )
         }
     }
 
     @Serializable
-    data class MetaData(val gdpr: Campaign?, val usnat: Campaign?) {
+    data class MetaData(val gdpr: Campaign?, val usnat: Campaign?, val ccpa: Campaign?) {
         @Serializable
         data class Campaign(val applies: Boolean)
     }
