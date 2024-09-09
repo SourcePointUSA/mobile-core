@@ -40,13 +40,17 @@ class SourcepointClientTest {
         val response = api.getConsentStatus(
             authId = null,
             metadata = ConsentStatusRequest.MetaData(
-                gdpr = ConsentStatusRequest.MetaData.GDPR(
+                gdpr = ConsentStatusRequest.MetaData.Campaign(
                     applies = true,
                     uuid = "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
                 ),
-                usnat = ConsentStatusRequest.MetaData.USNat(
+                usnat = ConsentStatusRequest.MetaData.USNatCampaign(
                     applies = true,
                     uuid = "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
+                ),
+                ccpa = ConsentStatusRequest.MetaData.Campaign(
+                    applies = true,
+                    uuid = "ebf53e4d-e0da-4f47-95f0-7e286e8124c3",
                 )
             )
         )
@@ -59,6 +63,10 @@ class SourcepointClientTest {
         assertEquals(
             "11a0fe1c-bd4a-43bb-b179-c015f63882bc_7",
             response.consentStatusData.usnat?.uuid
+        )
+        assertEquals(
+            "ebf53e4d-e0da-4f47-95f0-7e286e8124c3",
+            response.consentStatusData.ccpa?.uuid
         )
     }
 

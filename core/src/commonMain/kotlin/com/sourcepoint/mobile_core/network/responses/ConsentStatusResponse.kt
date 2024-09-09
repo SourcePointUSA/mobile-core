@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core.network.responses
 
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import kotlinx.serialization.Serializable
@@ -12,6 +13,7 @@ data class ConsentStatusResponse (
     @Serializable
     data class ConsentStatusData (
         val gdpr: GDPRConsent?,
-        val usnat: USNatConsent?
+        val usnat: USNatConsent?,
+        val ccpa: CCPAConsent?
     )
 }
