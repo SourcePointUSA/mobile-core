@@ -21,6 +21,12 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
+      - name: Cache Kotlin Konan
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.konan/**/*
+          key: kotlin-konan-${{ runner.os }}
       - run: ./gradlew :core:iosSimulatorArm64Test
   android:
     runs-on: 'macos-latest'
@@ -31,4 +37,10 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
+      - name: Cache Kotlin Konan
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.konan/**/*
+          key: kotlin-konan-${{ runner.os }}
       - run: ./gradlew :core:testDebugUnitTest
