@@ -4,6 +4,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -74,6 +75,7 @@ class SourcepointClientTest {
         when(campaign) {
             is MessagesResponse.GDPR -> assertCampaignConsents(campaign)
             is MessagesResponse.USNat -> assertCampaignConsents(campaign)
+            is MessagesResponse.CCPA -> assertCampaignConsents(campaign)
         }
     }
 
@@ -88,6 +90,11 @@ class SourcepointClientTest {
         assertTrue(usnat.consentStrings.isNotEmpty())
         assertTrue(usnat.userConsents.vendors.isEmpty())
         assertTrue(usnat.userConsents.categories.isNotEmpty())
+    }
+
+    private fun assertCampaignConsents(ccpa: MessagesResponse.CCPA) {
+        assertTrue(ccpa.gppData.isNotEmpty())
+        assertNotEquals(CCPAConsent.CCPAConsentStatus.Unknown, ccpa.status)
     }
 
     @Test
@@ -115,7 +122,8 @@ class SourcepointClientTest {
                 ),
                 metadata = MessagesRequest.MetaData(
                     gdpr = MessagesRequest.MetaData.Campaign(applies = true),
-                    usnat = MessagesRequest.MetaData.Campaign(applies = true)
+                    usnat = MessagesRequest.MetaData.Campaign(applies = true),
+                    ccpa = MessagesRequest.MetaData.Campaign(applies = true)
                 ),
                 localState = null,
                 nonKeyedLocalState = null
