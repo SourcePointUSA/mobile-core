@@ -26,11 +26,13 @@ class SourcepointClientTest {
         val response = api.getMetaData(
             MetaDataRequest.Campaigns(
                 gdpr = MetaDataRequest.Campaigns.Campaign(),
-                usnat = MetaDataRequest.Campaigns.Campaign()
+                usnat = MetaDataRequest.Campaigns.Campaign(),
+                ccpa = MetaDataRequest.Campaigns.Campaign()
             )
         )
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.usnat?.applies, true)
+        assertEquals(response.ccpa?.applies, true)
     }
 
     @Test

@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MetaDataResponse (
     val gdpr: MetaDataResponseGDPR?,
-    val usnat: MetaDataResponseUSNat?
+    val usnat: MetaDataResponseUSNat?,
+    val ccpa: MetaDataResponseCCPA?
 ){
     @Serializable
     data class MetaDataResponseGDPR (
@@ -24,5 +25,11 @@ data class MetaDataResponse (
         val sampleRate: Float,
         val additionsChangeDate: String,
         @SerialName("_id") val vendorListId: String
+    )
+
+    @Serializable
+    data class MetaDataResponseCCPA (
+        val applies: Boolean,
+        val sampleRate: Float
     )
 }
