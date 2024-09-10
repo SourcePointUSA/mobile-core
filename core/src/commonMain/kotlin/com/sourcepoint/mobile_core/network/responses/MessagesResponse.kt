@@ -4,30 +4,30 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
+import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.utils.IntEnum
 import com.sourcepoint.mobile_core.utils.IntEnumSerializer
 import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class MessagesResponse(
-    val campaigns: List<Campaign>,
+    val campaigns: List<Campaign<@Contextual Any>>,
     val localState: String,
     val nonKeyedLocalState: String
 ) {
     @Serializable
-    sealed class Campaign {
+    sealed class Campaign<ConsentClass> {
         abstract val type: String
+        abstract val derivedConsents: ConsentClass?
         val url: String? = null
-//        abstract val userConsent: Consent TODO: decide whether to implement an abstract userConsent attr
         val message: Message? = null
         val messageMetaData: MessageMetaData? = null
-        val dateCreated: String? = null
-        val webConsentPayload: String? = null
     }
 
     @Serializable
@@ -88,33 +88,81 @@ data class MessagesResponse(
     @SerialName("GDPR")
     data class GDPR(
         override val type: String = "GDPR",
-        val euconsent: String,
-        val grants: SPGDPRVendorGrants,
-        val childPmId: String?,
-        val expirationDate: String,
-        val consentStatus: ConsentStatus,
-        @SerialName("TCData") val tcData: JsonObject,
-    ): Campaign()
+        private val euconsent: String?,
+        private val grants: SPGDPRVendorGrants?,
+        private val childPmId: String?,
+        private val consentStatus: ConsentStatus?,
+        private val dateCreated: String?,
+        private val expirationDate: String?,
+        private val webConsentPayload: String?,
+        @SerialName("TCData") val tcData: JsonObject?,
+        override val derivedConsents: GDPRConsent? = if (
+            euconsent != null &&
+            grants != null &&
+            consentStatus != null
+        ) GDPRConsent(
+            euconsent = euconsent,
+            grants = grants,
+            consentStatus = consentStatus,
+            webConsentPayload = webConsentPayload,
+            expirationDate = expirationDate,
+            dateCreated = dateCreated,
+            tcData = tcData ?: JsonObject(emptyMap())
+        ) else null
+    ): Campaign<GDPRConsent>()
 
     @Serializable
     @SerialName("usnat")
     data class USNat(
         override val type: String = "usnat",
-        val expirationDate: String,
-        val consentStatus: ConsentStatus,
-        val consentStrings: ConsentStrings,
-        val userConsents: USNatConsent.USNatUserConsents,
-        @SerialName("GPPData") val gppData: JsonObject
-    ): Campaign()
+        private val consentStatus: ConsentStatus?,
+        private val consentStrings: ConsentStrings?,
+        private val userConsents: USNatConsent.USNatUserConsents?,
+        private val dateCreated: String?,
+        private val expirationDate: String?,
+        private val webConsentPayload: String?,
+        @SerialName("GPPData") val gppData: JsonObject?,
+        override val derivedConsents: USNatConsent? = if (
+            consentStrings != null &&
+            userConsents != null &&
+            consentStatus != null
+        ) USNatConsent(
+            dateCreated = dateCreated,
+            expirationDate = expirationDate,
+            consentStatus = consentStatus,
+            consentStrings = consentStrings,
+            userConsents = userConsents,
+            webConsentPayload = webConsentPayload,
+            gppData = gppData ?: JsonObject(emptyMap())
+        ) else null
+    ): Campaign<USNatConsent>()
 
     @Serializable
     @SerialName("CCPA")
     data class CCPA(
         override val type: String = "CCPA",
-        val expirationDate: String,
         val status: CCPAConsent.CCPAConsentStatus,
-        @SerialName("GPPData") val gppData: JsonObject
-    ): Campaign()
+        val signedLspa: Boolean?,
+        val rejectedVendors: List<String>? = emptyList(),
+        val rejectedCategories: List<String>? = emptyList(),
+        val dateCreated: String?,
+        val expirationDate: String?,
+        val webConsentPayload: String?,
+        @SerialName("GPPData") val gppData: JsonObject?,
+        override val derivedConsents: CCPAConsent? = if (
+            rejectedVendors != null &&
+            rejectedCategories != null &&
+            signedLspa != null
+        ) CCPAConsent(
+            dateCreated = dateCreated,
+            expirationDate = expirationDate,
+            signedLspa = signedLspa,
+            rejectedCategories = rejectedCategories,
+            rejectedVendors = rejectedVendors,
+            webConsentPayload = webConsentPayload,
+            gppData = gppData ?: JsonObject(emptyMap())
+        ) else null
+    ): Campaign<CCPAConsent>()
 
     @Serializable
     data class MessageMetaData(

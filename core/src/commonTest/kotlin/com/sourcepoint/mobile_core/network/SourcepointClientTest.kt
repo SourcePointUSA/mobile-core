@@ -6,6 +6,8 @@ import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
+import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import kotlinx.coroutines.test.runTest
@@ -71,30 +73,45 @@ class SourcepointClientTest {
         )
     }
 
-    private fun assertCampaignConsents(campaign: MessagesResponse.Campaign) {
+    private fun assertCampaignConsents(campaign: MessagesResponse.Campaign<*>) {
         when(campaign) {
-            is MessagesResponse.GDPR -> assertCampaignConsents(campaign)
-            is MessagesResponse.USNat -> assertCampaignConsents(campaign)
-            is MessagesResponse.CCPA -> assertCampaignConsents(campaign)
+            is MessagesResponse.GDPR -> assertCampaignConsents(campaign.derivedConsents)
+            is MessagesResponse.USNat -> assertCampaignConsents(campaign.derivedConsents)
+            is MessagesResponse.CCPA -> assertCampaignConsents(campaign.derivedConsents)
         }
     }
 
-    private fun assertCampaignConsents(gdpr: MessagesResponse.GDPR) {
-        assertNotEquals("", gdpr.euconsent)
-        assertTrue(gdpr.tcData.isNotEmpty())
-        assertTrue(gdpr.grants.isNotEmpty())
+    private fun assertCampaignConsents(consents: GDPRConsent?) {
+        assertNotNull(consents)
+        assertTrue(consents.euconsent!!.isNotEmpty())
+        assertTrue(consents.tcData.isNotEmpty())
+        assertTrue(consents.grants.isNotEmpty())
+        assertTrue(consents.dateCreated!!.isNotEmpty())
+        assertTrue(consents.expirationDate!!.isNotEmpty())
+        assertTrue(consents.webConsentPayload!!.isNotEmpty())
     }
 
-    private fun assertCampaignConsents(usnat: MessagesResponse.USNat) {
-        assertTrue(usnat.gppData.isNotEmpty())
-        assertTrue(usnat.consentStrings.isNotEmpty())
-        assertTrue(usnat.userConsents.vendors.isEmpty())
-        assertTrue(usnat.userConsents.categories.isNotEmpty())
+    private fun assertCampaignConsents(consents: USNatConsent?) {
+        assertNotNull(consents)
+        assertTrue(consents.gppData.isNotEmpty())
+        assertTrue(consents.consentStrings.isNotEmpty())
+        assertTrue(consents.userConsents.vendors.isEmpty())
+        assertTrue(consents.userConsents.categories.isNotEmpty())
+        assertTrue(consents.dateCreated!!.isNotEmpty())
+        assertTrue(consents.expirationDate!!.isNotEmpty())
+        assertTrue(consents.webConsentPayload!!.isNotEmpty())
     }
 
-    private fun assertCampaignConsents(ccpa: MessagesResponse.CCPA) {
-        assertTrue(ccpa.gppData.isNotEmpty())
-        assertNotEquals(CCPAConsent.CCPAConsentStatus.Unknown, ccpa.status)
+    private fun assertCampaignConsents(consents: CCPAConsent?) {
+        assertNotNull(consents)
+        assertTrue(consents.gppData.isNotEmpty())
+        assertNotNull(consents.signedLspa)
+        assertNotEquals(CCPAConsent.CCPAConsentStatus.Unknown, consents.status)
+        assertTrue(consents.rejectedCategories.isNotEmpty())
+        assertTrue(consents.rejectedVendors.isNotEmpty())
+        assertTrue(consents.dateCreated!!.isNotEmpty())
+        assertTrue(consents.expirationDate!!.isNotEmpty())
+        assertTrue(consents.webConsentPayload!!.isNotEmpty())
     }
 
     @Test
@@ -133,9 +150,7 @@ class SourcepointClientTest {
         response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url)
             assertNotNull(campaign.message)
-            assertNotNull(campaign.dateCreated)
             assertNotNull(campaign.messageMetaData)
-            assertNotNull(campaign.webConsentPayload)
 
             assertCampaignConsents(campaign)
         }

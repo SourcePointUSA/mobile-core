@@ -5,6 +5,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
+
+// TODO: implement USPString logic
 @Serializable
 data class CCPAConsent(
     val uuid: String? = null,
@@ -12,9 +14,10 @@ data class CCPAConsent(
     val expirationDate: String? = null,
     val signedLspa: Boolean? = null,
     var uspstring: String? = null,
-    val rejectedVendors: List<String>? = emptyList(),
-    val rejectedCategories: List<String>? = emptyList(),
+    val rejectedVendors: List<String> = emptyList(),
+    val rejectedCategories: List<String> = emptyList(),
     val status: CCPAConsentStatus = CCPAConsentStatus.Unknown,
+    val webConsentPayload: String? = null,
     @SerialName("GPPData") val gppData: JsonObject = JsonObject(emptyMap()),
 ) {
     @Serializable(with = CCPAConsentStatus.Serializer::class)
