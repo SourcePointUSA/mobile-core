@@ -24,6 +24,7 @@ data class MetaDataResponse (
         val applies: Boolean,
         val sampleRate: Float,
         val additionsChangeDate: String,
+        val applicableSections: List<Int>,
         @SerialName("_id") val vendorListId: String
     )
 

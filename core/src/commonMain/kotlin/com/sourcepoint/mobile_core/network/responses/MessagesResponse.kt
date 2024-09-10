@@ -28,6 +28,7 @@ data class MessagesResponse(
         val url: String? = null
         val message: Message? = null
         val messageMetaData: MessageMetaData? = null
+        val childPmId: String? = null
     }
 
     @Serializable
@@ -90,7 +91,6 @@ data class MessagesResponse(
         override val type: String = "GDPR",
         private val euconsent: String?,
         private val grants: SPGDPRVendorGrants?,
-        private val childPmId: String?,
         private val consentStatus: ConsentStatus?,
         private val dateCreated: String?,
         private val expirationDate: String?,
