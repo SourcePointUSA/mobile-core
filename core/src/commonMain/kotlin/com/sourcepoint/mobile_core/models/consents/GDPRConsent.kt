@@ -15,7 +15,7 @@ data class GDPRConsent (
     val categories: List<String> = emptyList(),
     val specialFeatures: List<String> = emptyList(),
     val grants: SPGDPRVendorGrants = emptyMap(),
-    val gcmStatus: ConsentStatusGCMStatus? = null,
+    val gcmStatus: GCMStatus? = null,
     val webConsentPayload: String? = null,
     val consentStatus: ConsentStatus = ConsentStatus(),
     @SerialName("TCData") val tcData: IABData = emptyMap(),
