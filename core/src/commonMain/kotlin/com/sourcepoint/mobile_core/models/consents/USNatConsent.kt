@@ -2,7 +2,6 @@ package com.sourcepoint.mobile_core.models.consents
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class USNatConsent(
@@ -13,7 +12,7 @@ data class USNatConsent(
     val consentStatus: ConsentStatus = ConsentStatus(),
     val consentStrings: ConsentStrings = emptyList(),
     val userConsents: USNatUserConsents = USNatUserConsents(),
-    @SerialName("GPPData") val gppData: JsonObject = JsonObject(emptyMap())
+    @SerialName("GPPData") val gppData: IABData = emptyMap()
 ) {
     @Serializable
     data class USNatConsentSection (

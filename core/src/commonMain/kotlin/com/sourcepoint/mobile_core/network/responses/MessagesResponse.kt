@@ -5,6 +5,7 @@ import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.utils.IntEnum
@@ -95,7 +96,7 @@ data class MessagesResponse(
         private val dateCreated: String?,
         private val expirationDate: String?,
         private val webConsentPayload: String?,
-        @SerialName("TCData") val tcData: JsonObject?,
+        @SerialName("TCData") val tcData: IABData? = emptyMap(),
         override val derivedConsents: GDPRConsent? = if (
             euconsent != null &&
             grants != null &&
@@ -107,7 +108,7 @@ data class MessagesResponse(
             webConsentPayload = webConsentPayload,
             expirationDate = expirationDate,
             dateCreated = dateCreated,
-            tcData = tcData ?: JsonObject(emptyMap())
+            tcData = tcData ?: emptyMap()
         ) else null
     ): Campaign<GDPRConsent>()
 
@@ -121,7 +122,7 @@ data class MessagesResponse(
         private val dateCreated: String?,
         private val expirationDate: String?,
         private val webConsentPayload: String?,
-        @SerialName("GPPData") val gppData: JsonObject?,
+        @SerialName("GPPData") val gppData: IABData? = emptyMap(),
         override val derivedConsents: USNatConsent? = if (
             consentStrings != null &&
             userConsents != null &&
@@ -133,7 +134,7 @@ data class MessagesResponse(
             consentStrings = consentStrings,
             userConsents = userConsents,
             webConsentPayload = webConsentPayload,
-            gppData = gppData ?: JsonObject(emptyMap())
+            gppData = gppData ?: emptyMap()
         ) else null
     ): Campaign<USNatConsent>()
 
@@ -148,7 +149,7 @@ data class MessagesResponse(
         val dateCreated: String?,
         val expirationDate: String?,
         val webConsentPayload: String?,
-        @SerialName("GPPData") val gppData: JsonObject?,
+        @SerialName("GPPData") val gppData: IABData? = emptyMap(),
         override val derivedConsents: CCPAConsent? = if (
             rejectedVendors != null &&
             rejectedCategories != null &&
@@ -160,7 +161,7 @@ data class MessagesResponse(
             rejectedCategories = rejectedCategories,
             rejectedVendors = rejectedVendors,
             webConsentPayload = webConsentPayload,
-            gppData = gppData ?: JsonObject(emptyMap())
+            gppData = gppData ?: emptyMap()
         ) else null
     ): Campaign<CCPAConsent>()
 

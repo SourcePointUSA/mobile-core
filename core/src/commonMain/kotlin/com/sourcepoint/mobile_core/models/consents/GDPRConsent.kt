@@ -2,7 +2,6 @@ package com.sourcepoint.mobile_core.models.consents
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class GDPRConsent (
@@ -19,10 +18,10 @@ data class GDPRConsent (
     val gcmStatus: ConsentStatusGCMStatus? = null,
     val webConsentPayload: String? = null,
     val consentStatus: ConsentStatus = ConsentStatus(),
-    @SerialName("TCData") val tcData: JsonObject = JsonObject(emptyMap()),
+    @SerialName("TCData") val tcData: IABData = emptyMap(),
 ) {
     @Serializable
-    data class ConsentStatusGCMStatus (
+    data class GCMStatus (
         val analyticsStorage: String?,
         val adStorage: String?,
         val adUserData: String?,
