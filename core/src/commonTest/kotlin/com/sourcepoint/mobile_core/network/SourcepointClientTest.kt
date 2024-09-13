@@ -4,15 +4,25 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.SPNetworkError
+import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -174,5 +184,39 @@ class SourcepointClientTest {
 
         assertTrue(response.localState.isNotEmpty())
         assertTrue(response.nonKeyedLocalState.isNotEmpty())
+    }
+
+    fun mock(response: String = "", status: Int = 200) = MockEngine { _ ->
+        respond(
+            content = ByteReadChannel(response),
+            status = HttpStatusCode.fromValue(status),
+            headers = headersOf(HttpHeaders.ContentType, "application/json")
+        )
+    }
+
+    @Test
+    fun loggingWithErrorWhenStatusCodeNot200() = runTest {
+        val mockEngine = mock(status = HttpStatusCode.GatewayTimeout.value)
+
+        assertFailsWith<SPNetworkError> {
+            SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
+                .getMetaData(campaigns = MetaDataRequest.Campaigns())
+        }
+
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+    }
+
+    @Test
+    fun loggingWithErrorWhenResponseCantBeParsed() = runTest {
+        val mockEngine = mock(response = """{"gdpr":{}}""")
+
+        assertFailsWith<SPUnableToParseBodyError> {
+            SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
+                .getMetaData(campaigns = MetaDataRequest.Campaigns())
+        }
+
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
     }
 }
