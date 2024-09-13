@@ -39,6 +39,8 @@ class SourcepointClient(
     private val propertyId: Int,
     private val propertyName: SPPropertyName,
     private val http: HttpClient,
+    private val device: DeviceInformation,
+    private val version: String
 ): SPClient {
     constructor(accountId: Int, propertyId: Int, propertyName: SPPropertyName) : this(
         accountId,
@@ -51,6 +53,8 @@ class SourcepointClient(
                 level = LogLevel.BODY
             }
         },
+        device = Device,
+        version = BuildConfig.Version
     )
 
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
@@ -84,6 +88,23 @@ class SourcepointClient(
 
     override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
         http.get(getMessagesUrl(request)).body()
+
+    override suspend fun errorMetrics(error: SPError) {
+        http.get(URLBuilder(baseWrapperUrl).apply {
+            path("metrics", "v1", "custom-metrics")
+            withParams(ErrorMetricsRequest(
+                accountId = accountId.toString(),
+                propertyId = propertyId.toString(),
+                propertyName = propertyName,
+                osVersion = device.osVersion,
+                deviceFamily = device.deviceFamily,
+                sdkVersion = version,
+                code = error.code,
+                description = error.description,
+                campaignType = error.campaignType
+            ))
+        }.build())
+    }
 }
 
 // Maps a Serializable class into query params using toQueryParams function
