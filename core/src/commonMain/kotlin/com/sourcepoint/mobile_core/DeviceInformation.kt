@@ -9,7 +9,7 @@ enum class OSName {
 interface DeviceInformation {
     val osName: OSName
     val osVersion: String
-    val deviceName: String
+    val deviceFamily: String
 }
 
 expect class DeviceInformationConcrete(): DeviceInformation

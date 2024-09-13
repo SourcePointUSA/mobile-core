@@ -1,5 +1,9 @@
 package com.sourcepoint.mobile_core.network
 
+import com.sourcepoint.core.BuildConfig
+import com.sourcepoint.mobile_core.Device
+import com.sourcepoint.mobile_core.DeviceInformation
+import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
@@ -21,20 +25,19 @@ import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 
 interface SPClient {
-    @Throws(Exception::class)
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
 
-    @Throws(Exception::class)
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
-    @Throws(Exception::class)
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
+
+    suspend fun errorMetrics(error: SPError): Unit
 }
 
 class SourcepointClient(
-    val accountId: Int,
-    val propertyId: Int,
-    val propertyName: SPPropertyName,
+    private val accountId: Int,
+    private val propertyId: Int,
+    private val propertyName: SPPropertyName,
     private val http: HttpClient,
 ): SPClient {
     constructor(accountId: Int, propertyId: Int, propertyName: SPPropertyName) : this(
@@ -59,7 +62,6 @@ class SourcepointClient(
                 withParams(MetaDataRequest(accountId = accountId, propertyId = propertyId, metadata = campaigns))
             }.build()
 
-    @Throws(Exception::class)
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse =
         http.get(getMetaDataUrl(campaigns)).body()
 
@@ -70,7 +72,6 @@ class SourcepointClient(
                 withParams(ConsentStatusRequest(propertyId = propertyId, authId = authId, metadata = metadata))
             }.build()
 
-    @Throws(Exception::class)
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse =
         http.get(getConsentStatusUrl(authId, metadata)).body()
 
@@ -81,7 +82,6 @@ class SourcepointClient(
                 withParams(request)
             }.build()
 
-    @Throws(Exception::class)
     override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
         http.get(getMessagesUrl(request)).body()
 }

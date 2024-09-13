@@ -18,10 +18,13 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class SourcepointClientTest {
+    private val accountId = 22
+    private val propertyId = 16893
+    private val propertyName = "https://mobile.multicampaign.demo"
     private val api = SourcepointClient(
-        accountId = 22,
-        propertyId = 16893,
-        propertyName = "https://mobile.multicampaign.demo"
+        accountId = accountId,
+        propertyId = propertyId,
+        propertyName = propertyName
     )
 
     @Test
@@ -133,8 +136,8 @@ class SourcepointClientTest {
         val response = api.getMessages(
             MessagesRequest(
                 body = MessagesRequest.Body(
-                    propertyHref = api.propertyName,
-                    accountId = api.accountId,
+                    propertyHref = propertyName,
+                    accountId = accountId,
                     campaigns = MessagesRequest.Body.Campaigns(
                         gdpr = MessagesRequest.Body.Campaigns.GDPR(
                             targetingParams = null,
