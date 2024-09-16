@@ -21,7 +21,6 @@ import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
@@ -186,7 +185,7 @@ class SourcepointClientTest {
         assertTrue(response.nonKeyedLocalState.isNotEmpty())
     }
 
-    fun mock(response: String = "", status: Int = 200) = MockEngine { _ ->
+    private fun mock(response: String = "", status: Int = 200) = MockEngine { _ ->
         respond(
             content = ByteReadChannel(response),
             status = HttpStatusCode.fromValue(status),
