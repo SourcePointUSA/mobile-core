@@ -3,6 +3,7 @@ package com.sourcepoint.mobile_core.network
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
+import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
@@ -18,6 +19,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -185,12 +187,23 @@ class SourcepointClientTest {
         assertTrue(response.nonKeyedLocalState.isNotEmpty())
     }
 
-    private fun mock(response: String = "", status: Int = 200) = MockEngine { _ ->
+    private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
+        delay(delayInSeconds.toLong() * 1000)
         respond(
             content = ByteReadChannel(response),
             status = HttpStatusCode.fromValue(status),
             headers = headersOf(HttpHeaders.ContentType, "application/json")
         )
+    }
+
+    @Test
+    fun loggingWithErrorWhenRequestTimeoutInTheClient() = runTest {
+        val mockEngine = mock(delayInSeconds = 2)
+
+        assertFailsWith<SPClientTimeout> {
+            SourcepointClient(accountId, propertyId, propertyName, requestTimeoutInSeconds = 1, httpEngine = mockEngine)
+                .getMetaData(campaigns = MetaDataRequest.Campaigns())
+        }
     }
 
     @Test

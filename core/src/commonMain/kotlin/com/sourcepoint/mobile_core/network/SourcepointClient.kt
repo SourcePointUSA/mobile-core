@@ -3,7 +3,6 @@ package com.sourcepoint.mobile_core.network
 import com.sourcepoint.core.BuildConfig
 import com.sourcepoint.mobile_core.Device
 import com.sourcepoint.mobile_core.DeviceInformation
-import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
@@ -16,19 +15,24 @@ import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.get
+import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.URLBuilder
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
+import kotlin.reflect.KSuspendFunction1
 
 interface SPClient {
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
@@ -37,7 +41,7 @@ interface SPClient {
 
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
-    suspend fun errorMetrics(error: SPError): Unit
+    suspend fun errorMetrics(error: SPError)
 }
 
 class SourcepointClient(
@@ -46,78 +50,81 @@ class SourcepointClient(
     private val propertyName: SPPropertyName,
     httpEngine: HttpClientEngine?,
     private val device: DeviceInformation,
-    private val version: String
+    private val version: String,
+    private val requestTimeoutInSeconds: Int
 ): SPClient {
-    private val http = if (httpEngine != null) HttpClient(httpEngine) {
+    private val config:  HttpClientConfig<*>.() -> Unit = {
+        install(HttpTimeout) { requestTimeoutMillis = requestTimeoutInSeconds.toLong() * 1000 }
+        install(WrapHttpTimeoutError) { timeoutInSeconds = requestTimeoutInSeconds }
         install(ContentNegotiation) { json(json) }
         install(Logging) {
             logger = Logger.SIMPLE
             level = LogLevel.BODY
         }
-    } else HttpClient {
-        install(ContentNegotiation) { json(json) }
-        install(Logging) {
-            logger = Logger.SIMPLE
-            level = LogLevel.BODY
+        expectSuccess = false
+        HttpResponseValidator {
+            validateResponse { response ->
+                if (response.request.url.pathSegments.contains("custom-metrics")) {
+                    return@validateResponse
+                }
+
+                if (response.status.value !in 200..299) {
+                    throw reportErrorAndThrow(SPNetworkError(
+                        statusCode = response.status.value,
+                        path = response.request.url.pathSegments.last(),
+                        campaignType = null
+                    ))
+                }
+            }
         }
     }
+    private val http = if (httpEngine != null) HttpClient(httpEngine, config) else HttpClient(config)
 
-    constructor(accountId: Int, propertyId: Int, propertyName: SPPropertyName) : this(
+    constructor(
+        accountId: Int,
+        propertyId: Int,
+        propertyName: SPPropertyName,
+        requestTimeoutInSeconds: Int = 5
+    ) : this(
         accountId,
         propertyId,
         propertyName,
         httpEngine = null,
         device = Device,
-        version = BuildConfig.Version
+        version = BuildConfig.Version,
+        requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
-    constructor(accountId: Int, propertyId: Int, propertyName: SPPropertyName, httpEngine: HttpClientEngine) : this(
+    constructor(
+        accountId: Int,
+        propertyId: Int,
+        propertyName: SPPropertyName,
+        httpEngine: HttpClientEngine,
+        requestTimeoutInSeconds: Int = 5,
+    ) : this(
         accountId,
         propertyId,
         propertyName,
         httpEngine = httpEngine,
         device = Device,
-        version = BuildConfig.Version
+        version = BuildConfig.Version,
+        requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
 
-    /**
-     * @throws SPError if the network request fails or if cannot parse body to Body type
-     */
-    private suspend inline fun <reified Body> loggingError(
-        campaignType: SPCampaignType? = null,
-        requestBlock: () -> HttpResponse
-    ): Body {
-        val response = requestBlock()
-        if (response.status.value !in 200..299) {
-            throw reportErrorAndThrow(SPNetworkError(
-                statusCode = response.status.value,
-                path = response.request.url.pathSegments.last(),
-                campaignType = campaignType
-            ))
-        }
-        try {
-            return response.body()
-        } catch (_: Exception) {
-            throw reportErrorAndThrow(SPUnableToParseBodyError(bodyName = Body::class.qualifiedName))
-        }
-    }
-
-    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse = loggingError {
-        http.get(
-            URLBuilder(baseWrapperUrl).apply {
-                path("wrapper", "v2", "meta-data")
-                withParams(
-                    MetaDataRequest(
-                        accountId = accountId,
-                        propertyId = propertyId,
-                        metadata = campaigns
-                    )
+    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse = http.get(
+        URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "meta-data")
+            withParams(
+                MetaDataRequest(
+                    accountId = accountId,
+                    propertyId = propertyId,
+                    metadata = campaigns
                 )
-            }.build()
-        )
-    }
+            )
+        }.build()
+    ).bodyOr(::reportErrorAndThrow)
 
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse =
         http.get(URLBuilder(baseWrapperUrl).apply {
@@ -129,17 +136,17 @@ class SourcepointClient(
                     metadata = metadata
                 )
             )}.build()
-        ).body()
+        ).bodyOr(::reportErrorAndThrow)
 
     override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
         http.get(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "messages")
             withParams(request)
-        }.build()).body()
+        }.build()).bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
-        http.get(URLBuilder(baseWrapperUrl).apply {
-            path("metrics", "v1", "custom-metrics")
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "metrics", "v1", "custom-metrics")
             withParams(ErrorMetricsRequest(
                 accountId = accountId.toString(),
                 propertyId = propertyId.toString(),
@@ -154,9 +161,17 @@ class SourcepointClient(
         }.build())
     }
 
-    suspend fun reportErrorAndThrow(error: SPError): SPError {
+    private suspend fun reportErrorAndThrow(error: SPError): SPError {
         errorMetrics(error)
         return error
+    }
+}
+
+suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T {
+    try {
+        return body()
+    } catch (_: Exception) {
+        throw loggingFunction(SPUnableToParseBodyError(bodyName = T::class.qualifiedName))
     }
 }
 
