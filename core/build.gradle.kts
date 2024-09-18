@@ -84,6 +84,7 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation("com.russhwolf:multiplatform-settings-test:$settingsVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+                implementation("io.ktor:ktor-client-mock:$ktorVersion")
             }
         }
         val androidMain by getting {
