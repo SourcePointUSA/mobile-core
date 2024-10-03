@@ -7,7 +7,10 @@ import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
+import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
+import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
+import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
@@ -27,6 +30,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.URLBuilder
@@ -40,6 +44,10 @@ interface SPClient {
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
+
+    suspend fun customConsentGDPR(request: CustomConsentRequest): GDPRConsent
+
+    suspend fun deleteCustomConsentGDPR(request: CustomConsentRequest): GDPRConsent
 
     suspend fun errorMetrics(error: SPError)
 }
@@ -143,6 +151,18 @@ class SourcepointClient(
             path("wrapper", "v2", "messages")
             withParams(request)
         }.build()).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun customConsentGDPR(request: CustomConsentRequest): GDPRConsent =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
+            withParams(DefaultRequest)
+        }.build(), block = {setBody(request)}).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun deleteCustomConsentGDPR(request: CustomConsentRequest): GDPRConsent =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("consent", "tcfv2", "consent", "v3", "custom", request.propertyId.toString())
+            withParams(request.consentUUID)
+        }.build(), block = {setBody(request)}).bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
         http.post(URLBuilder(baseWrapperUrl).apply {
