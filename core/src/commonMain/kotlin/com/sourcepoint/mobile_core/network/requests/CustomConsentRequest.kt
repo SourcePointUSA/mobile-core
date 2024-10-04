@@ -9,4 +9,4 @@ data class CustomConsentRequest (
     val vendors: List<String> = emptyList(),
     val categories: List<String> = emptyList(),
     val legIntCategories: List<String> = emptyList()
-): DefaultRequest()
+)

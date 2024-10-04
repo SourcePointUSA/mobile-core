@@ -28,6 +28,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -164,7 +165,7 @@ class SourcepointClient(
             setBody(request)}).bodyOr(::reportErrorAndThrow)
 
     override suspend fun deleteCustomConsentGDPR(request: CustomConsentRequest): GDPRConsent =
-        http.post(URLBuilder(baseWrapperUrl).apply {
+        http.delete(URLBuilder(baseWrapperUrl).apply {
             path("consent", "tcfv2", "consent", "v3", "custom")
             appendPathSegments(request.propertyId.toString())
             withParams(mapOf("consentUUID" to request.consentUUID))
