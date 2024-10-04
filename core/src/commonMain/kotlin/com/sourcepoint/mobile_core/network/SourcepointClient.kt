@@ -33,7 +33,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
+import io.ktor.http.ContentType
 import io.ktor.http.URLBuilder
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 import kotlin.reflect.KSuspendFunction1
@@ -155,14 +158,19 @@ class SourcepointClient(
     override suspend fun customConsentGDPR(request: CustomConsentRequest): GDPRConsent =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
-            withParams(DefaultRequest)
-        }.build(), block = {setBody(request)}).bodyOr(::reportErrorAndThrow)
+            withParams(DefaultRequest())
+        }.build(), block = {
+            contentType(ContentType.Application.Json)
+            setBody(request)}).bodyOr(::reportErrorAndThrow)
 
     override suspend fun deleteCustomConsentGDPR(request: CustomConsentRequest): GDPRConsent =
         http.post(URLBuilder(baseWrapperUrl).apply {
-            path("consent", "tcfv2", "consent", "v3", "custom", request.propertyId.toString())
-            withParams(request.consentUUID)
-        }.build(), block = {setBody(request)}).bodyOr(::reportErrorAndThrow)
+            path("consent", "tcfv2", "consent", "v3", "custom")
+            appendPathSegments(request.propertyId.toString())
+            withParams(mapOf("consentUUID" to request.consentUUID))
+        }.build(), block = {
+            contentType(ContentType.Application.Json)
+            setBody(request)}).bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
         http.post(URLBuilder(baseWrapperUrl).apply {
