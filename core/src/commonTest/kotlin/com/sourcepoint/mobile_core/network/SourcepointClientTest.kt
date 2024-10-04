@@ -11,12 +11,15 @@ import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
+import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
@@ -230,5 +233,18 @@ class SourcepointClientTest {
 
         assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
         assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+    }
+
+    @Test
+    fun checkUrlBuilderCustomConsent() = runTest {
+        val mockEngine = mock()
+        SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
+            .customConsentGDPR(CustomConsentRequest("uuid",propertyId, emptyList(), emptyList(), emptyList()))
+        val defaultRequest = DefaultRequest()
+        assertEquals(mockEngine.requestHistory.last().url, Url("https://cdn.privacy-mgmt.com/wrapper/tcfv2/v1/gdpr/custom-consent?env="+defaultRequest.env+"&scriptType="+defaultRequest.scriptType+"&scriptVersion="+defaultRequest.scriptVersion))
+
+        SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
+            .deleteCustomConsentGDPR(CustomConsentRequest("uuid",propertyId, emptyList(), emptyList(), emptyList()))
+        assertEquals(mockEngine.requestHistory.last().url, Url("https://cdn.privacy-mgmt.com/consent/tcfv2/consent/v3/custom/16893?consentUUID=uuid"))
     }
 }
