@@ -27,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -246,5 +247,23 @@ class SourcepointClientTest {
         SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
             .deleteCustomConsentGDPR(CustomConsentRequest("uuid",propertyId, emptyList(), emptyList(), emptyList()))
         assertEquals(mockEngine.requestHistory.last().url, Url("https://cdn.privacy-mgmt.com/consent/tcfv2/consent/v3/custom/16893?consentUUID=uuid"))
+    }
+
+    @Test
+    fun checkCustomConsent() = runTest {
+        val vendors = listOf("5ff4d000a228633ac048be41")
+        val categories = listOf("608bad95d08d3112188e0e36", "608bad95d08d3112188e0e2f")
+        val responseCustom = SourcepointClient(accountId, propertyId, propertyName)
+            .customConsentGDPR(CustomConsentRequest("uuid_36",propertyId, vendors, categories, emptyList()))
+        val responseDeleteCustom = SourcepointClient(accountId, propertyId, propertyName)
+            .deleteCustomConsentGDPR(CustomConsentRequest("uuid_36",propertyId, vendors, categories, emptyList()))
+
+        assertTrue(responseCustom.vendors.contains(vendors.first()))
+        assertFalse(responseDeleteCustom.vendors.contains(vendors.first()))
+
+        assertTrue(responseCustom.categories.contains(categories.first()))
+        assertFalse(responseDeleteCustom.categories.contains(categories.first()))
+        assertTrue(responseCustom.categories.contains(categories.last()))
+        assertFalse(responseDeleteCustom.categories.contains(categories.last()))
     }
 }
