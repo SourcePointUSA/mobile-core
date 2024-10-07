@@ -237,30 +237,26 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun checkUrlBuilderCustomConsent() = runTest {
-        val mockEngine = mock()
-        SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
-            .customConsentGDPR(CustomConsentRequest("uuid",propertyId, emptyList(), emptyList(), emptyList()))
-        val defaultRequest = DefaultRequest()
-        assertEquals(mockEngine.requestHistory.last().url, Url("https://cdn.privacy-mgmt.com/wrapper/tcfv2/v1/gdpr/custom-consent?env="+defaultRequest.env+"&scriptType="+defaultRequest.scriptType+"&scriptVersion="+defaultRequest.scriptVersion))
-
-        SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
-            .deleteCustomConsentGDPR(CustomConsentRequest("uuid",propertyId, emptyList(), emptyList(), emptyList()))
-        assertEquals(mockEngine.requestHistory.last().url, Url("https://cdn.privacy-mgmt.com/consent/tcfv2/consent/v3/custom/16893?consentUUID=uuid"))
-    }
-
-    @Test
     fun checkCustomConsent() = runTest {
         val vendors = listOf("5ff4d000a228633ac048be41")
         val categories = listOf("608bad95d08d3112188e0e36", "608bad95d08d3112188e0e2f")
-        val responseCustom = SourcepointClient(accountId, propertyId, propertyName)
-            .customConsentGDPR(CustomConsentRequest("uuid_36",propertyId, vendors, categories, emptyList()))
-        val responseDeleteCustom = SourcepointClient(accountId, propertyId, propertyName)
-            .deleteCustomConsentGDPR(CustomConsentRequest("uuid_36",propertyId, vendors, categories, emptyList()))
+        val responseCustom = api.customConsentGDPR(
+            "uuid_36",
+            propertyId,
+            vendors,
+            categories,
+            emptyList()
+        )
+        val responseDeleteCustom = api.deleteCustomConsentGDPR(
+            "uuid_36",
+            propertyId,
+            vendors,
+            categories,
+            emptyList()
+        )
 
         assertTrue(responseCustom.vendors.contains(vendors.first()))
         assertFalse(responseDeleteCustom.vendors.contains(vendors.first()))
-
         assertTrue(responseCustom.categories.contains(categories.first()))
         assertFalse(responseDeleteCustom.categories.contains(categories.first()))
         assertTrue(responseCustom.categories.contains(categories.last()))

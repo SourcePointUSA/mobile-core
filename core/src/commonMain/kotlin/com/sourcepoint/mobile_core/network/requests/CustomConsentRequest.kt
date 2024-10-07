@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class CustomConsentRequest (
     val consentUUID: String,
     val propertyId: Int,
-    val vendors: List<String> = emptyList(),
-    val categories: List<String> = emptyList(),
-    val legIntCategories: List<String> = emptyList()
+    val vendors: List<String>,
+    val categories: List<String>,
+    val legIntCategories: List<String>
 )

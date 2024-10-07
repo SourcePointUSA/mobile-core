@@ -49,9 +49,21 @@ interface SPClient {
 
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
-    suspend fun customConsentGDPR(request: CustomConsentRequest): GDPRConsent
+    suspend fun customConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent
 
-    suspend fun deleteCustomConsentGDPR(request: CustomConsentRequest): GDPRConsent
+    suspend fun deleteCustomConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent
 
     suspend fun errorMetrics(error: SPError)
 }
@@ -156,22 +168,50 @@ class SourcepointClient(
             withParams(request)
         }.build()).bodyOr(::reportErrorAndThrow)
 
-    override suspend fun customConsentGDPR(request: CustomConsentRequest): GDPRConsent =
+    override suspend fun customConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
             withParams(DefaultRequest())
-        }.build(), block = {
+        }.build()) {
             contentType(ContentType.Application.Json)
-            setBody(request)}).bodyOr(::reportErrorAndThrow)
+            setBody(
+                CustomConsentRequest(
+                    consentUUID = consentUUID,
+                    propertyId = propertyId,
+                    vendors = vendors,
+                    categories = categories,
+                    legIntCategories = legIntCategories
+            ))
+        }.bodyOr(::reportErrorAndThrow)
 
-    override suspend fun deleteCustomConsentGDPR(request: CustomConsentRequest): GDPRConsent =
+    override suspend fun deleteCustomConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent =
         http.delete(URLBuilder(baseWrapperUrl).apply {
             path("consent", "tcfv2", "consent", "v3", "custom")
-            appendPathSegments(request.propertyId.toString())
-            withParams(mapOf("consentUUID" to request.consentUUID))
-        }.build(), block = {
+            appendPathSegments(propertyId.toString())
+            withParams(mapOf("consentUUID" to consentUUID))
+        }.build()) {
             contentType(ContentType.Application.Json)
-            setBody(request)}).bodyOr(::reportErrorAndThrow)
+            setBody(
+                CustomConsentRequest(
+                    consentUUID = consentUUID,
+                    propertyId = propertyId,
+                    vendors = vendors,
+                    categories = categories,
+                    legIntCategories = legIntCategories
+            ))
+        }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
         http.post(URLBuilder(baseWrapperUrl).apply {
