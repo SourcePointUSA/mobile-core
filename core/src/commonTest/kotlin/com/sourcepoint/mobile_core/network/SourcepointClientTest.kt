@@ -11,12 +11,15 @@ import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
+import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
@@ -24,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -230,5 +234,32 @@ class SourcepointClientTest {
 
         assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
         assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+    }
+
+    @Test
+    fun checkCustomConsent() = runTest {
+        val vendors = listOf("5ff4d000a228633ac048be41")
+        val categories = listOf("608bad95d08d3112188e0e36", "608bad95d08d3112188e0e2f")
+        val responseCustom = api.customConsentGDPR(
+            "uuid_36",
+            propertyId,
+            vendors,
+            categories,
+            emptyList()
+        )
+        val responseDeleteCustom = api.deleteCustomConsentGDPR(
+            "uuid_36",
+            propertyId,
+            vendors,
+            categories,
+            emptyList()
+        )
+
+        assertTrue(responseCustom.vendors.contains(vendors.first()))
+        assertFalse(responseDeleteCustom.vendors.contains(vendors.first()))
+        assertTrue(responseCustom.categories.contains(categories.first()))
+        assertFalse(responseDeleteCustom.categories.contains(categories.first()))
+        assertTrue(responseCustom.categories.contains(categories.last()))
+        assertFalse(responseDeleteCustom.categories.contains(categories.last()))
     }
 }

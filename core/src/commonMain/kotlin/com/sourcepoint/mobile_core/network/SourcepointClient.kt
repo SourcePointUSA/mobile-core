@@ -7,7 +7,10 @@ import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
+import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
+import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
+import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
@@ -25,11 +28,16 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
+import io.ktor.http.ContentType
 import io.ktor.http.URLBuilder
+import io.ktor.http.appendPathSegments
+import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 import kotlin.reflect.KSuspendFunction1
@@ -40,6 +48,22 @@ interface SPClient {
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
+
+    suspend fun customConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent
+
+    suspend fun deleteCustomConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent
 
     suspend fun errorMetrics(error: SPError)
 }
@@ -143,6 +167,51 @@ class SourcepointClient(
             path("wrapper", "v2", "messages")
             withParams(request)
         }.build()).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun customConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(
+                CustomConsentRequest(
+                    consentUUID = consentUUID,
+                    propertyId = propertyId,
+                    vendors = vendors,
+                    categories = categories,
+                    legIntCategories = legIntCategories
+            ))
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun deleteCustomConsentGDPR(
+        consentUUID: String,
+        propertyId: Int,
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ): GDPRConsent =
+        http.delete(URLBuilder(baseWrapperUrl).apply {
+            path("consent", "tcfv2", "consent", "v3", "custom")
+            appendPathSegments(propertyId.toString())
+            withParams(mapOf("consentUUID" to consentUUID))
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(
+                CustomConsentRequest(
+                    consentUUID = consentUUID,
+                    propertyId = propertyId,
+                    vendors = vendors,
+                    categories = categories,
+                    legIntCategories = legIntCategories
+            ))
+        }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
         http.post(URLBuilder(baseWrapperUrl).apply {
