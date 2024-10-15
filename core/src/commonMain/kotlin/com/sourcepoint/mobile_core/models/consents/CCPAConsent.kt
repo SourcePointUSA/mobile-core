@@ -1,6 +1,5 @@
 package com.sourcepoint.mobile_core.models.consents
 
-import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,18 +13,16 @@ data class CCPAConsent(
     var uspstring: String? = null,
     val rejectedVendors: List<String> = emptyList(),
     val rejectedCategories: List<String> = emptyList(),
-    val status: CCPAConsentStatus = CCPAConsentStatus.Unknown,
+    val status: CCPAConsentStatus? = null,
     val webConsentPayload: String? = null,
     @SerialName("GPPData") val gppData: IABData = emptyMap(),
 ) {
-    @Serializable(with = CCPAConsentStatus.Serializer::class)
+    @Serializable
     enum class CCPAConsentStatus {
         @SerialName("consentedAll") ConsentedAll,
         @SerialName("rejectedAll") RejectedAll,
         @SerialName("rejectedSome") RejectedSome,
         @SerialName("rejectedNone") RejectedNone,
-        @SerialName("linkedNoAction") LinkedNoAction,
-        Unknown;
-        object Serializer: StringEnumWithDefaultSerializer<CCPAConsentStatus>(entries, Unknown)
+        @SerialName("linkedNoAction") LinkedNoAction
     }
 }
