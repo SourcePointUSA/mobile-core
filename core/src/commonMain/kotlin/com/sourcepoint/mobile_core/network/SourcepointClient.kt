@@ -13,10 +13,12 @@ import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
+import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
@@ -44,6 +46,8 @@ import kotlin.reflect.KSuspendFunction1
 
 interface SPClient {
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
+
+    suspend fun getPvData(request: PvDataRequest): PvDataResponse
 
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
@@ -149,6 +153,15 @@ class SourcepointClient(
             )
         }.build()
     ).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun getPvData(request: PvDataRequest): PvDataResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "pv-data")
+            withParams(DefaultRequest())
+            }.build()) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse =
         http.get(URLBuilder(baseWrapperUrl).apply {
