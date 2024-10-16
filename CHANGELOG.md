@@ -1,3 +1,8 @@
+## 0.0.6 (October, 16, 2024)
+* Implement `POST /custom` consent call
+* Implement `DELETE /custom` consent call
+* Fix a bug causing `CCPAConsentStatus` to always assume `Unknown` value
+
 ## 0.0.5 (September, 18, 2024)
 * implement `/custom-metrics` call
 * implement network request timeout
