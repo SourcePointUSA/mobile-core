@@ -12,7 +12,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.0.5"
+val coreVersion = "0.0.6"
 group = "com.sourcepoint"
 version = coreVersion
 
@@ -29,6 +29,9 @@ buildConfig {
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     applyDefaultHierarchyTemplate()
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
 
     androidTarget {
         publishLibraryVariants("release", "debug")
