@@ -1,7 +1,6 @@
 package com.sourcepoint.mobile_core.network
 
 import com.sourcepoint.core.BuildConfig
-import com.sourcepoint.mobile_core.Device
 import com.sourcepoint.mobile_core.DeviceInformation
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPNetworkError
@@ -88,14 +87,14 @@ class SourcepointClient(
         expectSuccess = false
         HttpResponseValidator {
             validateResponse { response ->
-                if (response.request.url.pathSegments.contains("custom-metrics")) {
+                if (response.request.url.segments.contains("custom-metrics")) {
                     return@validateResponse
                 }
 
                 if (response.status.value !in 200..299) {
                     throw reportErrorAndThrow(SPNetworkError(
                         statusCode = response.status.value,
-                        path = response.request.url.pathSegments.last(),
+                        path = response.request.url.segments.last(),
                         campaignType = null
                     ))
                 }
@@ -114,7 +113,7 @@ class SourcepointClient(
         propertyId,
         propertyName,
         httpEngine = null,
-        device = Device,
+        device = DeviceInformation(),
         version = BuildConfig.Version,
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
@@ -130,7 +129,7 @@ class SourcepointClient(
         propertyId,
         propertyName,
         httpEngine = httpEngine,
-        device = Device,
+        device = DeviceInformation(),
         version = BuildConfig.Version,
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
