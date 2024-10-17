@@ -2,12 +2,12 @@ import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTes
 import java.io.ByteArrayOutputStream
 
 plugins {
-    kotlin("multiplatform") version "1.9.25"
-    kotlin("native.cocoapods") version "1.9.25"
-    kotlin("plugin.serialization") version "1.9.25"
+    kotlin("multiplatform") version "2.0.21"
+    kotlin("native.cocoapods") version "2.0.21"
+    kotlin("plugin.serialization") version "2.0.21"
     id("com.github.ben-manes.versions") version "0.51.0"
-    id("com.android.library") version "8.3.2"
-    id("com.github.gmazzo.buildconfig") version "5.3.5"
+    id("com.android.library") version "8.7.1"
+    id("com.github.gmazzo.buildconfig") version "5.5.0"
     id("maven-publish")
     id("signing")
 }
@@ -35,10 +35,8 @@ kotlin {
 
     androidTarget {
         publishLibraryVariants("release", "debug")
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "1.8"
-            }
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
         }
     }
     iosX64()
@@ -66,10 +64,10 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "2.3.12"
-        val coroutinesVersion = "1.8.1"
-        val settingsVersion = "1.1.1"
-        val dataTimeVersion = "0.6.0"
+        val ktorVersion = "3.0.0"
+        val coroutinesVersion = "1.9.0"
+        val settingsVersion = "1.2.0"
+        val dataTimeVersion = "0.6.1"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")

@@ -6,12 +6,8 @@ enum class OSName {
     Android
 }
 
-interface DeviceInformation {
+expect class DeviceInformation() {
     val osName: OSName
     val osVersion: String
     val deviceFamily: String
 }
-
-expect class DeviceInformationConcrete(): DeviceInformation
-
-val Device = DeviceInformationConcrete()
