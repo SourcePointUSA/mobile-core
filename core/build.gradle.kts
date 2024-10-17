@@ -7,7 +7,8 @@ plugins {
     kotlin("plugin.serialization") version "1.9.25"
     id("com.github.ben-manes.versions") version "0.51.0"
     id("com.android.library") version "8.3.2"
-    id("com.github.gmazzo.buildconfig") version "5.3.5"
+    id("com.github.gmazzo.buildconfig") version "5.5.0"
+    id("name.remal.check-dependency-updates") version "1.5.0"
     id("maven-publish")
     id("signing")
 }
@@ -68,8 +69,8 @@ kotlin {
     sourceSets {
         val ktorVersion = "2.3.12"
         val coroutinesVersion = "1.8.1"
-        val settingsVersion = "1.1.1"
-        val dataTimeVersion = "0.6.0"
+        val settingsVersion = "1.2.0"
+        val dataTimeVersion = "0.6.1"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
