@@ -6,9 +6,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class SPMCRepository, SPMCSourcepointClient, SPMCMetaDataRequestCampaigns, SPMCOSName, SPMCKotlinEnumCompanion, SPMCKotlinEnum<E>, SPMCKotlinArray<T>, SPMCSPCampaignEnvCompanion, SPMCSPCampaignEnv, SPMCSPCampaignTypeCompanion, SPMCSPCampaignType, SPMCKotlinThrowable, SPMCKotlinException, SPMCSPError, SPMCSPIDFAStatusCompanion, SPMCSPIDFAStatus, SPMCSPMessageLanguage, SPMCCCPAConsentCCPAConsentStatus, SPMCKotlinx_serialization_jsonJsonPrimitive, SPMCCCPAConsentCompanion, SPMCCCPAConsent, SPMCCCPAConsentCCPAConsentStatusCompanion, SPMCConsentStatusConsentStatusGranularStatus, SPMCConsentStatusCompanion, SPMCConsentStatus, SPMCConsentStatusConsentStatusGranularStatusCompanion, SPMCGDPRConsentVendorGrantsValue, SPMCGDPRConsentGCMStatus, SPMCGDPRConsentCompanion, SPMCGDPRConsent, SPMCGDPRConsentGCMStatusCompanion, SPMCGDPRConsentVendorGrantsValueCompanion, SPMCUSNatConsentUSNatConsentSection, SPMCUSNatConsentUSNatUserConsents, SPMCUSNatConsentCompanion, SPMCUSNatConsent, SPMCUSNatConsentUSNatConsentSectionCompanion, SPMCUSNatConsentUSNatConsentableCompanion, SPMCUSNatConsentUSNatConsentable, SPMCUSNatConsentUSNatUserConsentsCompanion, SPMCDefaultRequestCompanion, SPMCDefaultRequest, SPMCErrorMetricsRequestCompanion, SPMCErrorMetricsRequest, SPMCConsentStatusRequestMetaData, SPMCConsentStatusResponse, SPMCMessagesRequest, SPMCMessagesResponse, SPMCMetaDataResponse, SPMCIncludeData, SPMCConsentStatusRequestCompanion, SPMCConsentStatusRequest, SPMCConsentStatusRequestMetaDataCampaign, SPMCConsentStatusRequestMetaDataUSNatCampaign, SPMCConsentStatusRequestMetaDataCompanion, SPMCConsentStatusRequestMetaDataCampaignCompanion, SPMCConsentStatusRequestMetaDataUSNatCampaignCompanion, SPMCCustomConsentRequestCompanion, SPMCCustomConsentRequest, SPMCIncludeDataTypeString, SPMCIncludeDataGPPConfig, SPMCIncludeDataCompanion, SPMCIncludeDataMspaBinaryFlag, SPMCIncludeDataMspaTernaryFlag, SPMCIncludeDataGPPConfigCompanion, SPMCIncludeDataMspaBinaryFlagCompanion, SPMCIncludeDataMspaTernaryFlagCompanion, SPMCIncludeDataTypeStringCompanion, SPMCMessagesRequestBody, SPMCMessagesRequestMetaData, SPMCMessagesRequestCompanion, SPMCMessagesRequestBodyCampaigns, SPMCMessagesRequestBodyCompanion, SPMCMessagesRequestBodyCampaignsGDPR, SPMCMessagesRequestBodyCampaignsIOS14, SPMCMessagesRequestBodyCampaignsUSNat, SPMCMessagesRequestBodyCampaignsCompanion, SPMCMessagesRequestBodyCampaignsCCPACompanion, SPMCMessagesRequestBodyCampaignsCCPA, SPMCMessagesRequestBodyCampaignsGDPRCompanion, SPMCMessagesRequestBodyCampaignsIOS14Companion, SPMCMessagesRequestBodyCampaignsUSNatCompanion, SPMCMessagesRequestMetaDataCampaign, SPMCMessagesRequestMetaDataCompanion, SPMCMessagesRequestMetaDataCampaignCompanion, SPMCMetaDataRequestCompanion, SPMCMetaDataRequest, SPMCMetaDataRequestCampaignsCampaign, SPMCMetaDataRequestCampaignsCompanion, SPMCMetaDataRequestCampaignsCampaignCompanion, SPMCConsentStatusResponseConsentStatusData, SPMCConsentStatusResponseCompanion, SPMCConsentStatusResponseConsentStatusDataCompanion, SPMCMessagesResponseCampaign<ConsentClass>, SPMCMessagesResponseCompanion, SPMCMessagesResponseCampaignCompanion, SPMCMessagesResponseMessage, SPMCMessagesResponseMessageMetaData, SPMCMessagesResponseCCPACompanion, SPMCMessagesResponseCCPA, SPMCMessagesResponseGDPRCompanion, SPMCMessagesResponseGDPR, SPMCMessagesResponseMessageGDPRCategory, SPMCKotlinx_serialization_jsonJsonElement, SPMCMessagesResponseMessageCompanion, SPMCMessagesResponseMessageGDPRCategoryCategoryType, SPMCMessagesResponseMessageGDPRCategoryVendor, SPMCMessagesResponseMessageGDPRCategoryCompanion, SPMCMessagesResponseMessageGDPRCategoryCategoryTypeCompanion, SPMCStringEnumWithDefaultSerializer<T>, SPMCMessagesResponseMessageGDPRCategoryCategoryTypeSerializer, SPMCMessagesResponseMessageGDPRCategoryVendorVendorType, SPMCMessagesResponseMessageGDPRCategoryVendorCompanion, SPMCMessagesResponseMessageGDPRCategoryVendorVendorTypeCompanion, SPMCMessagesResponseMessageGDPRCategoryVendorVendorTypeSerializer, SPMCMessagesResponseMessageMetaDataMessageCategory, SPMCMessagesResponseMessageMetaDataMessageSubCategory, SPMCMessagesResponseMessageMetaDataCompanion, SPMCMessagesResponseMessageMetaDataMessageCategoryCompanion, SPMCIntEnumSerializer<T>, SPMCMessagesResponseMessageMetaDataMessageCategorySerializer, SPMCMessagesResponseMessageMetaDataMessageSubCategoryCompanion, SPMCMessagesResponseMessageMetaDataMessageSubCategorySerializer, SPMCMessagesResponseUSNatCompanion, SPMCMessagesResponseUSNat, SPMCMetaDataResponseMetaDataResponseGDPR, SPMCMetaDataResponseMetaDataResponseUSNat, SPMCMetaDataResponseMetaDataResponseCCPA, SPMCMetaDataResponseCompanion, SPMCMetaDataResponseMetaDataResponseCCPACompanion, SPMCMetaDataResponseMetaDataResponseGDPRCompanion, SPMCMetaDataResponseMetaDataResponseUSNatCompanion, SPMCRepositoryKeys, SPMCKtor_client_coreHttpClientCall, SPMCKtor_utilsGMTDate, SPMCKtor_httpHttpStatusCode, SPMCKtor_httpHttpProtocolVersion, SPMCKtor_client_coreHttpResponse, SPMCKtor_httpURLProtocol, SPMCKtor_httpURLBuilderCompanion, SPMCKtor_httpUrl, SPMCKtor_httpURLBuilder, SPMCDeviceInformationConcrete, SPMCKotlinx_serialization_jsonJson, SPMCKotlinRuntimeException, SPMCKotlinIllegalStateException, SPMCKotlinx_serialization_jsonJsonElementCompanion, SPMCKotlinx_serialization_jsonJsonPrimitiveCompanion, SPMCKtor_client_coreHttpRequestData, SPMCKtor_client_coreHttpResponseData, SPMCKtor_client_coreHttpClient, SPMCKtor_client_coreHttpClientEngineConfig, SPMCKotlinx_coroutines_coreCoroutineDispatcher, SPMCKotlinx_serialization_coreSerializersModule, SPMCKotlinx_serialization_coreSerialKind, SPMCKotlinNothing, SPMCKtor_client_coreHttpClientCallCompanion, SPMCKtor_utilsTypeInfo, SPMCKtor_ioMemory, SPMCKtor_ioChunkBuffer, SPMCKtor_ioBuffer, SPMCKotlinByteArray, SPMCKtor_ioByteReadPacket, SPMCKtor_utilsGMTDateCompanion, SPMCKtor_utilsWeekDay, SPMCKtor_utilsMonth, SPMCKtor_httpHttpStatusCodeCompanion, SPMCKtor_httpHttpProtocolVersionCompanion, SPMCKtor_httpURLProtocolCompanion, SPMCKtor_httpUrlCompanion, SPMCKotlinx_serialization_jsonJsonDefault, SPMCKotlinx_serialization_jsonJsonConfiguration, SPMCKtor_utilsAttributeKey<T>, SPMCKtor_httpHttpMethod, SPMCKtor_httpOutgoingContent, SPMCKtor_client_coreHttpClientConfig<T>, SPMCKtor_eventsEvents, SPMCKtor_client_coreHttpReceivePipeline, SPMCKtor_client_coreHttpRequestPipeline, SPMCKtor_client_coreHttpResponsePipeline, SPMCKtor_client_coreHttpSendPipeline, SPMCKtor_client_coreProxyConfig, SPMCKotlinAbstractCoroutineContextElement, SPMCKotlinx_coroutines_coreCoroutineDispatcherKey, SPMCKtor_ioMemoryCompanion, SPMCKtor_ioBufferCompanion, SPMCKtor_ioChunkBufferCompanion, SPMCKotlinByteIterator, SPMCKtor_ioInputCompanion, SPMCKtor_ioInput, SPMCKtor_ioByteReadPacketCompanion, SPMCKtor_utilsWeekDayCompanion, SPMCKtor_utilsMonthCompanion, SPMCKotlinKTypeProjection, SPMCKtor_httpHttpMethodCompanion, SPMCKtor_httpContentType, SPMCKotlinCancellationException, SPMCKtor_eventsEventDefinition<T>, SPMCKtor_utilsPipelinePhase, SPMCKtor_utilsPipeline<TSubject, TContext>, SPMCKtor_client_coreHttpReceivePipelinePhases, SPMCKotlinUnit, SPMCKtor_client_coreHttpRequestPipelinePhases, SPMCKtor_client_coreHttpRequestBuilder, SPMCKtor_client_coreHttpResponsePipelinePhases, SPMCKtor_client_coreHttpResponseContainer, SPMCKtor_client_coreHttpSendPipelinePhases, SPMCKotlinAbstractCoroutineContextKey<B, E>, SPMCKotlinKVariance, SPMCKotlinKTypeProjectionCompanion, SPMCKtor_httpHeaderValueParam, SPMCKtor_httpHeaderValueWithParametersCompanion, SPMCKtor_httpHeaderValueWithParameters, SPMCKtor_httpContentTypeCompanion, SPMCKtor_httpHeadersBuilder, SPMCKtor_client_coreHttpRequestBuilderCompanion, SPMCKtor_utilsStringValuesBuilderImpl;
+@class SPMCRepository, SPMCSourcepointClient, SPMCMetaDataRequestCampaigns, SPMCOSName, SPMCKotlinEnumCompanion, SPMCKotlinEnum<E>, SPMCKotlinArray<T>, SPMCSPCampaignEnvCompanion, SPMCSPCampaignEnv, SPMCSPCampaignTypeCompanion, SPMCSPCampaignType, SPMCKotlinThrowable, SPMCKotlinException, SPMCSPError, SPMCSPIDFAStatusCompanion, SPMCSPIDFAStatus, SPMCSPMessageLanguage, SPMCCCPAConsentCCPAConsentStatus, SPMCKotlinx_serialization_jsonJsonPrimitive, SPMCCCPAConsentCompanion, SPMCCCPAConsent, SPMCCCPAConsentCCPAConsentStatusCompanion, SPMCConsentStatusConsentStatusGranularStatus, SPMCConsentStatusCompanion, SPMCConsentStatus, SPMCConsentStatusConsentStatusGranularStatusCompanion, SPMCGDPRConsentVendorGrantsValue, SPMCGDPRConsentGCMStatus, SPMCGDPRConsentCompanion, SPMCGDPRConsent, SPMCGDPRConsentGCMStatusCompanion, SPMCGDPRConsentVendorGrantsValueCompanion, SPMCUSNatConsentUSNatConsentSection, SPMCUSNatConsentUSNatUserConsents, SPMCUSNatConsentCompanion, SPMCUSNatConsent, SPMCUSNatConsentUSNatConsentSectionCompanion, SPMCUSNatConsentUSNatConsentableCompanion, SPMCUSNatConsentUSNatConsentable, SPMCUSNatConsentUSNatUserConsentsCompanion, SPMCDefaultRequestCompanion, SPMCDefaultRequest, SPMCErrorMetricsRequestCompanion, SPMCErrorMetricsRequest, SPMCConsentStatusRequestMetaData, SPMCConsentStatusResponse, SPMCMessagesRequest, SPMCMessagesResponse, SPMCMetaDataResponse, SPMCDeviceInformation, SPMCIncludeData, SPMCConsentStatusRequestCompanion, SPMCConsentStatusRequest, SPMCConsentStatusRequestMetaDataCampaign, SPMCConsentStatusRequestMetaDataUSNatCampaign, SPMCConsentStatusRequestMetaDataCompanion, SPMCConsentStatusRequestMetaDataCampaignCompanion, SPMCConsentStatusRequestMetaDataUSNatCampaignCompanion, SPMCCustomConsentRequestCompanion, SPMCCustomConsentRequest, SPMCIncludeDataTypeString, SPMCIncludeDataGPPConfig, SPMCIncludeDataCompanion, SPMCIncludeDataMspaBinaryFlag, SPMCIncludeDataMspaTernaryFlag, SPMCIncludeDataGPPConfigCompanion, SPMCIncludeDataMspaBinaryFlagCompanion, SPMCIncludeDataMspaTernaryFlagCompanion, SPMCIncludeDataTypeStringCompanion, SPMCMessagesRequestBody, SPMCMessagesRequestMetaData, SPMCMessagesRequestCompanion, SPMCMessagesRequestBodyCampaigns, SPMCMessagesRequestBodyCompanion, SPMCMessagesRequestBodyCampaignsGDPR, SPMCMessagesRequestBodyCampaignsIOS14, SPMCMessagesRequestBodyCampaignsUSNat, SPMCMessagesRequestBodyCampaignsCompanion, SPMCMessagesRequestBodyCampaignsCCPACompanion, SPMCMessagesRequestBodyCampaignsCCPA, SPMCMessagesRequestBodyCampaignsGDPRCompanion, SPMCMessagesRequestBodyCampaignsIOS14Companion, SPMCMessagesRequestBodyCampaignsUSNatCompanion, SPMCMessagesRequestMetaDataCampaign, SPMCMessagesRequestMetaDataCompanion, SPMCMessagesRequestMetaDataCampaignCompanion, SPMCMetaDataRequestCompanion, SPMCMetaDataRequest, SPMCMetaDataRequestCampaignsCampaign, SPMCMetaDataRequestCampaignsCompanion, SPMCMetaDataRequestCampaignsCampaignCompanion, SPMCConsentStatusResponseConsentStatusData, SPMCConsentStatusResponseCompanion, SPMCConsentStatusResponseConsentStatusDataCompanion, SPMCMessagesResponseCampaign<ConsentClass>, SPMCMessagesResponseCompanion, SPMCMessagesResponseCampaignCompanion, SPMCMessagesResponseMessage, SPMCMessagesResponseMessageMetaData, SPMCMessagesResponseCCPACompanion, SPMCMessagesResponseCCPA, SPMCMessagesResponseGDPRCompanion, SPMCMessagesResponseGDPR, SPMCMessagesResponseMessageGDPRCategory, SPMCKotlinx_serialization_jsonJsonElement, SPMCMessagesResponseMessageCompanion, SPMCMessagesResponseMessageGDPRCategoryCategoryType, SPMCMessagesResponseMessageGDPRCategoryVendor, SPMCMessagesResponseMessageGDPRCategoryCompanion, SPMCMessagesResponseMessageGDPRCategoryCategoryTypeCompanion, SPMCStringEnumWithDefaultSerializer<T>, SPMCMessagesResponseMessageGDPRCategoryCategoryTypeSerializer, SPMCMessagesResponseMessageGDPRCategoryVendorVendorType, SPMCMessagesResponseMessageGDPRCategoryVendorCompanion, SPMCMessagesResponseMessageGDPRCategoryVendorVendorTypeCompanion, SPMCMessagesResponseMessageGDPRCategoryVendorVendorTypeSerializer, SPMCMessagesResponseMessageMetaDataMessageCategory, SPMCMessagesResponseMessageMetaDataMessageSubCategory, SPMCMessagesResponseMessageMetaDataCompanion, SPMCMessagesResponseMessageMetaDataMessageCategoryCompanion, SPMCIntEnumSerializer<T>, SPMCMessagesResponseMessageMetaDataMessageCategorySerializer, SPMCMessagesResponseMessageMetaDataMessageSubCategoryCompanion, SPMCMessagesResponseMessageMetaDataMessageSubCategorySerializer, SPMCMessagesResponseUSNatCompanion, SPMCMessagesResponseUSNat, SPMCMetaDataResponseMetaDataResponseGDPR, SPMCMetaDataResponseMetaDataResponseUSNat, SPMCMetaDataResponseMetaDataResponseCCPA, SPMCMetaDataResponseCompanion, SPMCMetaDataResponseMetaDataResponseCCPACompanion, SPMCMetaDataResponseMetaDataResponseGDPRCompanion, SPMCMetaDataResponseMetaDataResponseUSNatCompanion, SPMCRepositoryKeys, SPMCKtor_client_coreHttpClientCall, SPMCKtor_utilsGMTDate, SPMCKtor_httpHttpStatusCode, SPMCKtor_httpHttpProtocolVersion, SPMCKtor_client_coreHttpResponse, SPMCKtor_httpURLProtocol, SPMCKtor_httpURLBuilderCompanion, SPMCKtor_httpUrl, SPMCKtor_httpURLBuilder, SPMCKotlinx_serialization_jsonJson, SPMCKotlinRuntimeException, SPMCKotlinIllegalStateException, SPMCKotlinx_serialization_jsonJsonElementCompanion, SPMCKotlinx_serialization_jsonJsonPrimitiveCompanion, SPMCKtor_client_coreHttpRequestData, SPMCKtor_client_coreHttpResponseData, SPMCKtor_client_coreHttpClient, SPMCKtor_client_coreHttpClientEngineConfig, SPMCKotlinx_coroutines_coreCoroutineDispatcher, SPMCKotlinx_serialization_coreSerializersModule, SPMCKotlinx_serialization_coreSerialKind, SPMCKotlinNothing, SPMCKtor_client_coreHttpClientCallCompanion, SPMCKtor_utilsTypeInfo, SPMCKtor_utilsWeekDay, SPMCKtor_utilsMonth, SPMCKtor_utilsGMTDateCompanion, SPMCKtor_httpHttpStatusCodeCompanion, SPMCKtor_httpHttpProtocolVersionCompanion, SPMCKtor_httpURLProtocolCompanion, SPMCKtor_httpUrlCompanion, SPMCKotlinx_serialization_jsonJsonDefault, SPMCKotlinx_serialization_jsonJsonConfiguration, SPMCKtor_utilsAttributeKey<T>, SPMCKtor_httpHttpMethod, SPMCKtor_httpOutgoingContent, SPMCKtor_client_coreHttpClientConfig<T>, SPMCKtor_eventsEvents, SPMCKtor_client_coreHttpReceivePipeline, SPMCKtor_client_coreHttpRequestPipeline, SPMCKtor_client_coreHttpResponsePipeline, SPMCKtor_client_coreHttpSendPipeline, SPMCKtor_client_coreProxyConfig, SPMCKotlinAbstractCoroutineContextElement, SPMCKotlinx_coroutines_coreCoroutineDispatcherKey, SPMCKotlinByteArray, SPMCKotlinx_io_coreBuffer, SPMCKtor_utilsWeekDayCompanion, SPMCKtor_utilsMonthCompanion, SPMCKotlinKTypeProjection, SPMCKotlinx_serialization_jsonClassDiscriminatorMode, SPMCKtor_httpHttpMethodCompanion, SPMCKtor_httpContentType, SPMCKotlinCancellationException, SPMCKtor_eventsEventDefinition<T>, SPMCKtor_utilsPipelinePhase, SPMCKtor_utilsPipeline<TSubject, TContext>, SPMCKtor_client_coreHttpReceivePipelinePhases, SPMCKotlinUnit, SPMCKtor_client_coreHttpRequestPipelinePhases, SPMCKtor_client_coreHttpRequestBuilder, SPMCKtor_client_coreHttpResponsePipelinePhases, SPMCKtor_client_coreHttpResponseContainer, SPMCKtor_client_coreHttpSendPipelinePhases, SPMCKotlinAbstractCoroutineContextKey<B, E>, SPMCKotlinByteIterator, SPMCKotlinKVariance, SPMCKotlinKTypeProjectionCompanion, SPMCKtor_httpHeaderValueParam, SPMCKtor_httpHeaderValueWithParametersCompanion, SPMCKtor_httpHeaderValueWithParameters, SPMCKtor_httpContentTypeCompanion, SPMCKtor_httpHeadersBuilder, SPMCKtor_client_coreHttpRequestBuilderCompanion, SPMCKtor_utilsStringValuesBuilderImpl;
 
-@protocol SPMCDeviceInformation, SPMCKotlinComparable, SPMCKotlinx_serialization_coreKSerializer, SPMCSPClient, SPMCKtor_client_coreHttpClientEngine, SPMCKotlinx_serialization_coreEncoder, SPMCKotlinx_serialization_coreSerialDescriptor, SPMCKotlinx_serialization_coreSerializationStrategy, SPMCKotlinx_serialization_coreDecoder, SPMCKotlinx_serialization_coreDeserializationStrategy, SPMCIntEnum, SPMCMultiplatform_settingsSettings, SPMCKtor_httpHeaders, SPMCKtor_httpHttpMessage, SPMCKotlinCoroutineContext, SPMCKotlinx_coroutines_coreCoroutineScope, SPMCKtor_ioByteReadChannel, SPMCKotlinKSuspendFunction1, SPMCKtor_httpParameters, SPMCKtor_httpParametersBuilder, SPMCKtor_client_coreClientPlugin, SPMCKotlinIterator, SPMCKtor_client_coreHttpClientEngineCapability, SPMCKtor_ioCloseable, SPMCKotlinx_serialization_coreCompositeEncoder, SPMCKotlinAnnotation, SPMCKotlinx_serialization_coreCompositeDecoder, SPMCKotlinMapEntry, SPMCKtor_utilsStringValues, SPMCKotlinCoroutineContextElement, SPMCKotlinCoroutineContextKey, SPMCKtor_utilsAttributes, SPMCKtor_client_coreHttpRequest, SPMCKtor_ioReadSession, SPMCKotlinSuspendFunction1, SPMCKotlinAppendable, SPMCKotlinKType, SPMCKotlinKAnnotatedElement, SPMCKotlinKCallable, SPMCKotlinFunction, SPMCKotlinKFunction, SPMCKtor_utilsStringValuesBuilder, SPMCKotlinx_serialization_coreSerialFormat, SPMCKotlinx_serialization_coreStringFormat, SPMCKtor_client_coreHttpClientPlugin, SPMCKotlinx_coroutines_coreJob, SPMCKotlinContinuation, SPMCKotlinContinuationInterceptor, SPMCKotlinx_coroutines_coreRunnable, SPMCKotlinx_serialization_coreSerializersModuleCollector, SPMCKotlinKClass, SPMCKtor_ioObjectPool, SPMCKotlinKClassifier, SPMCKotlinx_serialization_jsonJsonNamingStrategy, SPMCKotlinx_coroutines_coreChildHandle, SPMCKotlinx_coroutines_coreChildJob, SPMCKotlinx_coroutines_coreDisposableHandle, SPMCKotlinSequence, SPMCKotlinx_coroutines_coreSelectClause0, SPMCKotlinSuspendFunction2, SPMCKotlinKDeclarationContainer, SPMCKotlinx_coroutines_coreParentJob, SPMCKotlinx_coroutines_coreSelectInstance, SPMCKotlinx_coroutines_coreSelectClause, SPMCKtor_httpHttpMessageBuilder;
+@protocol SPMCKotlinComparable, SPMCKotlinx_serialization_coreKSerializer, SPMCSPClient, SPMCKtor_client_coreHttpClientEngine, SPMCKotlinx_serialization_coreEncoder, SPMCKotlinx_serialization_coreSerialDescriptor, SPMCKotlinx_serialization_coreSerializationStrategy, SPMCKotlinx_serialization_coreDecoder, SPMCKotlinx_serialization_coreDeserializationStrategy, SPMCIntEnum, SPMCMultiplatform_settingsSettings, SPMCKtor_httpHeaders, SPMCKtor_httpHttpMessage, SPMCKotlinCoroutineContext, SPMCKotlinx_coroutines_coreCoroutineScope, SPMCKtor_ioByteReadChannel, SPMCKotlinKSuspendFunction1, SPMCKtor_httpParameters, SPMCKtor_httpParametersBuilder, SPMCKtor_client_coreClientPlugin, SPMCKotlinIterator, SPMCKtor_client_coreHttpClientEngineCapability, SPMCKtor_ioCloseable, SPMCKotlinx_serialization_coreCompositeEncoder, SPMCKotlinAnnotation, SPMCKotlinx_serialization_coreCompositeDecoder, SPMCKotlinMapEntry, SPMCKtor_utilsStringValues, SPMCKotlinCoroutineContextElement, SPMCKotlinCoroutineContextKey, SPMCKtor_utilsAttributes, SPMCKtor_client_coreHttpRequest, SPMCKotlinx_io_coreSource, SPMCKotlinKType, SPMCKotlinKAnnotatedElement, SPMCKotlinKCallable, SPMCKotlinFunction, SPMCKotlinKFunction, SPMCKotlinSuspendFunction1, SPMCKtor_utilsStringValuesBuilder, SPMCKotlinx_serialization_coreSerialFormat, SPMCKotlinx_serialization_coreStringFormat, SPMCKtor_client_coreHttpClientPlugin, SPMCKotlinx_coroutines_coreJob, SPMCKotlinContinuation, SPMCKotlinContinuationInterceptor, SPMCKotlinx_coroutines_coreRunnable, SPMCKotlinx_serialization_coreSerializersModuleCollector, SPMCKotlinKClass, SPMCKotlinx_io_coreRawSink, SPMCKotlinAutoCloseable, SPMCKotlinx_io_coreRawSource, SPMCKotlinKClassifier, SPMCKotlinx_serialization_jsonJsonNamingStrategy, SPMCKotlinx_coroutines_coreChildHandle, SPMCKotlinx_coroutines_coreChildJob, SPMCKotlinx_coroutines_coreDisposableHandle, SPMCKotlinSequence, SPMCKotlinx_coroutines_coreSelectClause0, SPMCKotlinSuspendFunction2, SPMCKotlinKDeclarationContainer, SPMCKotlinx_io_coreSink, SPMCKotlinx_coroutines_coreParentJob, SPMCKotlinx_coroutines_coreSelectInstance, SPMCKotlinx_coroutines_coreSelectClause, SPMCKtor_httpHttpMessageBuilder;
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -158,17 +158,9 @@ __attribute__((swift_name("Coordinator")))
 - (void)getMetaDataCampaigns:(SPMCMetaDataRequestCampaigns *)campaigns completionHandler:(void (^)(NSString * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("getMetaData(campaigns:completionHandler:)")));
 @end
 
-__attribute__((swift_name("DeviceInformation")))
-@protocol SPMCDeviceInformation
-@required
-@property (readonly) NSString *deviceFamily __attribute__((swift_name("deviceFamily")));
-@property (readonly) SPMCOSName *osName __attribute__((swift_name("osName")));
-@property (readonly) NSString *osVersion __attribute__((swift_name("osVersion")));
-@end
-
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("DeviceInformationConcrete")))
-@interface SPMCDeviceInformationConcrete : SPMCBase <SPMCDeviceInformation>
+__attribute__((swift_name("DeviceInformation")))
+@interface SPMCDeviceInformation : SPMCBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
 @property (readonly) NSString *deviceFamily __attribute__((swift_name("deviceFamily")));
@@ -790,6 +782,7 @@ __attribute__((swift_name("DefaultRequest")))
 @interface SPMCDefaultRequest : SPMCBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (instancetype)initWithSeen0:(int32_t)seen0 env:(NSString * _Nullable)env scriptType:(NSString * _Nullable)scriptType scriptVersion:(NSString * _Nullable)scriptVersion serializationConstructorMarker:(id _Nullable)serializationConstructorMarker __attribute__((swift_name("init(seen0:env:scriptType:scriptVersion:serializationConstructorMarker:)"))) __attribute__((objc_designated_initializer));
 @property (class, readonly, getter=companion) SPMCDefaultRequestCompanion *companion __attribute__((swift_name("companion")));
 @property (readonly) NSString *env __attribute__((swift_name("env")));
 @property (readonly) NSString *scriptType __attribute__((swift_name("scriptType")));
@@ -807,6 +800,7 @@ __attribute__((swift_name("ErrorMetricsRequest")))
 - (instancetype)initWithCode:(NSString *)code accountId:(NSString *)accountId description:(NSString *)description sdkVersion:(NSString *)sdkVersion osVersion:(NSString *)osVersion deviceFamily:(NSString *)deviceFamily propertyId:(NSString *)propertyId propertyName:(NSString *)propertyName campaignType:(SPMCSPCampaignType * _Nullable)campaignType __attribute__((swift_name("init(code:accountId:description:sdkVersion:osVersion:deviceFamily:propertyId:propertyName:campaignType:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 + (instancetype)new __attribute__((unavailable));
+- (instancetype)initWithSeen0:(int32_t)seen0 env:(NSString * _Nullable)env scriptType:(NSString * _Nullable)scriptType scriptVersion:(NSString * _Nullable)scriptVersion serializationConstructorMarker:(id _Nullable)serializationConstructorMarker __attribute__((swift_name("init(seen0:env:scriptType:scriptVersion:serializationConstructorMarker:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @property (class, readonly, getter=companion) SPMCErrorMetricsRequestCompanion *companion __attribute__((swift_name("companion")));
 - (SPMCErrorMetricsRequest *)doCopyCode:(NSString *)code accountId:(NSString *)accountId description:(NSString *)description sdkVersion:(NSString *)sdkVersion osVersion:(NSString *)osVersion deviceFamily:(NSString *)deviceFamily propertyId:(NSString *)propertyId propertyName:(NSString *)propertyName campaignType:(SPMCSPCampaignType * _Nullable)campaignType __attribute__((swift_name("doCopy(code:accountId:description:sdkVersion:osVersion:deviceFamily:propertyId:propertyName:campaignType:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
@@ -884,7 +878,7 @@ __attribute__((swift_name("SourcepointClient")))
 @interface SPMCSourcepointClient : SPMCBase <SPMCSPClient>
 - (instancetype)initWithAccountId:(int32_t)accountId propertyId:(int32_t)propertyId propertyName:(NSString *)propertyName requestTimeoutInSeconds:(int32_t)requestTimeoutInSeconds __attribute__((swift_name("init(accountId:propertyId:propertyName:requestTimeoutInSeconds:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)initWithAccountId:(int32_t)accountId propertyId:(int32_t)propertyId propertyName:(NSString *)propertyName httpEngine:(id<SPMCKtor_client_coreHttpClientEngine>)httpEngine requestTimeoutInSeconds:(int32_t)requestTimeoutInSeconds __attribute__((swift_name("init(accountId:propertyId:propertyName:httpEngine:requestTimeoutInSeconds:)"))) __attribute__((objc_designated_initializer));
-- (instancetype)initWithAccountId:(int32_t)accountId propertyId:(int32_t)propertyId propertyName:(NSString *)propertyName httpEngine:(id<SPMCKtor_client_coreHttpClientEngine> _Nullable)httpEngine device:(id<SPMCDeviceInformation>)device version:(NSString *)version requestTimeoutInSeconds:(int32_t)requestTimeoutInSeconds __attribute__((swift_name("init(accountId:propertyId:propertyName:httpEngine:device:version:requestTimeoutInSeconds:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithAccountId:(int32_t)accountId propertyId:(int32_t)propertyId propertyName:(NSString *)propertyName httpEngine:(id<SPMCKtor_client_coreHttpClientEngine> _Nullable)httpEngine device:(SPMCDeviceInformation *)device version:(NSString *)version requestTimeoutInSeconds:(int32_t)requestTimeoutInSeconds __attribute__((swift_name("init(accountId:propertyId:propertyName:httpEngine:device:version:requestTimeoutInSeconds:)"))) __attribute__((objc_designated_initializer));
 
 /**
  * @note This method converts instances of CancellationException to errors.
@@ -942,6 +936,7 @@ __attribute__((swift_name("ConsentStatusRequest")))
 - (instancetype)initWithPropertyId:(int32_t)propertyId metadata:(SPMCConsentStatusRequestMetaData *)metadata includeData:(SPMCIncludeData *)includeData authId:(NSString * _Nullable)authId withSiteActions:(BOOL)withSiteActions hasCsp:(BOOL)hasCsp __attribute__((swift_name("init(propertyId:metadata:includeData:authId:withSiteActions:hasCsp:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 + (instancetype)new __attribute__((unavailable));
+- (instancetype)initWithSeen0:(int32_t)seen0 env:(NSString * _Nullable)env scriptType:(NSString * _Nullable)scriptType scriptVersion:(NSString * _Nullable)scriptVersion serializationConstructorMarker:(id _Nullable)serializationConstructorMarker __attribute__((swift_name("init(seen0:env:scriptType:scriptVersion:serializationConstructorMarker:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @property (class, readonly, getter=companion) SPMCConsentStatusRequestCompanion *companion __attribute__((swift_name("companion")));
 - (SPMCConsentStatusRequest *)doCopyPropertyId:(int32_t)propertyId metadata:(SPMCConsentStatusRequestMetaData *)metadata includeData:(SPMCIncludeData *)includeData authId:(NSString * _Nullable)authId withSiteActions:(BOOL)withSiteActions hasCsp:(BOOL)hasCsp __attribute__((swift_name("doCopy(propertyId:metadata:includeData:authId:withSiteActions:hasCsp:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
@@ -1272,6 +1267,7 @@ __attribute__((swift_name("MessagesRequest")))
 - (instancetype)initWithBody:(SPMCMessagesRequestBody *)body metadata:(SPMCMessagesRequestMetaData *)metadata nonKeyedLocalState:(NSString * _Nullable)nonKeyedLocalState localState:(NSString * _Nullable)localState __attribute__((swift_name("init(body:metadata:nonKeyedLocalState:localState:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 + (instancetype)new __attribute__((unavailable));
+- (instancetype)initWithSeen0:(int32_t)seen0 env:(NSString * _Nullable)env scriptType:(NSString * _Nullable)scriptType scriptVersion:(NSString * _Nullable)scriptVersion serializationConstructorMarker:(id _Nullable)serializationConstructorMarker __attribute__((swift_name("init(seen0:env:scriptType:scriptVersion:serializationConstructorMarker:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @property (class, readonly, getter=companion) SPMCMessagesRequestCompanion *companion __attribute__((swift_name("companion")));
 - (SPMCMessagesRequest *)doCopyBody:(SPMCMessagesRequestBody *)body metadata:(SPMCMessagesRequestMetaData *)metadata nonKeyedLocalState:(NSString * _Nullable)nonKeyedLocalState localState:(NSString * _Nullable)localState __attribute__((swift_name("doCopy(body:metadata:nonKeyedLocalState:localState:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
@@ -1538,6 +1534,7 @@ __attribute__((swift_name("MetaDataRequest")))
 - (instancetype)initWithAccountId:(int32_t)accountId propertyId:(int32_t)propertyId metadata:(SPMCMetaDataRequestCampaigns *)metadata __attribute__((swift_name("init(accountId:propertyId:metadata:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 + (instancetype)new __attribute__((unavailable));
+- (instancetype)initWithSeen0:(int32_t)seen0 env:(NSString * _Nullable)env scriptType:(NSString * _Nullable)scriptType scriptVersion:(NSString * _Nullable)scriptVersion serializationConstructorMarker:(id _Nullable)serializationConstructorMarker __attribute__((swift_name("init(seen0:env:scriptType:scriptVersion:serializationConstructorMarker:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @property (class, readonly, getter=companion) SPMCMetaDataRequestCompanion *companion __attribute__((swift_name("companion")));
 - (SPMCMetaDataRequest *)doCopyAccountId:(int32_t)accountId propertyId:(int32_t)propertyId metadata:(SPMCMetaDataRequestCampaigns *)metadata __attribute__((swift_name("doCopy(accountId:propertyId:metadata:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
@@ -2376,7 +2373,7 @@ __attribute__((swift_name("Ktor_client_coreHttpResponse")))
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
 - (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) SPMCKtor_client_coreHttpClientCall *call __attribute__((swift_name("call")));
-@property (readonly) id<SPMCKtor_ioByteReadChannel> content __attribute__((swift_name("content")));
+@property (readonly) id<SPMCKtor_ioByteReadChannel> rawContent __attribute__((swift_name("rawContent")));
 @property (readonly) SPMCKtor_utilsGMTDate *requestTime __attribute__((swift_name("requestTime")));
 @property (readonly) SPMCKtor_utilsGMTDate *responseTime __attribute__((swift_name("responseTime")));
 @property (readonly) SPMCKtor_httpHttpStatusCode *status __attribute__((swift_name("status")));
@@ -2395,7 +2392,7 @@ __attribute__((swift_name("Ktor_client_coreHttpResponse")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("Ktor_httpURLBuilder")))
 @interface SPMCKtor_httpURLBuilder : SPMCBase
-- (instancetype)initWithProtocol:(SPMCKtor_httpURLProtocol *)protocol host:(NSString *)host port:(int32_t)port user:(NSString * _Nullable)user password:(NSString * _Nullable)password pathSegments:(NSArray<NSString *> *)pathSegments parameters:(id<SPMCKtor_httpParameters>)parameters fragment:(NSString *)fragment trailingQuery:(BOOL)trailingQuery __attribute__((swift_name("init(protocol:host:port:user:password:pathSegments:parameters:fragment:trailingQuery:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithProtocol:(SPMCKtor_httpURLProtocol * _Nullable)protocol host:(NSString *)host port:(int32_t)port user:(NSString * _Nullable)user password:(NSString * _Nullable)password pathSegments:(NSArray<NSString *> *)pathSegments parameters:(id<SPMCKtor_httpParameters>)parameters fragment:(NSString *)fragment trailingQuery:(BOOL)trailingQuery __attribute__((swift_name("init(protocol:host:port:user:password:pathSegments:parameters:fragment:trailingQuery:)"))) __attribute__((objc_designated_initializer));
 @property (class, readonly, getter=companion) SPMCKtor_httpURLBuilderCompanion *companion __attribute__((swift_name("companion")));
 - (SPMCKtor_httpUrl *)build __attribute__((swift_name("build()")));
 - (NSString *)buildString __attribute__((swift_name("buildString()")));
@@ -2412,18 +2409,13 @@ __attribute__((swift_name("Ktor_httpURLBuilder")))
 @property NSArray<NSString *> *pathSegments __attribute__((swift_name("pathSegments")));
 @property int32_t port __attribute__((swift_name("port")));
 @property SPMCKtor_httpURLProtocol *protocol __attribute__((swift_name("protocol")));
+@property SPMCKtor_httpURLProtocol * _Nullable protocolOrNull __attribute__((swift_name("protocolOrNull")));
 @property BOOL trailingQuery __attribute__((swift_name("trailingQuery")));
 @property NSString * _Nullable user __attribute__((swift_name("user")));
 @end
 
 @interface SPMCKtor_httpURLBuilder (Extensions)
 - (void)withParamsParamsObject:(id)paramsObject __attribute__((swift_name("withParams(paramsObject:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("DeviceInformationKt")))
-@interface SPMCDeviceInformationKt : SPMCBase
-@property (class, readonly) SPMCDeviceInformationConcrete *Device __attribute__((swift_name("Device")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -2789,154 +2781,25 @@ __attribute__((swift_name("Ktor_ioByteReadChannel")))
  * @note This method converts instances of CancellationException to errors.
  * Other uncaught Kotlin exceptions are fatal.
 */
-- (void)awaitContentWithCompletionHandler:(void (^)(NSError * _Nullable))completionHandler __attribute__((swift_name("awaitContent(completionHandler:)")));
-- (BOOL)cancelCause:(SPMCKotlinThrowable * _Nullable)cause __attribute__((swift_name("cancel(cause:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)discardMax:(int64_t)max completionHandler:(void (^)(SPMCLong * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("discard(max:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)peekToDestination:(SPMCKtor_ioMemory *)destination destinationOffset:(int64_t)destinationOffset offset:(int64_t)offset min:(int64_t)min max:(int64_t)max completionHandler:(void (^)(SPMCLong * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("peekTo(destination:destinationOffset:offset:min:max:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readAvailableDst:(SPMCKtor_ioChunkBuffer *)dst completionHandler:(void (^)(SPMCInt * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readAvailable(dst:completionHandler:)")));
-- (int32_t)readAvailableMin:(int32_t)min block:(void (^)(SPMCKtor_ioBuffer *))block __attribute__((swift_name("readAvailable(min:block:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readAvailableDst:(SPMCKotlinByteArray *)dst offset:(int32_t)offset length:(int32_t)length completionHandler:(void (^)(SPMCInt * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readAvailable(dst:offset:length:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readAvailableDst:(void *)dst offset:(int32_t)offset length:(int32_t)length completionHandler_:(void (^)(SPMCInt * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readAvailable(dst:offset:length:completionHandler_:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readAvailableDst:(void *)dst offset:(int64_t)offset length:(int64_t)length completionHandler__:(void (^)(SPMCInt * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readAvailable(dst:offset:length:completionHandler__:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readBooleanWithCompletionHandler:(void (^)(SPMCBoolean * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readBoolean(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readByteWithCompletionHandler:(void (^)(SPMCByte * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readByte(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readDoubleWithCompletionHandler:(void (^)(SPMCDouble * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readDouble(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readFloatWithCompletionHandler:(void (^)(SPMCFloat * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readFloat(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readFullyDst:(SPMCKtor_ioChunkBuffer *)dst n:(int32_t)n completionHandler:(void (^)(NSError * _Nullable))completionHandler __attribute__((swift_name("readFully(dst:n:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readFullyDst:(SPMCKotlinByteArray *)dst offset:(int32_t)offset length:(int32_t)length completionHandler:(void (^)(NSError * _Nullable))completionHandler __attribute__((swift_name("readFully(dst:offset:length:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readFullyDst:(void *)dst offset:(int32_t)offset length:(int32_t)length completionHandler_:(void (^)(NSError * _Nullable))completionHandler __attribute__((swift_name("readFully(dst:offset:length:completionHandler_:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readFullyDst:(void *)dst offset:(int64_t)offset length:(int64_t)length completionHandler__:(void (^)(NSError * _Nullable))completionHandler __attribute__((swift_name("readFully(dst:offset:length:completionHandler__:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readIntWithCompletionHandler:(void (^)(SPMCInt * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readInt(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readLongWithCompletionHandler:(void (^)(SPMCLong * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readLong(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readPacketSize:(int32_t)size completionHandler:(void (^)(SPMCKtor_ioByteReadPacket * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readPacket(size:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readRemainingLimit:(int64_t)limit completionHandler:(void (^)(SPMCKtor_ioByteReadPacket * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readRemaining(limit:completionHandler:)")));
-- (void)readSessionConsumer:(void (^)(id<SPMCKtor_ioReadSession>))consumer __attribute__((swift_name("readSession(consumer:)"))) __attribute__((deprecated("Use read { } instead.")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readShortWithCompletionHandler:(void (^)(SPMCShort * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readShort(completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readSuspendableSessionConsumer:(id<SPMCKotlinSuspendFunction1>)consumer completionHandler:(void (^)(NSError * _Nullable))completionHandler __attribute__((swift_name("readSuspendableSession(consumer:completionHandler:)"))) __attribute__((deprecated("Use read { } instead.")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readUTF8LineLimit:(int32_t)limit completionHandler:(void (^)(NSString * _Nullable_result, NSError * _Nullable))completionHandler __attribute__((swift_name("readUTF8Line(limit:completionHandler:)")));
-
-/**
- * @note This method converts instances of CancellationException to errors.
- * Other uncaught Kotlin exceptions are fatal.
-*/
-- (void)readUTF8LineToOut:(id<SPMCKotlinAppendable>)out limit:(int32_t)limit completionHandler:(void (^)(SPMCBoolean * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("readUTF8LineTo(out:limit:completionHandler:)")));
-@property (readonly) int32_t availableForRead __attribute__((swift_name("availableForRead")));
+- (void)awaitContentMin:(int32_t)min completionHandler:(void (^)(SPMCBoolean * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("awaitContent(min:completionHandler:)")));
+- (void)cancelCause:(SPMCKotlinThrowable * _Nullable)cause __attribute__((swift_name("cancel(cause:)")));
 @property (readonly) SPMCKotlinThrowable * _Nullable closedCause __attribute__((swift_name("closedCause")));
 @property (readonly) BOOL isClosedForRead __attribute__((swift_name("isClosedForRead")));
-@property (readonly) BOOL isClosedForWrite __attribute__((swift_name("isClosedForWrite")));
-@property (readonly) int64_t totalBytesRead __attribute__((swift_name("totalBytesRead")));
+@property (readonly) id<SPMCKotlinx_io_coreSource> readBuffer __attribute__((swift_name("readBuffer")));
 @end
 
+
+/**
+ * @note annotations
+ *   kotlinx.serialization.Serializable
+*/
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("Ktor_utilsGMTDate")))
 @interface SPMCKtor_utilsGMTDate : SPMCBase <SPMCKotlinComparable>
+- (instancetype)initWithSeconds:(int32_t)seconds minutes:(int32_t)minutes hours:(int32_t)hours dayOfWeek:(SPMCKtor_utilsWeekDay *)dayOfWeek dayOfMonth:(int32_t)dayOfMonth dayOfYear:(int32_t)dayOfYear month:(SPMCKtor_utilsMonth *)month year:(int32_t)year timestamp:(int64_t)timestamp __attribute__((swift_name("init(seconds:minutes:hours:dayOfWeek:dayOfMonth:dayOfYear:month:year:timestamp:)"))) __attribute__((objc_designated_initializer));
 @property (class, readonly, getter=companion) SPMCKtor_utilsGMTDateCompanion *companion __attribute__((swift_name("companion")));
 - (int32_t)compareToOther:(SPMCKtor_utilsGMTDate *)other __attribute__((swift_name("compareTo(other:)")));
+- (SPMCKtor_utilsGMTDate *)doCopy __attribute__((swift_name("doCopy()")));
 - (SPMCKtor_utilsGMTDate *)doCopySeconds:(int32_t)seconds minutes:(int32_t)minutes hours:(int32_t)hours dayOfWeek:(SPMCKtor_utilsWeekDay *)dayOfWeek dayOfMonth:(int32_t)dayOfMonth dayOfYear:(int32_t)dayOfYear month:(SPMCKtor_utilsMonth *)month year:(int32_t)year timestamp:(int64_t)timestamp __attribute__((swift_name("doCopy(seconds:minutes:hours:dayOfWeek:dayOfMonth:dayOfYear:month:year:timestamp:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
@@ -3063,9 +2926,12 @@ __attribute__((swift_name("Ktor_httpUrl")))
 @property (readonly) NSString *host __attribute__((swift_name("host")));
 @property (readonly) id<SPMCKtor_httpParameters> parameters __attribute__((swift_name("parameters")));
 @property (readonly) NSString * _Nullable password __attribute__((swift_name("password")));
-@property (readonly) NSArray<NSString *> *pathSegments __attribute__((swift_name("pathSegments")));
+@property (readonly) NSArray<NSString *> *pathSegments __attribute__((swift_name("pathSegments"))) __attribute__((deprecated("\n        `pathSegments` is deprecated.\n\n        This property will contain an empty path segment at the beginning for URLs with a hostname,\n        and an empty path segment at the end for the URLs with a trailing slash. If you need to keep this behaviour please\n        use [rawSegments]. If you only need to access the meaningful parts of the path, consider using [segments] instead.\n             \n        Please decide if you need [rawSegments] or [segments] explicitly.\n        ")));
 @property (readonly) int32_t port __attribute__((swift_name("port")));
 @property (readonly) SPMCKtor_httpURLProtocol *protocol __attribute__((swift_name("protocol")));
+@property (readonly) SPMCKtor_httpURLProtocol * _Nullable protocolOrNull __attribute__((swift_name("protocolOrNull")));
+@property (readonly) NSArray<NSString *> *rawSegments __attribute__((swift_name("rawSegments")));
+@property (readonly) NSArray<NSString *> *segments __attribute__((swift_name("segments")));
 @property (readonly) int32_t specifiedPort __attribute__((swift_name("specifiedPort")));
 @property (readonly) BOOL trailingQuery __attribute__((swift_name("trailingQuery")));
 @property (readonly) NSString * _Nullable user __attribute__((swift_name("user")));
@@ -3217,9 +3083,10 @@ __attribute__((swift_name("Ktor_client_coreHttpClientEngineConfig")))
 @interface SPMCKtor_client_coreHttpClientEngineConfig : SPMCBase
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+@property SPMCKotlinx_coroutines_coreCoroutineDispatcher * _Nullable dispatcher __attribute__((swift_name("dispatcher")));
 @property BOOL pipelining __attribute__((swift_name("pipelining")));
 @property SPMCKtor_client_coreProxyConfig * _Nullable proxy __attribute__((swift_name("proxy")));
-@property int32_t threadsCount __attribute__((swift_name("threadsCount"))) __attribute__((deprecated("The [threadsCount] property is deprecated. The [Dispatchers.IO] is used by default.")));
+@property int32_t threadsCount __attribute__((swift_name("threadsCount"))) __attribute__((unavailable("The [threadsCount] property is deprecated. Consider setting [dispatcher] instead.")));
 @end
 
 __attribute__((swift_name("KotlinCoroutineContextElement")))
@@ -3258,15 +3125,15 @@ __attribute__((swift_name("Kotlinx_coroutines_coreCoroutineDispatcher")))
 - (instancetype)initWithKey:(id<SPMCKotlinCoroutineContextKey>)key __attribute__((swift_name("init(key:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @property (class, readonly, getter=companion) SPMCKotlinx_coroutines_coreCoroutineDispatcherKey *companion __attribute__((swift_name("companion")));
 - (void)dispatchContext:(id<SPMCKotlinCoroutineContext>)context block:(id<SPMCKotlinx_coroutines_coreRunnable>)block __attribute__((swift_name("dispatch(context:block:)")));
-- (void)dispatchYieldContext:(id<SPMCKotlinCoroutineContext>)context block:(id<SPMCKotlinx_coroutines_coreRunnable>)block __attribute__((swift_name("dispatchYield(context:block:)")));
-- (id<SPMCKotlinContinuation>)interceptContinuationContinuation:(id<SPMCKotlinContinuation>)continuation __attribute__((swift_name("interceptContinuation(continuation:)")));
-- (BOOL)isDispatchNeededContext:(id<SPMCKotlinCoroutineContext>)context __attribute__((swift_name("isDispatchNeeded(context:)")));
 
 /**
  * @note annotations
- *   kotlinx.coroutines.ExperimentalCoroutinesApi
+ *   kotlinx.coroutines.InternalCoroutinesApi
 */
-- (SPMCKotlinx_coroutines_coreCoroutineDispatcher *)limitedParallelismParallelism:(int32_t)parallelism __attribute__((swift_name("limitedParallelism(parallelism:)")));
+- (void)dispatchYieldContext:(id<SPMCKotlinCoroutineContext>)context block:(id<SPMCKotlinx_coroutines_coreRunnable>)block __attribute__((swift_name("dispatchYield(context:block:)")));
+- (id<SPMCKotlinContinuation>)interceptContinuationContinuation:(id<SPMCKotlinContinuation>)continuation __attribute__((swift_name("interceptContinuation(continuation:)")));
+- (BOOL)isDispatchNeededContext:(id<SPMCKotlinCoroutineContext>)context __attribute__((swift_name("isDispatchNeeded(context:)")));
+- (SPMCKotlinx_coroutines_coreCoroutineDispatcher *)limitedParallelismParallelism:(int32_t)parallelism name:(NSString * _Nullable)name __attribute__((swift_name("limitedParallelism(parallelism:name:)")));
 - (SPMCKotlinx_coroutines_coreCoroutineDispatcher *)plusOther:(SPMCKotlinx_coroutines_coreCoroutineDispatcher *)other __attribute__((swift_name("plus(other:)"))) __attribute__((unavailable("Operator '+' on two CoroutineDispatcher objects is meaningless. CoroutineDispatcher is a coroutine context element and `+` is a set-sum operator for coroutine contexts. The dispatcher to the right of `+` just replaces the dispatcher to the left.")));
 - (void)releaseInterceptedContinuationContinuation:(id<SPMCKotlinContinuation>)continuation __attribute__((swift_name("releaseInterceptedContinuation(continuation:)")));
 - (NSString *)description __attribute__((swift_name("description()")));
@@ -3407,19 +3274,17 @@ __attribute__((swift_name("Ktor_client_coreHttpClientCall.Companion")))
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
 + (instancetype)companion __attribute__((swift_name("init()")));
 @property (class, readonly, getter=shared) SPMCKtor_client_coreHttpClientCallCompanion *shared __attribute__((swift_name("shared")));
-@property (readonly) SPMCKtor_utilsAttributeKey<id> *CustomResponse __attribute__((swift_name("CustomResponse"))) __attribute__((unavailable("This is going to be removed. Please file a ticket with clarification why and what for do you need it.")));
 @end
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("Ktor_utilsTypeInfo")))
 @interface SPMCKtor_utilsTypeInfo : SPMCBase
-- (instancetype)initWithType:(id<SPMCKotlinKClass>)type reifiedType:(id<SPMCKotlinKType>)reifiedType kotlinType:(id<SPMCKotlinKType> _Nullable)kotlinType __attribute__((swift_name("init(type:reifiedType:kotlinType:)"))) __attribute__((objc_designated_initializer));
-- (SPMCKtor_utilsTypeInfo *)doCopyType:(id<SPMCKotlinKClass>)type reifiedType:(id<SPMCKotlinKType>)reifiedType kotlinType:(id<SPMCKotlinKType> _Nullable)kotlinType __attribute__((swift_name("doCopy(type:reifiedType:kotlinType:)")));
+- (instancetype)initWithType:(id<SPMCKotlinKClass>)type kotlinType:(id<SPMCKotlinKType> _Nullable)kotlinType __attribute__((swift_name("init(type:kotlinType:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithType:(id<SPMCKotlinKClass>)type reifiedType:(id<SPMCKotlinKType>)reifiedType kotlinType:(id<SPMCKotlinKType> _Nullable)kotlinType __attribute__((swift_name("init(type:reifiedType:kotlinType:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("Use constructor without reifiedType parameter.")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
 - (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) id<SPMCKotlinKType> _Nullable kotlinType __attribute__((swift_name("kotlinType")));
-@property (readonly) id<SPMCKotlinKType> reifiedType __attribute__((swift_name("reifiedType")));
 @property (readonly) id<SPMCKotlinKClass> type __attribute__((swift_name("type")));
 @end
 
@@ -3447,179 +3312,44 @@ __attribute__((swift_name("Ktor_client_coreHttpRequest")))
 @property (readonly) SPMCKtor_httpUrl *url __attribute__((swift_name("url")));
 @end
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioMemory")))
-@interface SPMCKtor_ioMemory : SPMCBase
-- (instancetype)initWithPointer:(void *)pointer size:(int64_t)size __attribute__((swift_name("init(pointer:size:)"))) __attribute__((objc_designated_initializer));
-@property (class, readonly, getter=companion) SPMCKtor_ioMemoryCompanion *companion __attribute__((swift_name("companion")));
-- (void)doCopyToDestination:(SPMCKtor_ioMemory *)destination offset:(int32_t)offset length:(int32_t)length destinationOffset:(int32_t)destinationOffset __attribute__((swift_name("doCopyTo(destination:offset:length:destinationOffset:)")));
-- (void)doCopyToDestination:(SPMCKtor_ioMemory *)destination offset:(int64_t)offset length:(int64_t)length destinationOffset_:(int64_t)destinationOffset __attribute__((swift_name("doCopyTo(destination:offset:length:destinationOffset_:)")));
-- (int8_t)loadAtIndex:(int32_t)index __attribute__((swift_name("loadAt(index:)")));
-- (int8_t)loadAtIndex_:(int64_t)index __attribute__((swift_name("loadAt(index_:)")));
-- (SPMCKtor_ioMemory *)sliceOffset:(int32_t)offset length:(int32_t)length __attribute__((swift_name("slice(offset:length:)")));
-- (SPMCKtor_ioMemory *)sliceOffset:(int64_t)offset length_:(int64_t)length __attribute__((swift_name("slice(offset:length_:)")));
-- (void)storeAtIndex:(int32_t)index value:(int8_t)value __attribute__((swift_name("storeAt(index:value:)")));
-- (void)storeAtIndex:(int64_t)index value_:(int8_t)value __attribute__((swift_name("storeAt(index:value_:)")));
-@property (readonly) void *pointer __attribute__((swift_name("pointer")));
-@property (readonly) int64_t size __attribute__((swift_name("size")));
-@property (readonly) int32_t size32 __attribute__((swift_name("size32")));
-@end
-
-__attribute__((swift_name("Ktor_ioBuffer")))
-@interface SPMCKtor_ioBuffer : SPMCBase
-- (instancetype)initWithMemory:(SPMCKtor_ioMemory *)memory __attribute__((swift_name("init(memory:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("\n    We're migrating to the new kotlinx-io library.\n    This declaration is deprecated and will be removed in Ktor 4.0.0\n    If you have any problems with migration, please contact us in \n    https://youtrack.jetbrains.com/issue/KTOR-6030/Migrate-to-new-kotlinx.io-library\n    ")));
-@property (class, readonly, getter=companion) SPMCKtor_ioBufferCompanion *companion __attribute__((swift_name("companion")));
-- (void)commitWrittenCount:(int32_t)count __attribute__((swift_name("commitWritten(count:)")));
-- (void)discardExactCount:(int32_t)count __attribute__((swift_name("discardExact(count:)")));
-- (SPMCKtor_ioBuffer *)duplicate __attribute__((swift_name("duplicate()")));
 
 /**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
+ * @note annotations
+ *   kotlin.SinceKotlin(version="2.0")
 */
-- (void)duplicateToCopy:(SPMCKtor_ioBuffer *)copy __attribute__((swift_name("duplicateTo(copy:)")));
-- (int8_t)readByte __attribute__((swift_name("readByte()")));
-- (void)reserveEndGapEndGap:(int32_t)endGap __attribute__((swift_name("reserveEndGap(endGap:)")));
-- (void)reserveStartGapStartGap:(int32_t)startGap __attribute__((swift_name("reserveStartGap(startGap:)")));
-- (void)reset __attribute__((swift_name("reset()")));
-- (void)resetForRead __attribute__((swift_name("resetForRead()")));
-- (void)resetForWrite __attribute__((swift_name("resetForWrite()")));
-- (void)resetForWriteLimit:(int32_t)limit __attribute__((swift_name("resetForWrite(limit:)")));
-- (void)rewindCount:(int32_t)count __attribute__((swift_name("rewind(count:)")));
-- (NSString *)description __attribute__((swift_name("description()")));
-- (int32_t)tryPeekByte __attribute__((swift_name("tryPeekByte()")));
-- (int32_t)tryReadByte __attribute__((swift_name("tryReadByte()")));
-- (void)writeByteValue:(int8_t)value __attribute__((swift_name("writeByte(value:)")));
-@property (readonly) int32_t capacity __attribute__((swift_name("capacity")));
-@property (readonly) int32_t endGap __attribute__((swift_name("endGap")));
-@property (readonly) int32_t limit __attribute__((swift_name("limit")));
-@property (readonly) SPMCKtor_ioMemory *memory __attribute__((swift_name("memory")));
-@property (readonly) int32_t readPosition __attribute__((swift_name("readPosition")));
-@property (readonly) int32_t readRemaining __attribute__((swift_name("readRemaining")));
-@property (readonly) int32_t startGap __attribute__((swift_name("startGap")));
-@property (readonly) int32_t writePosition __attribute__((swift_name("writePosition")));
-@property (readonly) int32_t writeRemaining __attribute__((swift_name("writeRemaining")));
-@end
-
-__attribute__((swift_name("Ktor_ioChunkBuffer")))
-@interface SPMCKtor_ioChunkBuffer : SPMCKtor_ioBuffer
-- (instancetype)initWithMemory:(SPMCKtor_ioMemory *)memory origin:(SPMCKtor_ioChunkBuffer * _Nullable)origin parentPool:(id<SPMCKtor_ioObjectPool> _Nullable)parentPool __attribute__((swift_name("init(memory:origin:parentPool:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("\n    We're migrating to the new kotlinx-io library.\n    This declaration is deprecated and will be removed in Ktor 4.0.0\n    If you have any problems with migration, please contact us in \n    https://youtrack.jetbrains.com/issue/KTOR-6030/Migrate-to-new-kotlinx.io-library\n    ")));
-- (instancetype)initWithMemory:(SPMCKtor_ioMemory *)memory __attribute__((swift_name("init(memory:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-@property (class, readonly, getter=companion) SPMCKtor_ioChunkBufferCompanion *companion __attribute__((swift_name("companion")));
-- (SPMCKtor_ioChunkBuffer * _Nullable)cleanNext __attribute__((swift_name("cleanNext()")));
-- (SPMCKtor_ioChunkBuffer *)duplicate __attribute__((swift_name("duplicate()")));
-- (void)releasePool:(id<SPMCKtor_ioObjectPool>)pool __attribute__((swift_name("release(pool:)")));
-- (void)reset __attribute__((swift_name("reset()")));
-@property (getter=next_) SPMCKtor_ioChunkBuffer * _Nullable next __attribute__((swift_name("next")));
-@property (readonly) SPMCKtor_ioChunkBuffer * _Nullable origin __attribute__((swift_name("origin")));
-@property (readonly) int32_t referenceCount __attribute__((swift_name("referenceCount")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("KotlinByteArray")))
-@interface SPMCKotlinByteArray : SPMCBase
-+ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
-+ (instancetype)arrayWithSize:(int32_t)size init:(SPMCByte *(^)(SPMCInt *))init __attribute__((swift_name("init(size:init:)")));
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-- (int8_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
-- (SPMCKotlinByteIterator *)iterator __attribute__((swift_name("iterator()")));
-- (void)setIndex:(int32_t)index value:(int8_t)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
-@end
-
-__attribute__((swift_name("Ktor_ioInput")))
-@interface SPMCKtor_ioInput : SPMCBase <SPMCKtor_ioCloseable>
-- (instancetype)initWithHead:(SPMCKtor_ioChunkBuffer *)head remaining:(int64_t)remaining pool:(id<SPMCKtor_ioObjectPool>)pool __attribute__((swift_name("init(head:remaining:pool:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("\n    We're migrating to the new kotlinx-io library.\n    This declaration is deprecated and will be removed in Ktor 4.0.0\n    If you have any problems with migration, please contact us in \n    https://youtrack.jetbrains.com/issue/KTOR-6030/Migrate-to-new-kotlinx.io-library\n    ")));
-@property (class, readonly, getter=companion) SPMCKtor_ioInputCompanion *companion __attribute__((swift_name("companion")));
-- (BOOL)canRead __attribute__((swift_name("canRead()")));
+__attribute__((swift_name("KotlinAutoCloseable")))
+@protocol SPMCKotlinAutoCloseable
+@required
 - (void)close __attribute__((swift_name("close()")));
+@end
 
-/**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
-*/
-- (void)closeSource __attribute__((swift_name("closeSource()")));
-- (int32_t)discardN:(int32_t)n __attribute__((swift_name("discard(n:)")));
-- (int64_t)discardN_:(int64_t)n __attribute__((swift_name("discard(n_:)")));
-- (void)discardExactN:(int32_t)n __attribute__((swift_name("discardExact(n:)")));
+__attribute__((swift_name("Kotlinx_io_coreRawSource")))
+@protocol SPMCKotlinx_io_coreRawSource <SPMCKotlinAutoCloseable>
+@required
+- (int64_t)readAtMostToSink:(SPMCKotlinx_io_coreBuffer *)sink byteCount:(int64_t)byteCount __attribute__((swift_name("readAtMostTo(sink:byteCount:)")));
+@end
 
-/**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
-*/
-- (SPMCKtor_ioChunkBuffer * _Nullable)fill __attribute__((swift_name("fill()")));
-
-/**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
-*/
-- (int32_t)fillDestination:(SPMCKtor_ioMemory *)destination offset:(int32_t)offset length:(int32_t)length __attribute__((swift_name("fill(destination:offset:length:)")));
-- (BOOL)hasBytesN:(int32_t)n __attribute__((swift_name("hasBytes(n:)")));
-
-/**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
-*/
-- (void)markNoMoreChunksAvailable __attribute__((swift_name("markNoMoreChunksAvailable()")));
-- (int32_t)peekToBuffer:(SPMCKtor_ioChunkBuffer *)buffer __attribute__((swift_name("peekTo(buffer:)")));
-- (int64_t)peekToDestination:(SPMCKtor_ioMemory *)destination destinationOffset:(int64_t)destinationOffset offset:(int64_t)offset min:(int64_t)min max:(int64_t)max __attribute__((swift_name("peekTo(destination:destinationOffset:offset:min:max:)")));
+__attribute__((swift_name("Kotlinx_io_coreSource")))
+@protocol SPMCKotlinx_io_coreSource <SPMCKotlinx_io_coreRawSource>
+@required
+- (BOOL)exhausted __attribute__((swift_name("exhausted()")));
+- (id<SPMCKotlinx_io_coreSource>)peek __attribute__((swift_name("peek()")));
+- (int32_t)readAtMostToSink:(SPMCKotlinByteArray *)sink startIndex:(int32_t)startIndex endIndex:(int32_t)endIndex __attribute__((swift_name("readAtMostTo(sink:startIndex:endIndex:)")));
 - (int8_t)readByte __attribute__((swift_name("readByte()")));
-- (NSString *)readTextMin:(int32_t)min max:(int32_t)max __attribute__((swift_name("readText(min:max:)")));
-- (int32_t)readTextOut:(id<SPMCKotlinAppendable>)out min:(int32_t)min max:(int32_t)max __attribute__((swift_name("readText(out:min:max:)")));
-- (NSString *)readTextExactExactCharacters:(int32_t)exactCharacters __attribute__((swift_name("readTextExact(exactCharacters:)")));
-- (void)readTextExactOut:(id<SPMCKotlinAppendable>)out exactCharacters:(int32_t)exactCharacters __attribute__((swift_name("readTextExact(out:exactCharacters:)")));
-- (void)release_ __attribute__((swift_name("release()")));
-- (int32_t)tryPeek __attribute__((swift_name("tryPeek()")));
-@property (readonly) BOOL endOfInput __attribute__((swift_name("endOfInput")));
-@property (readonly) id<SPMCKtor_ioObjectPool> pool __attribute__((swift_name("pool")));
-@property (readonly) int64_t remaining __attribute__((swift_name("remaining")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioByteReadPacket")))
-@interface SPMCKtor_ioByteReadPacket : SPMCKtor_ioInput
-- (instancetype)initWithHead:(SPMCKtor_ioChunkBuffer *)head pool:(id<SPMCKtor_ioObjectPool>)pool __attribute__((swift_name("init(head:pool:)"))) __attribute__((objc_designated_initializer));
-- (instancetype)initWithHead:(SPMCKtor_ioChunkBuffer *)head remaining:(int64_t)remaining pool:(id<SPMCKtor_ioObjectPool>)pool __attribute__((swift_name("init(head:remaining:pool:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-@property (class, readonly, getter=companion) SPMCKtor_ioByteReadPacketCompanion *companion __attribute__((swift_name("companion")));
+- (int32_t)readInt __attribute__((swift_name("readInt()")));
+- (int64_t)readLong __attribute__((swift_name("readLong()")));
+- (int16_t)readShort __attribute__((swift_name("readShort()")));
+- (void)readToSink:(id<SPMCKotlinx_io_coreRawSink>)sink byteCount:(int64_t)byteCount __attribute__((swift_name("readTo(sink:byteCount:)")));
+- (BOOL)requestByteCount:(int64_t)byteCount __attribute__((swift_name("request(byteCount:)")));
+- (void)requireByteCount:(int64_t)byteCount __attribute__((swift_name("require(byteCount:)")));
+- (void)skipByteCount:(int64_t)byteCount __attribute__((swift_name("skip(byteCount:)")));
+- (int64_t)transferToSink:(id<SPMCKotlinx_io_coreRawSink>)sink __attribute__((swift_name("transferTo(sink:)")));
 
 /**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
+ * @note annotations
+ *   kotlinx.io.InternalIoApi
 */
-- (void)closeSource __attribute__((swift_name("closeSource()")));
-- (SPMCKtor_ioByteReadPacket *)doCopy __attribute__((swift_name("doCopy()")));
-
-/**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
-*/
-- (SPMCKtor_ioChunkBuffer * _Nullable)fill __attribute__((swift_name("fill()")));
-
-/**
- * @note This method has protected visibility in Kotlin source and is intended only for use by subclasses.
-*/
-- (int32_t)fillDestination:(SPMCKtor_ioMemory *)destination offset:(int32_t)offset length:(int32_t)length __attribute__((swift_name("fill(destination:offset:length:)")));
-- (NSString *)description __attribute__((swift_name("description()")));
-@end
-
-__attribute__((swift_name("Ktor_ioReadSession")))
-@protocol SPMCKtor_ioReadSession
-@required
-- (int32_t)discardN:(int32_t)n __attribute__((swift_name("discard(n:)")));
-- (SPMCKtor_ioChunkBuffer * _Nullable)requestAtLeast:(int32_t)atLeast __attribute__((swift_name("request(atLeast:)")));
-@property (readonly) int32_t availableForRead __attribute__((swift_name("availableForRead")));
-@end
-
-__attribute__((swift_name("KotlinAppendable")))
-@protocol SPMCKotlinAppendable
-@required
-- (id<SPMCKotlinAppendable>)appendValue:(unichar)value __attribute__((swift_name("append(value:)")));
-- (id<SPMCKotlinAppendable>)appendValue_:(id _Nullable)value __attribute__((swift_name("append(value_:)")));
-- (id<SPMCKotlinAppendable>)appendValue:(id _Nullable)value startIndex:(int32_t)startIndex endIndex:(int32_t)endIndex __attribute__((swift_name("append(value:startIndex:endIndex:)")));
-@end
-
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_utilsGMTDate.Companion")))
-@interface SPMCKtor_utilsGMTDateCompanion : SPMCBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)companion __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) SPMCKtor_utilsGMTDateCompanion *shared __attribute__((swift_name("shared")));
-@property (readonly) SPMCKtor_utilsGMTDate *START __attribute__((swift_name("START")));
+@property (readonly) SPMCKotlinx_io_coreBuffer *buffer __attribute__((swift_name("buffer")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -3637,6 +3367,7 @@ __attribute__((swift_name("Ktor_utilsWeekDay")))
 @property (class, readonly) SPMCKtor_utilsWeekDay *saturday __attribute__((swift_name("saturday")));
 @property (class, readonly) SPMCKtor_utilsWeekDay *sunday __attribute__((swift_name("sunday")));
 + (SPMCKotlinArray<SPMCKtor_utilsWeekDay *> *)values __attribute__((swift_name("values()")));
+@property (class, readonly) NSArray<SPMCKtor_utilsWeekDay *> *entries __attribute__((swift_name("entries")));
 @property (readonly) NSString *value __attribute__((swift_name("value")));
 @end
 
@@ -3660,7 +3391,19 @@ __attribute__((swift_name("Ktor_utilsMonth")))
 @property (class, readonly) SPMCKtor_utilsMonth *november __attribute__((swift_name("november")));
 @property (class, readonly) SPMCKtor_utilsMonth *december __attribute__((swift_name("december")));
 + (SPMCKotlinArray<SPMCKtor_utilsMonth *> *)values __attribute__((swift_name("values()")));
+@property (class, readonly) NSArray<SPMCKtor_utilsMonth *> *entries __attribute__((swift_name("entries")));
 @property (readonly) NSString *value __attribute__((swift_name("value")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("Ktor_utilsGMTDate.Companion")))
+@interface SPMCKtor_utilsGMTDateCompanion : SPMCBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) SPMCKtor_utilsGMTDateCompanion *shared __attribute__((swift_name("shared")));
+- (id<SPMCKotlinx_serialization_coreKSerializer>)serializer __attribute__((swift_name("serializer()")));
+@property (readonly) SPMCKtor_utilsGMTDate *START __attribute__((swift_name("START")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -3799,16 +3542,35 @@ __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("Kotlinx_serialization_jsonJsonConfiguration")))
 @interface SPMCKotlinx_serialization_jsonJsonConfiguration : SPMCBase
 - (NSString *)description __attribute__((swift_name("description()")));
-@property (readonly) BOOL allowSpecialFloatingPointValues __attribute__((swift_name("allowSpecialFloatingPointValues")));
-@property (readonly) BOOL allowStructuredMapKeys __attribute__((swift_name("allowStructuredMapKeys")));
-@property (readonly) NSString *classDiscriminator __attribute__((swift_name("classDiscriminator")));
-@property (readonly) BOOL coerceInputValues __attribute__((swift_name("coerceInputValues")));
-@property (readonly) BOOL encodeDefaults __attribute__((swift_name("encodeDefaults")));
 
 /**
  * @note annotations
  *   kotlinx.serialization.ExperimentalSerializationApi
 */
+@property (readonly) BOOL allowComments __attribute__((swift_name("allowComments")));
+@property (readonly) BOOL allowSpecialFloatingPointValues __attribute__((swift_name("allowSpecialFloatingPointValues")));
+@property (readonly) BOOL allowStructuredMapKeys __attribute__((swift_name("allowStructuredMapKeys")));
+
+/**
+ * @note annotations
+ *   kotlinx.serialization.ExperimentalSerializationApi
+*/
+@property (readonly) BOOL allowTrailingComma __attribute__((swift_name("allowTrailingComma")));
+@property (readonly) NSString *classDiscriminator __attribute__((swift_name("classDiscriminator")));
+
+/**
+ * @note annotations
+ *   kotlinx.serialization.ExperimentalSerializationApi
+*/
+@property SPMCKotlinx_serialization_jsonClassDiscriminatorMode *classDiscriminatorMode __attribute__((swift_name("classDiscriminatorMode")));
+@property (readonly) BOOL coerceInputValues __attribute__((swift_name("coerceInputValues")));
+
+/**
+ * @note annotations
+ *   kotlinx.serialization.ExperimentalSerializationApi
+*/
+@property (readonly) BOOL decodeEnumsCaseInsensitive __attribute__((swift_name("decodeEnumsCaseInsensitive")));
+@property (readonly) BOOL encodeDefaults __attribute__((swift_name("encodeDefaults")));
 @property (readonly) BOOL explicitNulls __attribute__((swift_name("explicitNulls")));
 @property (readonly) BOOL ignoreUnknownKeys __attribute__((swift_name("ignoreUnknownKeys")));
 @property (readonly) BOOL isLenient __attribute__((swift_name("isLenient")));
@@ -3832,7 +3594,13 @@ __attribute__((swift_name("Kotlinx_serialization_jsonJsonConfiguration")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("Ktor_utilsAttributeKey")))
 @interface SPMCKtor_utilsAttributeKey<T> : SPMCBase
-- (instancetype)initWithName:(NSString *)name __attribute__((swift_name("init(name:)"))) __attribute__((objc_designated_initializer));
+
+/**
+ * @note annotations
+ *   kotlin.jvm.JvmOverloads
+*/
+- (instancetype)initWithName:(NSString *)name type:(SPMCKtor_utilsTypeInfo *)type __attribute__((swift_name("init(name:type:)"))) __attribute__((objc_designated_initializer));
+- (SPMCKtor_utilsAttributeKey<T> *)doCopyName:(NSString *)name type:(SPMCKtor_utilsTypeInfo *)type __attribute__((swift_name("doCopy(name:type:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
 - (NSString *)description __attribute__((swift_name("description()")));
@@ -3865,10 +3633,25 @@ __attribute__((swift_name("Ktor_httpOutgoingContent")))
 __attribute__((swift_name("Kotlinx_coroutines_coreJob")))
 @protocol SPMCKotlinx_coroutines_coreJob <SPMCKotlinCoroutineContextElement>
 @required
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 - (id<SPMCKotlinx_coroutines_coreChildHandle>)attachChildChild:(id<SPMCKotlinx_coroutines_coreChildJob>)child __attribute__((swift_name("attachChild(child:)")));
 - (void)cancelCause_:(SPMCKotlinCancellationException * _Nullable)cause __attribute__((swift_name("cancel(cause_:)")));
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 - (SPMCKotlinCancellationException *)getCancellationException __attribute__((swift_name("getCancellationException()")));
 - (id<SPMCKotlinx_coroutines_coreDisposableHandle>)invokeOnCompletionHandler:(void (^)(SPMCKotlinThrowable * _Nullable))handler __attribute__((swift_name("invokeOnCompletion(handler:)")));
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 - (id<SPMCKotlinx_coroutines_coreDisposableHandle>)invokeOnCompletionOnCancelling:(BOOL)onCancelling invokeImmediately:(BOOL)invokeImmediately handler:(void (^)(SPMCKotlinThrowable * _Nullable))handler __attribute__((swift_name("invokeOnCompletion(onCancelling:invokeImmediately:handler:)")));
 
 /**
@@ -3902,7 +3685,7 @@ __attribute__((swift_name("Ktor_client_coreHttpClientConfig")))
 - (void)installPlugin:(id<SPMCKtor_client_coreHttpClientPlugin>)plugin configure:(void (^)(id))configure __attribute__((swift_name("install(plugin:configure:)")));
 - (void)installKey:(NSString *)key block:(void (^)(SPMCKtor_client_coreHttpClient *))block __attribute__((swift_name("install(key:block:)")));
 - (void)plusAssignOther:(SPMCKtor_client_coreHttpClientConfig<T> *)other __attribute__((swift_name("plusAssign(other:)")));
-@property BOOL developmentMode __attribute__((swift_name("developmentMode")));
+@property BOOL developmentMode __attribute__((swift_name("developmentMode"))) __attribute__((deprecated("Development mode is no longer required. The property will be removed in the future.")));
 @property BOOL expectSuccess __attribute__((swift_name("expectSuccess")));
 @property BOOL followRedirects __attribute__((swift_name("followRedirects")));
 @property BOOL useDefaultTransformers __attribute__((swift_name("useDefaultTransformers")));
@@ -3937,6 +3720,7 @@ __attribute__((swift_name("Ktor_utilsPipeline")))
 - (void)mergeFrom:(SPMCKtor_utilsPipeline<TSubject, TContext> *)from __attribute__((swift_name("merge(from:)")));
 - (void)mergePhasesFrom:(SPMCKtor_utilsPipeline<TSubject, TContext> *)from __attribute__((swift_name("mergePhases(from:)")));
 - (void)resetFromFrom:(SPMCKtor_utilsPipeline<TSubject, TContext> *)from __attribute__((swift_name("resetFrom(from:)")));
+- (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) id<SPMCKtor_utilsAttributes> attributes __attribute__((swift_name("attributes")));
 @property (readonly) BOOL developmentMode __attribute__((swift_name("developmentMode")));
 @property (readonly, getter=isEmpty_) BOOL isEmpty __attribute__((swift_name("isEmpty")));
@@ -4080,72 +3864,97 @@ __attribute__((swift_name("KotlinKClass")))
 @end
 
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioMemory.Companion")))
-@interface SPMCKtor_ioMemoryCompanion : SPMCBase
+__attribute__((swift_name("KotlinByteArray")))
+@interface SPMCKotlinByteArray : SPMCBase
++ (instancetype)arrayWithSize:(int32_t)size __attribute__((swift_name("init(size:)")));
++ (instancetype)arrayWithSize:(int32_t)size init:(SPMCByte *(^)(SPMCInt *))init __attribute__((swift_name("init(size:init:)")));
 + (instancetype)alloc __attribute__((unavailable));
 + (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)companion __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) SPMCKtor_ioMemoryCompanion *shared __attribute__((swift_name("shared")));
-@property (readonly) SPMCKtor_ioMemory *Empty __attribute__((swift_name("Empty")));
+- (int8_t)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (SPMCKotlinByteIterator *)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(int8_t)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioBuffer.Companion")))
-@interface SPMCKtor_ioBufferCompanion : SPMCBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)companion __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) SPMCKtor_ioBufferCompanion *shared __attribute__((swift_name("shared")));
-@property (readonly) SPMCKtor_ioBuffer *Empty __attribute__((swift_name("Empty")));
-@property (readonly) int32_t ReservedSize __attribute__((swift_name("ReservedSize")));
-@end
-
-__attribute__((swift_name("Ktor_ioObjectPool")))
-@protocol SPMCKtor_ioObjectPool <SPMCKtor_ioCloseable>
+__attribute__((swift_name("Kotlinx_io_coreRawSink")))
+@protocol SPMCKotlinx_io_coreRawSink <SPMCKotlinAutoCloseable>
 @required
-- (id)borrow __attribute__((swift_name("borrow()")));
-- (void)dispose __attribute__((swift_name("dispose()")));
-- (void)recycleInstance:(id)instance __attribute__((swift_name("recycle(instance:)")));
-@property (readonly) int32_t capacity __attribute__((swift_name("capacity")));
+- (void)flush __attribute__((swift_name("flush()")));
+- (void)writeSource:(SPMCKotlinx_io_coreBuffer *)source byteCount:(int64_t)byteCount __attribute__((swift_name("write(source:byteCount:)")));
+@end
+
+__attribute__((swift_name("Kotlinx_io_coreSink")))
+@protocol SPMCKotlinx_io_coreSink <SPMCKotlinx_io_coreRawSink>
+@required
+- (void)emit __attribute__((swift_name("emit()")));
+
+/**
+ * @note annotations
+ *   kotlinx.io.InternalIoApi
+*/
+- (void)hintEmit __attribute__((swift_name("hintEmit()")));
+- (int64_t)transferFromSource:(id<SPMCKotlinx_io_coreRawSource>)source __attribute__((swift_name("transferFrom(source:)")));
+- (void)writeSource:(id<SPMCKotlinx_io_coreRawSource>)source byteCount_:(int64_t)byteCount __attribute__((swift_name("write(source:byteCount_:)")));
+- (void)writeSource:(SPMCKotlinByteArray *)source startIndex:(int32_t)startIndex endIndex:(int32_t)endIndex __attribute__((swift_name("write(source:startIndex:endIndex:)")));
+- (void)writeByteByte:(int8_t)byte __attribute__((swift_name("writeByte(byte:)")));
+- (void)writeIntInt:(int32_t)int_ __attribute__((swift_name("writeInt(int:)")));
+- (void)writeLongLong:(int64_t)long_ __attribute__((swift_name("writeLong(long:)")));
+- (void)writeShortShort:(int16_t)short_ __attribute__((swift_name("writeShort(short:)")));
+
+/**
+ * @note annotations
+ *   kotlinx.io.InternalIoApi
+*/
+@property (readonly) SPMCKotlinx_io_coreBuffer *buffer __attribute__((swift_name("buffer")));
 @end
 
 __attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioChunkBuffer.Companion")))
-@interface SPMCKtor_ioChunkBufferCompanion : SPMCBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)companion __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) SPMCKtor_ioChunkBufferCompanion *shared __attribute__((swift_name("shared")));
-@property (readonly) SPMCKtor_ioChunkBuffer *Empty __attribute__((swift_name("Empty")));
-@property (readonly) id<SPMCKtor_ioObjectPool> EmptyPool __attribute__((swift_name("EmptyPool")));
-@property (readonly) id<SPMCKtor_ioObjectPool> Pool __attribute__((swift_name("Pool")));
-@end
-
-__attribute__((swift_name("KotlinByteIterator")))
-@interface SPMCKotlinByteIterator : SPMCBase <SPMCKotlinIterator>
+__attribute__((swift_name("Kotlinx_io_coreBuffer")))
+@interface SPMCKotlinx_io_coreBuffer : SPMCBase <SPMCKotlinx_io_coreSource, SPMCKotlinx_io_coreSink>
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-- (SPMCByte *)next __attribute__((swift_name("next()")));
-- (int8_t)nextByte __attribute__((swift_name("nextByte()")));
-@end
+- (void)clear __attribute__((swift_name("clear()")));
+- (void)close __attribute__((swift_name("close()")));
+- (SPMCKotlinx_io_coreBuffer *)doCopy __attribute__((swift_name("doCopy()")));
+- (void)doCopyToOut:(SPMCKotlinx_io_coreBuffer *)out startIndex:(int64_t)startIndex endIndex:(int64_t)endIndex __attribute__((swift_name("doCopyTo(out:startIndex:endIndex:)")));
+- (void)emit __attribute__((swift_name("emit()")));
+- (BOOL)exhausted __attribute__((swift_name("exhausted()")));
+- (void)flush __attribute__((swift_name("flush()")));
+- (int8_t)getPosition:(int64_t)position __attribute__((swift_name("get(position:)")));
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioInput.Companion")))
-@interface SPMCKtor_ioInputCompanion : SPMCBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)companion __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) SPMCKtor_ioInputCompanion *shared __attribute__((swift_name("shared")));
-@end
+/**
+ * @note annotations
+ *   kotlinx.io.InternalIoApi
+*/
+- (void)hintEmit __attribute__((swift_name("hintEmit()")));
+- (id<SPMCKotlinx_io_coreSource>)peek __attribute__((swift_name("peek()")));
+- (int64_t)readAtMostToSink:(SPMCKotlinx_io_coreBuffer *)sink byteCount:(int64_t)byteCount __attribute__((swift_name("readAtMostTo(sink:byteCount:)")));
+- (int32_t)readAtMostToSink:(SPMCKotlinByteArray *)sink startIndex:(int32_t)startIndex endIndex:(int32_t)endIndex __attribute__((swift_name("readAtMostTo(sink:startIndex:endIndex:)")));
+- (int8_t)readByte __attribute__((swift_name("readByte()")));
+- (int32_t)readInt __attribute__((swift_name("readInt()")));
+- (int64_t)readLong __attribute__((swift_name("readLong()")));
+- (int16_t)readShort __attribute__((swift_name("readShort()")));
+- (void)readToSink:(id<SPMCKotlinx_io_coreRawSink>)sink byteCount:(int64_t)byteCount __attribute__((swift_name("readTo(sink:byteCount:)")));
+- (BOOL)requestByteCount:(int64_t)byteCount __attribute__((swift_name("request(byteCount:)")));
+- (void)requireByteCount:(int64_t)byteCount __attribute__((swift_name("require(byteCount:)")));
+- (void)skipByteCount:(int64_t)byteCount __attribute__((swift_name("skip(byteCount:)")));
+- (NSString *)description __attribute__((swift_name("description()")));
+- (int64_t)transferFromSource:(id<SPMCKotlinx_io_coreRawSource>)source __attribute__((swift_name("transferFrom(source:)")));
+- (int64_t)transferToSink:(id<SPMCKotlinx_io_coreRawSink>)sink __attribute__((swift_name("transferTo(sink:)")));
+- (void)writeSource:(SPMCKotlinx_io_coreBuffer *)source byteCount:(int64_t)byteCount __attribute__((swift_name("write(source:byteCount:)")));
+- (void)writeSource:(id<SPMCKotlinx_io_coreRawSource>)source byteCount_:(int64_t)byteCount __attribute__((swift_name("write(source:byteCount_:)")));
+- (void)writeSource:(SPMCKotlinByteArray *)source startIndex:(int32_t)startIndex endIndex:(int32_t)endIndex __attribute__((swift_name("write(source:startIndex:endIndex:)")));
+- (void)writeByteByte:(int8_t)byte __attribute__((swift_name("writeByte(byte:)")));
+- (void)writeIntInt:(int32_t)int_ __attribute__((swift_name("writeInt(int:)")));
+- (void)writeLongLong:(int64_t)long_ __attribute__((swift_name("writeLong(long:)")));
+- (void)writeShortShort:(int16_t)short_ __attribute__((swift_name("writeShort(short:)")));
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("Ktor_ioByteReadPacket.Companion")))
-@interface SPMCKtor_ioByteReadPacketCompanion : SPMCBase
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-+ (instancetype)companion __attribute__((swift_name("init()")));
-@property (class, readonly, getter=shared) SPMCKtor_ioByteReadPacketCompanion *shared __attribute__((swift_name("shared")));
-@property (readonly) SPMCKtor_ioByteReadPacket *Empty __attribute__((swift_name("Empty")));
+/**
+ * @note annotations
+ *   kotlinx.io.InternalIoApi
+*/
+@property (readonly) SPMCKotlinx_io_coreBuffer *buffer __attribute__((swift_name("buffer")));
+@property (readonly) int64_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((objc_subclassing_restricted))
@@ -4186,6 +3995,19 @@ __attribute__((swift_name("KotlinKTypeProjection")))
 - (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) id<SPMCKotlinKType> _Nullable type __attribute__((swift_name("type")));
 @property (readonly) SPMCKotlinKVariance * _Nullable variance __attribute__((swift_name("variance")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("Kotlinx_serialization_jsonClassDiscriminatorMode")))
+@interface SPMCKotlinx_serialization_jsonClassDiscriminatorMode : SPMCKotlinEnum<SPMCKotlinx_serialization_jsonClassDiscriminatorMode *>
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (instancetype)initWithName:(NSString *)name ordinal:(int32_t)ordinal __attribute__((swift_name("init(name:ordinal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
+@property (class, readonly) SPMCKotlinx_serialization_jsonClassDiscriminatorMode *none __attribute__((swift_name("none")));
+@property (class, readonly) SPMCKotlinx_serialization_jsonClassDiscriminatorMode *allJsonObjects __attribute__((swift_name("allJsonObjects")));
+@property (class, readonly) SPMCKotlinx_serialization_jsonClassDiscriminatorMode *polymorphic __attribute__((swift_name("polymorphic")));
++ (SPMCKotlinArray<SPMCKotlinx_serialization_jsonClassDiscriminatorMode *> *)values __attribute__((swift_name("values()")));
+@property (class, readonly) NSArray<SPMCKotlinx_serialization_jsonClassDiscriminatorMode *> *entries __attribute__((swift_name("entries")));
 @end
 
 
@@ -4253,16 +4075,41 @@ __attribute__((swift_name("Kotlinx_coroutines_coreDisposableHandle")))
 - (void)dispose __attribute__((swift_name("dispose()")));
 @end
 
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 __attribute__((swift_name("Kotlinx_coroutines_coreChildHandle")))
 @protocol SPMCKotlinx_coroutines_coreChildHandle <SPMCKotlinx_coroutines_coreDisposableHandle>
 @required
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 - (BOOL)childCancelledCause:(SPMCKotlinThrowable *)cause __attribute__((swift_name("childCancelled(cause:)")));
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 @property (readonly) id<SPMCKotlinx_coroutines_coreJob> _Nullable parent __attribute__((swift_name("parent")));
 @end
 
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 __attribute__((swift_name("Kotlinx_coroutines_coreChildJob")))
 @protocol SPMCKotlinx_coroutines_coreChildJob <SPMCKotlinx_coroutines_coreJob>
 @required
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 - (void)parentCancelledParentJob:(id<SPMCKotlinx_coroutines_coreParentJob>)parentJob __attribute__((swift_name("parentCancelled(parentJob:)")));
 @end
 
@@ -4272,11 +4119,16 @@ __attribute__((swift_name("KotlinSequence")))
 - (id<SPMCKotlinIterator>)iterator __attribute__((swift_name("iterator()")));
 @end
 
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 __attribute__((swift_name("Kotlinx_coroutines_coreSelectClause")))
 @protocol SPMCKotlinx_coroutines_coreSelectClause
 @required
 @property (readonly) id clauseObject __attribute__((swift_name("clauseObject")));
-@property (readonly) SPMCKotlinUnit *(^(^ _Nullable onCancellationConstructor)(id<SPMCKotlinx_coroutines_coreSelectInstance>, id _Nullable, id _Nullable))(SPMCKotlinThrowable *) __attribute__((swift_name("onCancellationConstructor")));
+@property (readonly) SPMCKotlinUnit *(^(^ _Nullable onCancellationConstructor)(id<SPMCKotlinx_coroutines_coreSelectInstance>, id _Nullable, id _Nullable))(SPMCKotlinThrowable *, id _Nullable, id<SPMCKotlinCoroutineContext>) __attribute__((swift_name("onCancellationConstructor")));
 @property (readonly) id _Nullable (^processResFunc)(id, id _Nullable, id _Nullable) __attribute__((swift_name("processResFunc")));
 @property (readonly) void (^regFunc)(id, id<SPMCKotlinx_coroutines_coreSelectInstance>, id _Nullable) __attribute__((swift_name("regFunc")));
 @end
@@ -4415,6 +4267,14 @@ __attribute__((swift_name("Ktor_client_coreHttpSendPipeline.Phases")))
 @property (readonly) SPMCKtor_utilsPipelinePhase *State __attribute__((swift_name("State")));
 @end
 
+__attribute__((swift_name("KotlinByteIterator")))
+@interface SPMCKotlinByteIterator : SPMCBase <SPMCKotlinIterator>
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+- (SPMCByte *)next __attribute__((swift_name("next()")));
+- (int8_t)nextByte __attribute__((swift_name("nextByte()")));
+@end
+
 
 /**
  * @note annotations
@@ -4496,12 +4356,27 @@ __attribute__((swift_name("Ktor_httpContentType.Companion")))
 @property (readonly) SPMCKtor_httpContentType *Any __attribute__((swift_name("Any")));
 @end
 
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 __attribute__((swift_name("Kotlinx_coroutines_coreParentJob")))
 @protocol SPMCKotlinx_coroutines_coreParentJob <SPMCKotlinx_coroutines_coreJob>
 @required
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 - (SPMCKotlinCancellationException *)getChildJobCancellationCause __attribute__((swift_name("getChildJobCancellationCause()")));
 @end
 
+
+/**
+ * @note annotations
+ *   kotlinx.coroutines.InternalCoroutinesApi
+*/
 __attribute__((swift_name("Kotlinx_coroutines_coreSelectInstance")))
 @protocol SPMCKotlinx_coroutines_coreSelectInstance
 @required
