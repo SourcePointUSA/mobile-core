@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'SPMobileCore'
-    spec.version                  = '0.0.5'
+    spec.version                  = '0.0.7'
     spec.homepage                 = 'https://github.com/SourcePointUSA/mobile-core.git'
     spec.source                   = { :http=> ''}
     spec.authors                  = 'André Herculano'
@@ -8,8 +8,8 @@ Pod::Spec.new do |spec|
     spec.summary                  = 'The internal Network & Data layers used by our mobile SDKs'
     spec.vendored_frameworks      = 'build/cocoapods/framework/SPMobileCore.framework'
     spec.libraries                = 'c++'
-    spec.ios.deployment_target = '10.0'
-    spec.tvos.deployment_target = '10.0'
+    spec.ios.deployment_target    = '10.0'
+    spec.tvos.deployment_target    = '10.0'
                 
                 
     if !Dir.exist?('build/cocoapods/framework/SPMobileCore.framework') || Dir.empty?('build/cocoapods/framework/SPMobileCore.framework')
@@ -22,6 +22,10 @@ Pod::Spec.new do |spec|
 
         Alternatively, proper pod installation is performed during Gradle sync in the IDE (if Podfile location is set)"
     end
+                
+    spec.xcconfig = {
+        'ENABLE_USER_SCRIPT_SANDBOXING' => 'NO',
+    }
                 
     spec.pod_target_xcconfig = {
         'KOTLIN_PROJECT_PATH' => ':core',

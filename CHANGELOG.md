@@ -1,3 +1,9 @@
+## 0.0.7 (October, 17, 2024)
+* update kotlin 1.9.x -> 2.0.21
+* update gradle -> 8.9
+* update ktor 2.x -> 3.0.0
+* update other minor dependencies to latest stable version
+
 ## 0.0.6 (October, 16, 2024)
 * Implement `POST /custom` consent call
 * Implement `DELETE /custom` consent call

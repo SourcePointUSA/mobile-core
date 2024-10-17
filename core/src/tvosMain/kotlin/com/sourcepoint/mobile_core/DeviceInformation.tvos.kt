@@ -2,8 +2,8 @@ package com.sourcepoint.mobile_core
 
 import platform.UIKit.UIDevice
 
-actual class DeviceInformationConcrete actual constructor() : DeviceInformation {
-    override val osName: OSName = OSName.tvOS
-    override val osVersion: String = UIDevice.currentDevice.systemVersion
-    override val deviceFamily = UIDevice.currentDevice.name
+actual class DeviceInformation actual constructor() {
+    actual val osName: OSName = OSName.tvOS
+    actual val osVersion: String = UIDevice.currentDevice.systemVersion
+    actual val deviceFamily = UIDevice.currentDevice.name
 }
