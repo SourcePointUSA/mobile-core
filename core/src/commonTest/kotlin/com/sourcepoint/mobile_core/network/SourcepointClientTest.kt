@@ -42,6 +42,15 @@ class SourcepointClientTest {
         propertyName = propertyName
     )
 
+    private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
+        delay(delayInSeconds.toLong() * 1000)
+        respond(
+            content = ByteReadChannel(response),
+            status = HttpStatusCode.fromValue(status),
+            headers = headersOf(HttpHeaders.ContentType, "application/json")
+        )
+    }
+
     @Test
     fun getMetaData() = runTest {
         val response = api.getMetaData(
@@ -139,8 +148,8 @@ class SourcepointClientTest {
         assertTrue(consents.gppData.isNotEmpty())
         assertNotNull(consents.signedLspa)
         assertNotEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
-        assertTrue(consents.rejectedCategories.isNotEmpty())
-        assertTrue(consents.rejectedVendors.isNotEmpty())
+        assertTrue(consents.rejectedCategories.isEmpty())
+        assertTrue(consents.rejectedVendors.isEmpty())
         assertTrue(consents.dateCreated!!.isNotEmpty())
         assertTrue(consents.expirationDate!!.isNotEmpty())
         assertTrue(consents.webConsentPayload!!.isNotEmpty())
@@ -164,7 +173,12 @@ class SourcepointClientTest {
                             hasLocalData = false,
                             consentStatus = ConsentStatus()
                         ),
-                        ios14 = null
+                        ios14 = null,
+                        ccpa = MessagesRequest.Body.Campaigns.CCPA(
+                            targetingParams = null,
+                            hasLocalData = false,
+                            consentStatus = CCPAConsent.CCPAConsentStatus.RejectedNone
+                        )
                     ),
                     consentLanguage = SPMessageLanguage.ENGLISH,
                     campaignEnv = SPCampaignEnv.PUBLIC

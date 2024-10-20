@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core.network.responses
 
+import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
@@ -24,7 +25,7 @@ data class MessagesResponse(
 ) {
     @Serializable
     sealed class Campaign<ConsentClass> {
-        abstract val type: String
+        abstract val type: SPCampaignType
         abstract val derivedConsents: ConsentClass?
         val url: String? = null
         val message: Message? = null
@@ -89,7 +90,7 @@ data class MessagesResponse(
     @Serializable
     @SerialName("GDPR")
     data class GDPR(
-        override val type: String = "GDPR",
+        override val type: SPCampaignType = SPCampaignType.Gdpr,
         private val euconsent: String?,
         private val grants: SPGDPRVendorGrants?,
         private val consentStatus: ConsentStatus?,
@@ -115,7 +116,7 @@ data class MessagesResponse(
     @Serializable
     @SerialName("usnat")
     data class USNat(
-        override val type: String = "usnat",
+        override val type: SPCampaignType = SPCampaignType.UsNat,
         private val consentStatus: ConsentStatus?,
         private val consentStrings: ConsentStrings?,
         private val userConsents: USNatConsent.USNatUserConsents?,
@@ -141,7 +142,7 @@ data class MessagesResponse(
     @Serializable
     @SerialName("CCPA")
     data class CCPA(
-        override val type: String = "CCPA",
+        override val type: SPCampaignType = SPCampaignType.Ccpa,
         val status: CCPAConsent.CCPAConsentStatus,
         val signedLspa: Boolean?,
         val rejectedVendors: List<String>? = emptyList(),
