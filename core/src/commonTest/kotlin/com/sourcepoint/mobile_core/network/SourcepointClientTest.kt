@@ -198,11 +198,13 @@ class SourcepointClientTest {
             )
         )
 
-        response.campaigns.forEach { campaign ->
-            assertNotNull(campaign.url)
-            assertNotNull(campaign.message)
-            assertNotNull(campaign.messageMetaData)
+        assertEquals(4, response.campaigns.size)
 
+        response.campaigns.forEach { campaign ->
+            assertNotNull(campaign.url, "Empty url for ${campaign.type}")
+            assertNotNull(campaign.message, "Empty message for ${campaign.type}")
+            assertTrue(campaign.message!!.messageJson.isNotEmpty(), "Empty message_json for ${campaign.type}")
+            assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
             assertCampaignConsents(campaign)
         }
 
