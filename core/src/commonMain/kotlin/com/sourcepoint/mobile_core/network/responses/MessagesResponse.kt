@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json.Default.encodeToString
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
@@ -41,6 +42,8 @@ data class MessagesResponse(
         @SerialName("message_choice") val messageChoices: List<JsonObject>,
         @SerialName("site_id") val propertyId: Int
     ) {
+        fun encodeToJson() = encodeToString(serializer(), this)
+
         @Serializable
         data class GDPRCategory(
             val iabId: Int?,
