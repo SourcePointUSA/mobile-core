@@ -22,11 +22,13 @@ import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SourcepointClientTest {
@@ -202,15 +204,6 @@ class SourcepointClientTest {
         assertTrue(response.nonKeyedLocalState.isNotEmpty())
     }
 
-    private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
-        delay(delayInSeconds.toLong() * 1000)
-        respond(
-            content = ByteReadChannel(response),
-            status = HttpStatusCode.fromValue(status),
-            headers = headersOf(HttpHeaders.ContentType, "application/json")
-        )
-    }
-
     @Test
     fun loggingWithErrorWhenRequestTimeoutInTheClient() = runTest {
         val mockEngine = mock(delayInSeconds = 2)
@@ -248,29 +241,32 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun checkCustomConsent() = runTest {
-        val vendors = listOf("5ff4d000a228633ac048be41")
-        val categories = listOf("608bad95d08d3112188e0e36", "608bad95d08d3112188e0e2f")
-        val responseCustom = api.customConsentGDPR(
-            "uuid_36",
-            propertyId,
-            vendors,
-            categories,
-            emptyList()
+    fun canAddAndRemoveCustomConsentsInGDPR() = runTest {
+        val customVendorId = "5ff4d000a228633ac048be41"
+        val categoryId1 = "608bad95d08d3112188e0e36"
+        val categoryId2 = "608bad95d08d3112188e0e2f"
+        val consentUUID = "uuid_36" // this uuid needs to exist in the backend, i.e. consent services
+        val responseCustomConsent = api.customConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = listOf(customVendorId),
+            categories = listOf(categoryId1, categoryId2),
+            legIntCategories = emptyList()
         )
-        val responseDeleteCustom = api.deleteCustomConsentGDPR(
-            "uuid_36",
-            propertyId,
-            vendors,
-            categories,
-            emptyList()
+        val responseDeleteCustomConsent = api.deleteCustomConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = listOf(customVendorId),
+            categories = listOf(categoryId1, categoryId2),
+            legIntCategories = emptyList()
         )
 
-        assertTrue(responseCustom.vendors.contains(vendors.first()))
-        assertFalse(responseDeleteCustom.vendors.contains(vendors.first()))
-        assertTrue(responseCustom.categories.contains(categories.first()))
-        assertFalse(responseDeleteCustom.categories.contains(categories.first()))
-        assertTrue(responseCustom.categories.contains(categories.last()))
-        assertFalse(responseDeleteCustom.categories.contains(categories.last()))
+        assertContains(responseCustomConsent.vendors, customVendorId)
+        assertContains(responseCustomConsent.categories, categoryId1)
+        assertContains(responseCustomConsent.categories, categoryId2)
+
+        assertFalse(responseDeleteCustomConsent.vendors.contains(customVendorId))
+        assertFalse(responseDeleteCustomConsent.categories.contains(categoryId1))
+        assertFalse(responseDeleteCustomConsent.categories.contains(categoryId2))
     }
 }
