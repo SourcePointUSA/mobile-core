@@ -167,6 +167,13 @@ data class MessagesResponse(
     ): Campaign<CCPAConsent>()
 
     @Serializable
+    @SerialName("ios14")
+    data class Ios14(
+        override val type: SPCampaignType = SPCampaignType.IOS14,
+        override val derivedConsents: Nothing? = null
+    ): Campaign<Nothing>()
+
+    @Serializable
     data class MessageMetaData(
         val categoryId: MessageCategory,
         val subCategoryId: MessageSubCategory,
