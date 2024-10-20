@@ -223,8 +223,8 @@ class SourcepointClientTest {
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
 
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("meta-data") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("custom-metrics") })
     }
 
     @Test
@@ -236,8 +236,8 @@ class SourcepointClientTest {
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
 
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("meta-data") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("custom-metrics") })
     }
 
     @Test
