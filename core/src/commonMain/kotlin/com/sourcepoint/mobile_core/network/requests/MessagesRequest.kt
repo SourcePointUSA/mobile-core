@@ -31,6 +31,7 @@ data class MessagesRequest(
         data class Campaigns(
             val gdpr: GDPR?,
             val ios14: IOS14?,
+            val ccpa: CCPA?,
             val usnat: USNat?
         ) {
             @Serializable

@@ -4,6 +4,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
+import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
@@ -11,25 +12,24 @@ import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
-import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
-import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SourcepointClientTest {
@@ -41,6 +41,15 @@ class SourcepointClientTest {
         propertyId = propertyId,
         propertyName = propertyName
     )
+
+    private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
+        delay(delayInSeconds.toLong() * 1000)
+        respond(
+            content = ByteReadChannel(response),
+            status = HttpStatusCode.fromValue(status),
+            headers = headersOf(HttpHeaders.ContentType, "application/json")
+        )
+    }
 
     @Test
     fun getMetaData() = runTest {
@@ -110,6 +119,7 @@ class SourcepointClientTest {
             is MessagesResponse.GDPR -> assertCampaignConsents(campaign.derivedConsents)
             is MessagesResponse.USNat -> assertCampaignConsents(campaign.derivedConsents)
             is MessagesResponse.CCPA -> assertCampaignConsents(campaign.derivedConsents)
+            is MessagesResponse.Ios14 -> assertNull(campaign.derivedConsents)
         }
     }
 
@@ -139,8 +149,8 @@ class SourcepointClientTest {
         assertTrue(consents.gppData.isNotEmpty())
         assertNotNull(consents.signedLspa)
         assertNotEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
-        assertTrue(consents.rejectedCategories.isNotEmpty())
-        assertTrue(consents.rejectedVendors.isNotEmpty())
+        assertTrue(consents.rejectedCategories.isEmpty())
+        assertTrue(consents.rejectedVendors.isEmpty())
         assertTrue(consents.dateCreated!!.isNotEmpty())
         assertTrue(consents.expirationDate!!.isNotEmpty())
         assertTrue(consents.webConsentPayload!!.isNotEmpty())
@@ -164,8 +174,17 @@ class SourcepointClientTest {
                             hasLocalData = false,
                             consentStatus = ConsentStatus()
                         ),
-                        ios14 = null
+                        ios14 = MessagesRequest.Body.Campaigns.IOS14(
+                            idfaStatus = SPIDFAStatus.Unknown,
+                            targetingParams = null
+                        ),
+                        ccpa = MessagesRequest.Body.Campaigns.CCPA(
+                            targetingParams = null,
+                            hasLocalData = false,
+                            consentStatus = CCPAConsent.CCPAConsentStatus.RejectedNone
+                        )
                     ),
+                    idfaStatus = SPIDFAStatus.Unknown,
                     consentLanguage = SPMessageLanguage.ENGLISH,
                     campaignEnv = SPCampaignEnv.PUBLIC
                 ),
@@ -179,25 +198,18 @@ class SourcepointClientTest {
             )
         )
 
-        response.campaigns.forEach { campaign ->
-            assertNotNull(campaign.url)
-            assertNotNull(campaign.message)
-            assertNotNull(campaign.messageMetaData)
+        assertEquals(4, response.campaigns.size)
 
+        response.campaigns.forEach { campaign ->
+            assertNotNull(campaign.url, "Empty url for ${campaign.type}")
+            assertNotNull(campaign.message, "Empty message for ${campaign.type}")
+            assertTrue(campaign.message!!.messageJson.isNotEmpty(), "Empty message_json for ${campaign.type}")
+            assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
             assertCampaignConsents(campaign)
         }
 
         assertTrue(response.localState.isNotEmpty())
         assertTrue(response.nonKeyedLocalState.isNotEmpty())
-    }
-
-    private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
-        delay(delayInSeconds.toLong() * 1000)
-        respond(
-            content = ByteReadChannel(response),
-            status = HttpStatusCode.fromValue(status),
-            headers = headersOf(HttpHeaders.ContentType, "application/json")
-        )
     }
 
     @Test
@@ -219,8 +231,8 @@ class SourcepointClientTest {
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
 
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("meta-data") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("custom-metrics") })
     }
 
     @Test
@@ -232,34 +244,37 @@ class SourcepointClientTest {
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
 
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("meta-data") })
-        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.pathSegments.contains("custom-metrics") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("meta-data") })
+        assertNotNull(mockEngine.requestHistory.firstOrNull { it.url.segments.contains("custom-metrics") })
     }
 
     @Test
-    fun checkCustomConsent() = runTest {
-        val vendors = listOf("5ff4d000a228633ac048be41")
-        val categories = listOf("608bad95d08d3112188e0e36", "608bad95d08d3112188e0e2f")
-        val responseCustom = api.customConsentGDPR(
-            "uuid_36",
-            propertyId,
-            vendors,
-            categories,
-            emptyList()
+    fun canAddAndRemoveCustomConsentsInGDPR() = runTest {
+        val customVendorId = "5ff4d000a228633ac048be41"
+        val categoryId1 = "608bad95d08d3112188e0e36"
+        val categoryId2 = "608bad95d08d3112188e0e2f"
+        val consentUUID = "uuid_36" // this uuid needs to exist in the backend, i.e. consent services
+        val responseCustomConsent = api.customConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = listOf(customVendorId),
+            categories = listOf(categoryId1, categoryId2),
+            legIntCategories = emptyList()
         )
-        val responseDeleteCustom = api.deleteCustomConsentGDPR(
-            "uuid_36",
-            propertyId,
-            vendors,
-            categories,
-            emptyList()
+        val responseDeleteCustomConsent = api.deleteCustomConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = listOf(customVendorId),
+            categories = listOf(categoryId1, categoryId2),
+            legIntCategories = emptyList()
         )
 
-        assertTrue(responseCustom.vendors.contains(vendors.first()))
-        assertFalse(responseDeleteCustom.vendors.contains(vendors.first()))
-        assertTrue(responseCustom.categories.contains(categories.first()))
-        assertFalse(responseDeleteCustom.categories.contains(categories.first()))
-        assertTrue(responseCustom.categories.contains(categories.last()))
-        assertFalse(responseDeleteCustom.categories.contains(categories.last()))
+        assertContains(responseCustomConsent.vendors, customVendorId)
+        assertContains(responseCustomConsent.categories, categoryId1)
+        assertContains(responseCustomConsent.categories, categoryId2)
+
+        assertFalse(responseDeleteCustomConsent.vendors.contains(customVendorId))
+        assertFalse(responseDeleteCustomConsent.categories.contains(categoryId1))
+        assertFalse(responseDeleteCustomConsent.categories.contains(categoryId2))
     }
 }
