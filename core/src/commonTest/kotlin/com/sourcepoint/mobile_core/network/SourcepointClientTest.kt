@@ -4,6 +4,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
+import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
@@ -118,6 +119,7 @@ class SourcepointClientTest {
             is MessagesResponse.GDPR -> assertCampaignConsents(campaign.derivedConsents)
             is MessagesResponse.USNat -> assertCampaignConsents(campaign.derivedConsents)
             is MessagesResponse.CCPA -> assertCampaignConsents(campaign.derivedConsents)
+            is MessagesResponse.Ios14 -> assertNull(campaign.derivedConsents)
         }
     }
 
@@ -172,13 +174,17 @@ class SourcepointClientTest {
                             hasLocalData = false,
                             consentStatus = ConsentStatus()
                         ),
-                        ios14 = null,
+                        ios14 = MessagesRequest.Body.Campaigns.IOS14(
+                            idfaStatus = SPIDFAStatus.Unknown,
+                            targetingParams = null
+                        ),
                         ccpa = MessagesRequest.Body.Campaigns.CCPA(
                             targetingParams = null,
                             hasLocalData = false,
                             consentStatus = CCPAConsent.CCPAConsentStatus.RejectedNone
                         )
                     ),
+                    idfaStatus = SPIDFAStatus.Unknown,
                     consentLanguage = SPMessageLanguage.ENGLISH,
                     campaignEnv = SPCampaignEnv.PUBLIC
                 ),
@@ -192,11 +198,13 @@ class SourcepointClientTest {
             )
         )
 
-        response.campaigns.forEach { campaign ->
-            assertNotNull(campaign.url)
-            assertNotNull(campaign.message)
-            assertNotNull(campaign.messageMetaData)
+        assertEquals(4, response.campaigns.size)
 
+        response.campaigns.forEach { campaign ->
+            assertNotNull(campaign.url, "Empty url for ${campaign.type}")
+            assertNotNull(campaign.message, "Empty message for ${campaign.type}")
+            assertTrue(campaign.message!!.messageJson.isNotEmpty(), "Empty message_json for ${campaign.type}")
+            assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
             assertCampaignConsents(campaign)
         }
 
