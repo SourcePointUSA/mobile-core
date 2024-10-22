@@ -46,7 +46,7 @@ import kotlin.reflect.KSuspendFunction1
 interface SPClient {
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
 
-    suspend fun getPvData(request: PvDataRequest): PvDataResponse
+    suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
@@ -153,7 +153,7 @@ class SourcepointClient(
         }.build()
     ).bodyOr(::reportErrorAndThrow)
 
-    override suspend fun getPvData(request: PvDataRequest): PvDataResponse =
+    override suspend fun postPvData(request: PvDataRequest): PvDataResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "pv-data")
             withParams(DefaultRequest())
