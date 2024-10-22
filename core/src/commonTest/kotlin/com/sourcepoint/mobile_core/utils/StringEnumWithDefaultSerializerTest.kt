@@ -7,19 +7,19 @@ import kotlinx.serialization.encodeToString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Serializable(with = StringTestEnum.Serializer::class)
-enum class StringTestEnum {
-    Foo,
-    Bar,
-    Unknown;
-
-    object Serializer : StringEnumWithDefaultSerializer<StringTestEnum>(entries, Unknown)
-}
-
-@Serializable
-data class DummyWithStringEnum(val enumProperty: StringTestEnum)
-
 class StringEnumWithDefaultSerializerTest {
+    @Serializable(with = StringTestEnum.Serializer::class)
+    enum class StringTestEnum {
+        Foo,
+        Bar,
+        Unknown;
+
+        object Serializer : StringEnumWithDefaultSerializer<StringTestEnum>(entries, Unknown)
+    }
+
+    @Serializable
+    data class DummyWithStringEnum(val enumProperty: StringTestEnum)
+
     @Test
     fun encodeToString() = runTest {
         assertEquals("\"Foo\"", json.encodeToString(StringTestEnum.Foo))
