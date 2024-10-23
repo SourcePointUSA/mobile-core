@@ -2,6 +2,8 @@ package com.sourcepoint.mobile_core.network
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.decodeFromString
+import kotlinx.serialization.json.JsonObject
 
 @OptIn(ExperimentalSerializationApi::class)
 val json = Json {
@@ -18,3 +20,5 @@ val jsonWithNulls = Json {
     ignoreUnknownKeys = true
     explicitNulls = true
 }
+
+fun String?.encodeToJsonObject() = this?.let { decodeFromString<JsonObject>(it) }

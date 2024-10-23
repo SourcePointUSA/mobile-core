@@ -13,7 +13,9 @@ data class ConsentStatus (
     val hasConsentData: Boolean? = null,
     val vendorListAdditions: Boolean? = null,
     val legalBasisChanges: Boolean? = null,
-    val granularStatus: ConsentStatusGranularStatus? = null
+    val granularStatus: ConsentStatusGranularStatus? = null,
+    val rejectedVendors: List<String?>? = emptyList(),
+    val rejectedCategories: List<String?>? = emptyList()
 ) {
     @Serializable
     data class ConsentStatusGranularStatus (
