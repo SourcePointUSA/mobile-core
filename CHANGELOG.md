@@ -1,3 +1,11 @@
+## 0.0.8 (October, 23, 2024)
+* add CCPA to `MessagesResponse`
+* add ios14 to `MessagesResponse`
+* refactor `SPIDFAStatus` to use `SerialName`
+* add missing languages to `SPMessageLanguage`
+* make enums serialization case insensitive
+* refactored `MessagesRequest` for native SDK integration
+
 ## 0.0.7 (October, 17, 2024)
 * update kotlin 1.9.x -> 2.0.21
 * update gradle -> 8.9
