@@ -21,4 +21,4 @@ val jsonWithNulls = Json {
     explicitNulls = true
 }
 
-fun String.encodeToJsonObject() = decodeFromString<JsonObject>(this)
+fun String?.encodeToJsonObject() = this?.let { decodeFromString<JsonObject>(it) }
