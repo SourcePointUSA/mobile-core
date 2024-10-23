@@ -44,15 +44,15 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlin.reflect.KSuspendFunction1
 
 interface SPClient {
-    suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
+    @Throws(Exception::class) suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
 
     @Throws(Exception::class) suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
-    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
+    @Throws(Exception::class) suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
-    suspend fun getMessages(request: MessagesRequest): MessagesResponse
+    @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
-    suspend fun customConsentGDPR(
+    @Throws(Exception::class) suspend fun customConsentGDPR(
         consentUUID: String,
         propertyId: Int,
         vendors: List<String>,
@@ -60,7 +60,7 @@ interface SPClient {
         legIntCategories: List<String>
     ): GDPRConsent
 
-    suspend fun deleteCustomConsentGDPR(
+    @Throws(Exception::class) suspend fun deleteCustomConsentGDPR(
         consentUUID: String,
         propertyId: Int,
         vendors: List<String>,

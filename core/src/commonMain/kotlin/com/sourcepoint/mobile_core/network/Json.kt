@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonObject
 
 @OptIn(ExperimentalSerializationApi::class)
 val json = Json {
+    decodeEnumsCaseInsensitive = true
     encodeDefaults = true
     ignoreUnknownKeys = true
     explicitNulls = false
@@ -14,6 +15,7 @@ val json = Json {
 
 @OptIn(ExperimentalSerializationApi::class)
 val jsonWithNulls = Json {
+    decodeEnumsCaseInsensitive = true
     encodeDefaults = true
     ignoreUnknownKeys = true
     explicitNulls = true
