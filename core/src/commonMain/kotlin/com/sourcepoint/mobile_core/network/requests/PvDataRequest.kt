@@ -2,6 +2,7 @@ package com.sourcepoint.mobile_core.network.requests
 
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import kotlinx.serialization.Contextual
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
@@ -18,7 +19,7 @@ data class PvDataRequest (
         val applies: Boolean,
         val uuid: String?,
         val accountId: Int,
-        val siteId: Int,
+        @SerialName("siteId") val propertyId: Int,
         val consentStatus: ConsentStatus,
         val pubData: JsonObject?,
         val sampleRate: Float?,
@@ -34,11 +35,11 @@ data class PvDataRequest (
         val applies: Boolean,
         val uuid: String?,
         val accountId: Int,
-        val siteId: Int,
+        @SerialName("siteId") val propertyId: Int,
         val consentStatus: ConsentStatus,
         val pubData: JsonObject?,
         val messageId: Int?,
-        val sampleRateval : Float?
+        val sampleRate : Float?
     )
 
     @Serializable
@@ -46,13 +47,13 @@ data class PvDataRequest (
         val applies: Boolean,
         val uuid: String?,
         val accountId: Int,
-        val siteId: Int,
+        @SerialName("siteId") val propertyId: Int,
         val consentStatus: ConsentStatus,
         val pubData: JsonObject?,
         val sampleRate: Float?,
         val msgId: Int?,
         val categoryId: Int?,
         val subCategoryId: Int?,
-        val prtnUUIDval : String?
+        val prtnUUID : String?
     )
 }

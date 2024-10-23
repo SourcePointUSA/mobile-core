@@ -46,7 +46,7 @@ import kotlin.reflect.KSuspendFunction1
 interface SPClient {
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
 
-    suspend fun postPvData(request: PvDataRequest): PvDataResponse
+    @Throws(Exception::class) suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
