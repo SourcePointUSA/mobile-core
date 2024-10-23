@@ -21,7 +21,7 @@ data class MessagesRequest(
         val propertyHref: SPPropertyName,
         val accountId: Int,
         val campaigns: Campaigns,
-        val consentLanguage: SPMessageLanguage,
+        val consentLanguage: SPMessageLanguage?,
         val hasCSP: Boolean = true,
         val campaignEnv: SPCampaignEnv?,
         val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
@@ -38,27 +38,27 @@ data class MessagesRequest(
             data class GDPR(
                 val targetingParams: SPTargetingParams?,
                 val hasLocalData: Boolean,
-                val consentStatus: ConsentStatus
+                val consentStatus: ConsentStatus?
             )
 
             @Serializable
             data class IOS14(
                 val targetingParams: SPTargetingParams?,
-                val idfaStatus: SPIDFAStatus
+                val idfaStatus: SPIDFAStatus?
             )
 
             @Serializable
             data class USNat(
                 val targetingParams: SPTargetingParams?,
                 val hasLocalData: Boolean,
-                val consentStatus: ConsentStatus
+                val consentStatus: ConsentStatus?
             )
 
             @Serializable
             data class CCPA(
                 val targetingParams: SPTargetingParams?,
                 val hasLocalData: Boolean,
-                val consentStatus: CCPAConsent.CCPAConsentStatus
+                val consentStatus: CCPAConsent.CCPAConsentStatus?
             )
         }
     }
