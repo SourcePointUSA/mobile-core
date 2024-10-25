@@ -1,3 +1,7 @@
+## 0.0.9 (October, 25, 2024)
+* fix `MessagesRequest.Body.CCPA` renaming `consentStatus` to `status`
+* fix `MessagesResponse.Campaigns` by making their derived consent classes optional
+
 ## 0.0.8 (October, 23, 2024)
 * add CCPA to `MessagesResponse`
 * add ios14 to `MessagesResponse`
