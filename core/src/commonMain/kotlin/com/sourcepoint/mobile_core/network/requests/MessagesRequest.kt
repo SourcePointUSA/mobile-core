@@ -58,7 +58,7 @@ data class MessagesRequest(
             data class CCPA(
                 val targetingParams: SPTargetingParams?,
                 val hasLocalData: Boolean,
-                val consentStatus: CCPAConsent.CCPAConsentStatus?
+                val status: CCPAConsent.CCPAConsentStatus?
             )
         }
     }

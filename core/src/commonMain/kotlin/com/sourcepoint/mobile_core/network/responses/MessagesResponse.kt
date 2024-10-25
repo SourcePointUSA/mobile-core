@@ -114,7 +114,7 @@ data class MessagesResponse(
             dateCreated = dateCreated,
             tcData = tcData ?: emptyMap()
         ) else null
-    ): Campaign<GDPRConsent>()
+    ): Campaign<GDPRConsent?>()
 
     @Serializable
     @SerialName("usnat")
@@ -140,13 +140,13 @@ data class MessagesResponse(
             webConsentPayload = webConsentPayload,
             gppData = gppData ?: emptyMap()
         ) else null
-    ): Campaign<USNatConsent>()
+    ): Campaign<USNatConsent?>()
 
     @Serializable
     @SerialName("CCPA")
     data class CCPA(
         override val type: SPCampaignType = SPCampaignType.Ccpa,
-        val status: CCPAConsent.CCPAConsentStatus,
+        val status: CCPAConsent.CCPAConsentStatus?,
         val signedLspa: Boolean?,
         val rejectedVendors: List<String>? = emptyList(),
         val rejectedCategories: List<String>? = emptyList(),
@@ -167,7 +167,7 @@ data class MessagesResponse(
             webConsentPayload = webConsentPayload,
             gppData = gppData ?: emptyMap()
         ) else null
-    ): Campaign<CCPAConsent>()
+    ): Campaign<CCPAConsent?>()
 
     @Serializable
     @SerialName("ios14")
