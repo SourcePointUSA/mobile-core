@@ -181,7 +181,7 @@ class SourcepointClientTest {
                         ccpa = MessagesRequest.Body.Campaigns.CCPA(
                             targetingParams = null,
                             hasLocalData = false,
-                            consentStatus = CCPAConsent.CCPAConsentStatus.RejectedNone
+                            status = CCPAConsent.CCPAConsentStatus.RejectedNone
                         )
                     ),
                     idfaStatus = SPIDFAStatus.Unknown,
