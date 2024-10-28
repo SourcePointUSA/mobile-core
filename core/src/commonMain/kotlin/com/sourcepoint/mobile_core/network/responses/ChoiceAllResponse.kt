@@ -10,7 +10,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChoiceAllResponce (
+data class ChoiceAllResponse (
     val gdpr: GDPR?,
     val ccpa: CCPA?,
     val usnat: USNAT?

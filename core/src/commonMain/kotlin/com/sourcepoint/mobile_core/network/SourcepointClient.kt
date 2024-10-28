@@ -19,7 +19,7 @@ import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
-import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponce
+import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
@@ -63,7 +63,7 @@ interface SPClient {
         idfaStatus: SPIDFAStatus,
         metadata: ChoiceAllMetaDataRequest,
         includeData: IncludeData
-    ): ChoiceAllResponce
+    ): ChoiceAllResponse
 
     @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
@@ -197,7 +197,7 @@ class SourcepointClient(
         idfaStatus: SPIDFAStatus,
         metadata: ChoiceAllMetaDataRequest,
         includeData: IncludeData
-    ): ChoiceAllResponce {
+    ): ChoiceAllResponse {
         val choicePath = when (actionType) {
             SPActionType.AcceptAll -> {
                 "consent-all"
