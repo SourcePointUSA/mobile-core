@@ -2,18 +2,24 @@ package com.sourcepoint.mobile_core.network
 
 import com.sourcepoint.core.BuildConfig
 import com.sourcepoint.mobile_core.DeviceInformation
+import com.sourcepoint.mobile_core.models.InvalidChoiceAllParamsError
+import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPError
+import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
+import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponce
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
@@ -50,6 +56,15 @@ interface SPClient {
 
     @Throws(Exception::class) suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
+    @Throws(Exception::class) suspend fun getChoiceAll(
+        actionType: SPActionType,
+        accountId: Int,
+        propertyId: Int,
+        idfaStatus: SPIDFAStatus,
+        metadata: ChoiceAllMetaDataRequest,
+        includeData: IncludeData
+    ): ChoiceAllResponce
+
     @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
     @Throws(Exception::class) suspend fun customConsentGDPR(
@@ -69,6 +84,7 @@ interface SPClient {
     ): GDPRConsent
 
     suspend fun errorMetrics(error: SPError)
+
 }
 
 class SourcepointClient(
@@ -173,6 +189,40 @@ class SourcepointClient(
                 )
             )}.build()
         ).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun getChoiceAll(
+        actionType: SPActionType,
+        accountId: Int,
+        propertyId: Int,
+        idfaStatus: SPIDFAStatus,
+        metadata: ChoiceAllMetaDataRequest,
+        includeData: IncludeData
+    ): ChoiceAllResponce {
+        val choicePath = when (actionType) {
+            SPActionType.AcceptAll -> {
+                "consent-all"
+            }
+            SPActionType.RejectAll -> {
+                "reject-all"
+            }
+            else -> throw InvalidChoiceAllParamsError()
+        }
+        return http.get(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", choicePath)
+            withParams(mapOf(
+                "accountId" to accountId,
+                "hasCsp" to true,
+                "propertyId" to propertyId,
+                "withSiteActions" to false,
+                "includeCustomVendorsRes" to false,
+                "idfaStatus" to idfaStatus,
+                "accountId" to accountId,
+                "metadata" to metadata,
+                "includeData" to includeData
+                )
+            )
+        }.build()).bodyOr(::reportErrorAndThrow)
+    }
 
     override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
         http.get(URLBuilder(baseWrapperUrl).apply {
