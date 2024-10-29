@@ -211,16 +211,18 @@ class SourcepointClient(
             path("wrapper", "v2", "choice", choicePath)
             withParams(mapOf(
                 "accountId" to accountId,
-                "hasCsp" to true,
-                "propertyId" to propertyId,
-                "withSiteActions" to false,
-                "includeCustomVendorsRes" to false,
-                "idfaStatus" to idfaStatus,
-                "accountId" to accountId,
-                "metadata" to metadata,
-                "includeData" to includeData
+                "propertyId" to propertyId
                 )
             )
+            withParams(mapOf(
+                "hasCsp" to true,
+                "withSiteActions" to false,
+                "includeCustomVendorsRes" to false
+                )
+            )
+            withParams(mapOf("idfaStatus" to idfaStatus))
+            withParams(mapOf("metadata" to metadata))
+            withParams(mapOf("includeData" to includeData))
         }.build()).bodyOr(::reportErrorAndThrow)
     }
 
