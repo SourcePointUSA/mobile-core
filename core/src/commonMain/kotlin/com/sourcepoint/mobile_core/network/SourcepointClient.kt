@@ -220,7 +220,7 @@ class SourcepointClient(
                 "includeCustomVendorsRes" to false
                 )
             )
-            withParams(mapOf("idfaStatus" to idfaStatus))
+            withParams(mapOf("idfaStatus" to idfaStatus.name))
             withParams(mapOf("metadata" to metadata))
             withParams(mapOf("includeData" to includeData))
         }.build()).bodyOr(::reportErrorAndThrow)
