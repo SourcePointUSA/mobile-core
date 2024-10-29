@@ -295,14 +295,10 @@ class SourcepointClientTest {
             includeData = IncludeData()
         )
         assertEquals(mockEngine.requestHistory.last().url, Url(
-            "https://cdn.privacy-mgmt.com/wrapper/v2/choice/" +
-                    "consent-all?accountId=123&propertyId=321&hasCsp=true&withSiteActions=false&includeCustomVendorsRes=false&" +
-                    "idfaStatus=Accepted&" +
-                    "metadata=%7B%22gdpr%22%3A%7B%22applies%22%3Atrue%7D%2C%22ccpa%22%3A%7B%22applies%22%3Afalse%7D%2C%22" +
-                    "usnat%22%3A%7B%22applies%22%3Afalse%7D%7D&" +
-                    "includeData=%7B%22TCData%22%3A%7B%22type%22%3A%22string%22%7D%2C%22webConsentPayload%22%3A%7B%22" +
-                    "type%22%3A%22string%22%7D%2C%22localState%22%3A%7B%22type%22%3A%22string%22%7D%2C%22categories%22%3Atrue%2C%22" +
-                    "GPPData%22%3A%7B%22uspString%22%3Atrue%7D%7D"
+            " https://cdn.privacy-mgmt.com/wrapper/v2/choice/consent-all?env=prod&scriptType=mobile-core-Android&scriptVersion=0.0.9&accountId=123&propertyId=321&hasCsp=true" +
+                    "&withSiteActions=false&includeCustomVendorsRes=false&idfaStatus=Accepted&metadata=%7B%22gdpr%22%3A%7B%22applies%22%3Atrue%7D%2C%22ccpa%22%3A%7B%22applies%22%3Afalse%7D%2C%22" +
+                    "usnat%22%3A%7B%22applies%22%3Afalse%7D%7D&includeData=%7B%22TCData%22%3A%7B%22type%22%3A%22string%22%7D%2C%22webConsentPayload%22%3A%7B%22type%22%3A%22string%22%7D%2C%22" +
+                    "localState%22%3A%7B%22type%22%3A%22string%22%7D%2C%22categories%22%3Atrue%2C%22GPPData%22%3A%7B%22uspString%22%3Atrue%7D%7D"
         ))
     }
 

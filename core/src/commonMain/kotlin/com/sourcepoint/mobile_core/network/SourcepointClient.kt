@@ -209,6 +209,7 @@ class SourcepointClient(
         }
         return http.get(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", choicePath)
+            withParams(DefaultRequest())
             withParams(mapOf(
                 "accountId" to accountId,
                 "propertyId" to propertyId
