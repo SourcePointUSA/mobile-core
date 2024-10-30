@@ -326,7 +326,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTest {
         val response = api.getChoiceAll(
             actionType = SPActionType.AcceptAll,
             accountId = accountId,
@@ -345,7 +345,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTest {
+    fun getGDPRChoiceRejectAllContainCorrectResponse() = runTest {
         val response = api.getChoiceAll(
             actionType = SPActionType.RejectAll,
             accountId = accountId,
