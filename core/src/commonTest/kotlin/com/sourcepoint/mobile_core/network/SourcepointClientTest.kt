@@ -381,4 +381,54 @@ class SourcepointClientTest {
             mockEngine.requestHistory.last().body.toByteArray().decodeToString()
         )
     }
+
+    @Test
+    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTest {
+        val response = api.postChoiceGDPRAction(
+            SPActionType.AcceptAll,
+            GDPRChoiceRequest(
+                uuid = null,
+                messageId = null,
+                sendPVData = true,
+                propertyId = 123,
+                includeData = IncludeData(),
+                authId = null,
+                consentAllRef = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null
+            )
+        )
+        assertTrue(response.consentStatus?.consentedAll == true)
+        assertTrue(response.acceptedVendors?.isNotEmpty() == true)
+        assertTrue(response.acceptedCategories?.isNotEmpty() == true)
+    }
+
+    @Test
+    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTest {
+        val response = api.postChoiceGDPRAction(
+            SPActionType.RejectAll,
+            GDPRChoiceRequest(
+                uuid = null,
+                messageId = null,
+                sendPVData = true,
+                propertyId = 123,
+                includeData = IncludeData(),
+                authId = null,
+                consentAllRef = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null
+            )
+        )
+        assertTrue(response.consentStatus?.rejectedAny == true)
+        assertTrue(response.acceptedVendors?.isEmpty() == true)
+        assertTrue(response.acceptedCategories?.isEmpty() == true)
+    }
 }
