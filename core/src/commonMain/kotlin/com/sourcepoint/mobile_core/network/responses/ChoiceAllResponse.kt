@@ -29,11 +29,11 @@ data class ChoiceAllResponse (
         val postPayload: PostPayload?,
         val webConsentPayload: String?,
         val gcmStatus: GDPRConsent.GCMStatus?,
-        val acceptedLegIntCategories: List<String>,
-        val acceptedLegIntVendors: List<String>,
-        val acceptedVendors: List<String>,
-        val acceptedCategories: List<String>,
-        val acceptedSpecialFeatures: List<String>
+        @SerialName("legIntCategories") val acceptedLegIntCategories: List<String>,
+        @SerialName("legIntVendors") val acceptedLegIntVendors: List<String>,
+        @SerialName("vendors") val acceptedVendors: List<String>,
+        @SerialName("categories") val acceptedCategories: List<String>,
+        @SerialName("specialFeatures") val acceptedSpecialFeatures: List<String>
     ) {
         @Serializable
         data class PostPayload (
@@ -50,7 +50,7 @@ data class ChoiceAllResponse (
         val expirationDate: String?,
         val rejectedAll: Boolean,
         val status: CCPAConsent.CCPAConsentStatus,
-        val uspstring: String,
+        @SerialName("uspString") val uspstring: String,
         val rejectedVendors: List<String>,
         val rejectedCategories: List<String>,
         val gpcEnabled: Boolean?,

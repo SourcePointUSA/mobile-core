@@ -308,7 +308,6 @@ class SourcepointClientTest {
         ))
     }
 
-
     @Test
     fun choiceAllReturnInvalidChoiceAllParamsError() = runTest {
         assertFailsWith<InvalidChoiceAllParamsError> {
@@ -328,6 +327,43 @@ class SourcepointClientTest {
     }
 
     @Test
+    fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTest {
+        val response = api.getChoiceAll(
+            actionType = SPActionType.AcceptAll,
+            accountId = accountId,
+            propertyId = propertyId,
+            idfaStatus = SPIDFAStatus.Accepted,
+            metadata = ChoiceAllMetaDataRequest(
+                ChoiceAllMetaDataRequest.Campaign(true),
+                ChoiceAllMetaDataRequest.Campaign(false),
+                ChoiceAllMetaDataRequest.Campaign(false)
+            ),
+            includeData = IncludeData()
+        )
+        assertTrue(response.gdpr?.consentStatus?.consentedAll == true)
+        assertTrue(response.gdpr?.acceptedVendors?.isNotEmpty() == true)
+        assertTrue(response.gdpr?.acceptedCategories?.isNotEmpty() == true)
+    }
+
+    @Test
+    fun getGDPRChoiceRejectAllContainCorrectResponse() = runTest {
+        val response = api.getChoiceAll(
+            actionType = SPActionType.RejectAll,
+            accountId = accountId,
+            propertyId = propertyId,
+            idfaStatus = SPIDFAStatus.Accepted,
+            metadata = ChoiceAllMetaDataRequest(
+                ChoiceAllMetaDataRequest.Campaign(true),
+                ChoiceAllMetaDataRequest.Campaign(false),
+                ChoiceAllMetaDataRequest.Campaign(false)
+            ),
+            includeData = IncludeData()
+        )
+        assertTrue(response.gdpr?.consentStatus?.rejectedAny == true)
+        assertTrue(response.gdpr?.acceptedVendors?.isEmpty() == true)
+        assertTrue(response.gdpr?.acceptedCategories?.isEmpty() == true)
+    }
+
     fun postGDPRChoiceActionContainCorrectUrl() = runTest {
         val mockEngine = mock("""{"uuid":"1"}""")
         SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
