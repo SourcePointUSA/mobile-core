@@ -14,6 +14,7 @@ import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -21,6 +22,7 @@ import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
+import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
@@ -55,6 +57,11 @@ interface SPClient {
     @Throws(Exception::class) suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
     @Throws(Exception::class) suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
+
+    @Throws(Exception::class) suspend fun postChoiceGDPRAction(
+        actionType: SPActionType,
+        request: GDPRChoiceRequest
+    ): GDPRChoiceResponse
 
     @Throws(Exception::class) suspend fun getChoiceAll(
         actionType: SPActionType,
@@ -189,6 +196,18 @@ class SourcepointClient(
                 )
             )}.build()
         ).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceGDPRAction(
+        actionType: SPActionType,
+        request: GDPRChoiceRequest
+    ): GDPRChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "gdpr", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun getChoiceAll(
         actionType: SPActionType,
