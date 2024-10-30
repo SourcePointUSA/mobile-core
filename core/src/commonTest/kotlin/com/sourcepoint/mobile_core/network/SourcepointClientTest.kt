@@ -296,16 +296,16 @@ class SourcepointClientTest {
             includeData = IncludeData()
         )
         val defaultRequest = DefaultRequest()
-        assertEquals(mockEngine.requestHistory.last().url, Url(
+        assertEquals(Url(
             " https://cdn.privacy-mgmt.com/wrapper/v2/choice/consent-all?env="+defaultRequest.env+"&scriptType="+defaultRequest.scriptType+
                     "&scriptVersion="+defaultRequest.scriptVersion+"&accountId=123&propertyId=321&hasCsp=true&withSiteActions=false&" +
                     "includeCustomVendorsRes=false&idfaStatus=Accepted&metadata=%7B%22gdpr%22%3A%7B%22applies%22%3Atrue%7D%2C%22" +
                     "ccpa%22%3A%7B%22applies%22%3Afalse%7D%2C%22usnat%22%3A%7B%22applies%22%3Afalse%7D%7D&includeData=%7B%22" +
                     "TCData%22%3A%7B%22type%22%3A%22string%22%7D%2C%22webConsentPayload%22%3A%7B%22type%22%3A%22string%22%7D%2C%22" +
-                    "localState%22%3A%7B%22type%22%3A%22string%22%7D%2C%22categories%22%3Atrue%2C%22GPPData%22%3A%7B%22uspString%22%3Atrue%7D%7D"
-        ))
+                    "localState%22%3A%7B%22type%22%3A%22string%22%7D%2C%22categories%22%3Atrue%2C%22GPPData%22%3A%7B%22uspString%22%3Atrue%7D%7D"),
+            mockEngine.requestHistory.last().url
+        )
     }
-
 
     @Test
     fun choiceAllReturnInvalidChoiceAllParamsError() = runTest {
@@ -323,5 +323,43 @@ class SourcepointClientTest {
                 includeData = IncludeData()
             )
         }
+    }
+
+    @Test
+    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTest {
+        val response = api.getChoiceAll(
+            actionType = SPActionType.AcceptAll,
+            accountId = accountId,
+            propertyId = propertyId,
+            idfaStatus = SPIDFAStatus.Accepted,
+            metadata = ChoiceAllMetaDataRequest(
+                ChoiceAllMetaDataRequest.Campaign(true),
+                ChoiceAllMetaDataRequest.Campaign(false),
+                ChoiceAllMetaDataRequest.Campaign(false)
+            ),
+            includeData = IncludeData()
+        )
+        assertTrue(response.gdpr?.consentStatus?.consentedAll == true)
+        assertTrue(response.gdpr?.acceptedVendors?.isNotEmpty() == true)
+        assertTrue(response.gdpr?.acceptedCategories?.isNotEmpty() == true)
+    }
+
+    @Test
+    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTest {
+        val response = api.getChoiceAll(
+            actionType = SPActionType.RejectAll,
+            accountId = accountId,
+            propertyId = propertyId,
+            idfaStatus = SPIDFAStatus.Accepted,
+            metadata = ChoiceAllMetaDataRequest(
+                ChoiceAllMetaDataRequest.Campaign(true),
+                ChoiceAllMetaDataRequest.Campaign(false),
+                ChoiceAllMetaDataRequest.Campaign(false)
+            ),
+            includeData = IncludeData()
+        )
+        assertTrue(response.gdpr?.consentStatus?.rejectedAny == true)
+        assertTrue(response.gdpr?.acceptedVendors?.isEmpty() == true)
+        assertTrue(response.gdpr?.acceptedCategories?.isEmpty() == true)
     }
 }
