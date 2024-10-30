@@ -16,11 +16,13 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
@@ -323,5 +325,60 @@ class SourcepointClientTest {
                 includeData = IncludeData()
             )
         }
+    }
+
+    @Test
+    fun postGDPRChoiceActionContainCorrectUrl() = runTest {
+        val mockEngine = mock("""{"uuid":"1"}""")
+        SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
+            SPActionType.AcceptAll,
+            GDPRChoiceRequest(
+                uuid = null,
+                messageId = null,
+                sendPVData = true,
+                propertyId = 123,
+                includeData = IncludeData(),
+                authId = null,
+                consentAllRef = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null
+            )
+        )
+        val defaultRequest = DefaultRequest()
+        assertEquals(Url("https://cdn.privacy-mgmt.com/wrapper/v2/choice/gdpr/11?env="+defaultRequest.env+"&scriptType="
+                +defaultRequest.scriptType+"&scriptVersion="+defaultRequest.scriptVersion),
+            mockEngine.requestHistory.last().url
+        )
+    }
+
+    @Test
+    fun postGDPRChoiceActionContainCorrectBody() = runTest {
+        val mockEngine = mock("""{"uuid":"1"}""")
+        SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
+            SPActionType.AcceptAll,
+            GDPRChoiceRequest(
+                uuid = null,
+                messageId = null,
+                sendPVData = true,
+                propertyId = 123,
+                includeData = IncludeData(),
+                authId = null,
+                consentAllRef = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null
+            )
+        )
+        assertEquals("{\"sendPVData\":true,\"propertyId\":123,\"includeData\":{\"TCData\":{\"type\":\"string\"}," +
+                "\"webConsentPayload\":{\"type\":\"string\"},\"localState\":{\"type\":\"string\"},\"categories\":true,\"GPPData\":{\"uspString\":true}}}",
+            mockEngine.requestHistory.last().body.toByteArray().decodeToString()
+        )
     }
 }
