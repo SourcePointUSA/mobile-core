@@ -2,8 +2,6 @@ package com.sourcepoint.mobile_core.network
 
 import com.sourcepoint.mobile_core.models.InvalidChoiceAllParamsError
 import com.sourcepoint.mobile_core.models.SPActionType
-import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
-import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
@@ -14,12 +12,15 @@ import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
-import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
@@ -364,6 +365,7 @@ class SourcepointClientTest {
         assertTrue(response.gdpr?.acceptedCategories?.isEmpty() == true)
     }
 
+    @Test
     fun postGDPRChoiceActionContainCorrectUrl() = runTest {
         val mockEngine = mock("""{"uuid":"1"}""")
         SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
@@ -466,5 +468,45 @@ class SourcepointClientTest {
         assertTrue(response.consentStatus?.rejectedAny == true)
         assertTrue(response.acceptedVendors?.isEmpty() == true)
         assertTrue(response.acceptedCategories?.isEmpty() == true)
+    }
+
+    @Test
+    fun postCCPAChoiceActionAcceptContainCorrectResponse() = runTest {
+        val response = api.postChoiceCCPAAction(
+            SPActionType.AcceptAll,
+            CCPAChoiceRequest(
+                authId = null,
+                uuid = null,
+                messageId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentedAll == true)
+        assertEquals(response.status, CCPAConsent.CCPAConsentStatus.ConsentedAll)
+    }
+
+    @Test
+    fun postCCPAChoiceActionRejectContainCorrectResponse() = runTest {
+        val response = api.postChoiceCCPAAction(
+            SPActionType.RejectAll,
+            CCPAChoiceRequest(
+                authId = null,
+                uuid = null,
+                messageId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.rejectedAll == true)
+        assertEquals(response.status, CCPAConsent.CCPAConsentStatus.RejectedAll)
     }
 }
