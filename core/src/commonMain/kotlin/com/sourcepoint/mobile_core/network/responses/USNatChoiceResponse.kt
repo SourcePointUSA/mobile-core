@@ -11,10 +11,8 @@ data class USNatChoiceResponse (
     val categories: List<String>,
     val consentStatus: ConsentStatus,
     val consentStrings: ConsentStrings,
-    val consentedToAll: Boolean,
     val dateCreated: String?,
     val expirationDate: String?,
-    val rejectedAny: Boolean,
     val gpcEnabled: Boolean?,
     val webConsentPayload: String?,
     @SerialName("GPPData") val gppData: IABData = emptyMap()

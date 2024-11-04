@@ -20,6 +20,7 @@ import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
@@ -467,4 +468,51 @@ class SourcepointClientTest {
         assertTrue(response.acceptedVendors?.isEmpty() == true)
         assertTrue(response.acceptedCategories?.isEmpty() == true)
     }
+
+    @Test
+    fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
+        val response = api.postChoiceUSNatAction(
+            SPActionType.AcceptAll,
+            USNatChoiceRequest(
+                authId = null,
+                uuid = null,
+                messageId = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentStatus.consentedToAll == true)
+        assertTrue(response.categories.isNotEmpty())
+    }
+
+    @Test
+    fun postUSNatChoiceActionRejectContainCorrectResponse() = runTest {
+        val response = api.postChoiceUSNatAction(
+            SPActionType.RejectAll,
+            USNatChoiceRequest(
+                authId = null,
+                uuid = null,
+                messageId = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentStatus.rejectedAny == true)
+        assertTrue(response.categories.isEmpty())
+    }
+
 }
