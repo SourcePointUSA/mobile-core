@@ -19,6 +19,7 @@ import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
+import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
@@ -26,6 +27,7 @@ import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
+import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
@@ -62,6 +64,11 @@ interface SPClient {
         actionType: SPActionType,
         request: GDPRChoiceRequest
     ): GDPRChoiceResponse
+
+    @Throws(Exception::class) suspend fun postChoiceUSNatAction(
+        actionType: SPActionType,
+        request: USNatChoiceRequest
+    ): USNatChoiceResponse
 
     @Throws(Exception::class) suspend fun getChoiceAll(
         actionType: SPActionType,
@@ -203,6 +210,18 @@ class SourcepointClient(
     ): GDPRChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "gdpr", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceUSNatAction(
+        actionType: SPActionType,
+        request: USNatChoiceRequest
+    ): USNatChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
             withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
