@@ -9,7 +9,7 @@ class CCPAChoiceRequest (
     val uuid: String?,
     val messageId: String?,
     val pubData: JsonObject?,
-    val pmSaveAndExitVariables: String?,
+    val pmSaveAndExitVariables: JsonObject?,
     val sendPVData: Boolean,
     val propertyId: Int,
     val sampleRate: Float?,
