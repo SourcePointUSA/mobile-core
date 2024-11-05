@@ -13,7 +13,7 @@ data class GDPRChoiceRequest (
     val consentAllRef: String?,
     val vendorListId: String?,
     val pubData : JsonObject?,
-    val pmSaveAndExitVariables : String?,
+    val pmSaveAndExitVariables : JsonObject?,
     val sendPVData: Boolean,
     val propertyId: Int,
     val sampleRate: Float?,

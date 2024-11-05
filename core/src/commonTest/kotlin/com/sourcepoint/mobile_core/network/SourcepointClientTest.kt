@@ -472,6 +472,36 @@ class SourcepointClientTest {
     }
 
     @Test
+    fun postGDPRChoiceActionSaveExitContainCorrectResponse() = runTest {
+        val response = api.postChoiceGDPRAction(
+            SPActionType.SaveAndExit,
+            GDPRChoiceRequest(
+                uuid = "uuid_36",
+                messageId = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                includeData = IncludeData(),
+                authId = null,
+                consentAllRef = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables =
+                """{"lan":"EN","vendors":[{"consent":false,"_id":"5f1b2fbeb8e05c306f2a1eb9","vendorType":"CUSTOM","iabId":null,"legInt":true}],
+                        |"privacyManagerId":"488393","categories":
+                        |[{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],"specialFeatures":[]}""".trimMargin()
+                    .encodeToJsonObject(),
+                sampleRate = 1f,
+                idfaStatus = SPIDFAStatus.Accepted,
+                granularStatus = null
+            )
+        )
+        assertTrue(response.consentStatus?.rejectedAny == true)
+        assertTrue(response.consentStatus?.consentedToAny == true)
+        assertContains(response.acceptedLegIntVendors, "5f1b2fbeb8e05c306f2a1eb9")
+        assertContains(response.acceptedLegIntCategories, "608bad95d08d3112188e0e2f")
+    }
+
+    @Test
     fun postCCPAChoiceActionAcceptContainCorrectResponse() = runTest {
         val response = api.postChoiceCCPAAction(
             SPActionType.AcceptAll,

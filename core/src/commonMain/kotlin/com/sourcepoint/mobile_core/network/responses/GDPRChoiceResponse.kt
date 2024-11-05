@@ -18,9 +18,9 @@ data class GDPRChoiceResponse (
     val grants: SPGDPRVendorGrants?,
     val webConsentPayload: String?,
     val gcmStatus: GDPRConsent.GCMStatus?,
-    val acceptedLegIntCategories: List<String>?,
-    val acceptedLegIntVendors: List<String>?,
-    val acceptedVendors: List<String>?,
-    val acceptedCategories: List<String>?,
-    val acceptedSpecialFeatures: List<String>?
+    @SerialName("legIntCategories") val acceptedLegIntCategories: List<String>,
+    @SerialName("legIntVendors") val acceptedLegIntVendors: List<String>,
+    @SerialName("vendors") val acceptedVendors: List<String>,
+    @SerialName("categories") val acceptedCategories: List<String>,
+    @SerialName("specialFeatures") val acceptedSpecialFeatures: List<String>
 )
