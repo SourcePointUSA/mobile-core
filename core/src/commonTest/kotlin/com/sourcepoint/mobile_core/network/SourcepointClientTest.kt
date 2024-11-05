@@ -2,6 +2,8 @@ package com.sourcepoint.mobile_core.network
 
 import com.sourcepoint.mobile_core.models.InvalidChoiceAllParamsError
 import com.sourcepoint.mobile_core.models.SPActionType
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
+import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
@@ -14,13 +16,12 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
-import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
-import com.sourcepoint.mobile_core.network.requests.MessagesRequest
-import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
+import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.toByteArray
@@ -508,5 +509,51 @@ class SourcepointClientTest {
         )
         assertTrue(response.rejectedAll == true)
         assertEquals(response.status, CCPAConsent.CCPAConsentStatus.RejectedAll)
+    }
+
+    @Test
+    fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
+        val response = api.postChoiceUSNatAction(
+            SPActionType.AcceptAll,
+            USNatChoiceRequest(
+                authId = null,
+                uuid = null,
+                messageId = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentStatus.consentedToAll == true)
+        assertTrue(response.categories.isNotEmpty())
+    }
+
+    @Test
+    fun postUSNatChoiceActionRejectContainCorrectResponse() = runTest {
+        val response = api.postChoiceUSNatAction(
+            SPActionType.RejectAll,
+            USNatChoiceRequest(
+                authId = null,
+                uuid = null,
+                messageId = null,
+                vendorListId = null,
+                pubData = null,
+                pmSaveAndExitVariables = null,
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                idfaStatus = null,
+                granularStatus = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentStatus.rejectedAny == true)
+        assertTrue(response.categories.isEmpty())
     }
 }
