@@ -10,6 +10,7 @@ import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
@@ -21,6 +22,7 @@ import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
+import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
@@ -64,6 +66,11 @@ interface SPClient {
         actionType: SPActionType,
         request: GDPRChoiceRequest
     ): GDPRChoiceResponse
+
+    @Throws(Exception::class) suspend fun postChoiceCCPAAction(
+        actionType: SPActionType,
+        request: CCPAChoiceRequest
+    ): CCPAChoiceResponse
 
     @Throws(Exception::class) suspend fun postChoiceUSNatAction(
         actionType: SPActionType,
@@ -222,6 +229,18 @@ class SourcepointClient(
     ): USNatChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceCCPAAction(
+        actionType: SPActionType,
+        request: CCPAChoiceRequest
+    ): CCPAChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "ccpa", actionType.type.toString())
             withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
