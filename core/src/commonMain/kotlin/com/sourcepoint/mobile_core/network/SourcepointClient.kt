@@ -10,20 +10,26 @@ import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
+import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
+import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
+import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
+import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
@@ -55,6 +61,21 @@ interface SPClient {
     @Throws(Exception::class) suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
     @Throws(Exception::class) suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
+
+    @Throws(Exception::class) suspend fun postChoiceGDPRAction(
+        actionType: SPActionType,
+        request: GDPRChoiceRequest
+    ): GDPRChoiceResponse
+
+    @Throws(Exception::class) suspend fun postChoiceCCPAAction(
+        actionType: SPActionType,
+        request: CCPAChoiceRequest
+    ): CCPAChoiceResponse
+
+    @Throws(Exception::class) suspend fun postChoiceUSNatAction(
+        actionType: SPActionType,
+        request: USNatChoiceRequest
+    ): USNatChoiceResponse
 
     @Throws(Exception::class) suspend fun getChoiceAll(
         actionType: SPActionType,
@@ -189,6 +210,42 @@ class SourcepointClient(
                 )
             )}.build()
         ).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceGDPRAction(
+        actionType: SPActionType,
+        request: GDPRChoiceRequest
+    ): GDPRChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "gdpr", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceUSNatAction(
+        actionType: SPActionType,
+        request: USNatChoiceRequest
+    ): USNatChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceCCPAAction(
+        actionType: SPActionType,
+        request: CCPAChoiceRequest
+    ): CCPAChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "ccpa", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun getChoiceAll(
         actionType: SPActionType,
