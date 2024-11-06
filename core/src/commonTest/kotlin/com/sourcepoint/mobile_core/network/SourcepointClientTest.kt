@@ -542,6 +542,28 @@ class SourcepointClientTest {
     }
 
     @Test
+    fun postCCPAChoiceActionSaveExitContainCorrectResponse() = runTest {
+        val response = api.postChoiceCCPAAction(
+            SPActionType.SaveAndExit,
+            CCPAChoiceRequest(
+                authId = null,
+                uuid = "uuid_36",
+                messageId = null,
+                pubData = null,
+                pmSaveAndExitVariables =
+                """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".trimMargin().encodeToJsonObject(),
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentedAll == false)
+        assertTrue(response.rejectedAll == false)
+        assertTrue(response.rejectedCategories?.contains("608bae685461ff11a2c2865d") == true)
+    }
+    
+    @Test
     fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
         val response = api.postChoiceUSNatAction(
             SPActionType.AcceptAll,
