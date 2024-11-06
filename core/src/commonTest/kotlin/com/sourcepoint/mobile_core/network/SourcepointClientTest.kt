@@ -608,4 +608,29 @@ class SourcepointClientTest {
         assertTrue(response.consentStatus.rejectedAny == true)
         assertTrue(response.categories.isEmpty())
     }
+
+    @Test
+    fun postUSNatChoiceActionSaveExitContainCorrectResponse() = runTest {
+        val response = api.postChoiceUSNatAction(
+            SPActionType.SaveAndExit,
+            USNatChoiceRequest(
+                authId = null,
+                uuid = "uuid_36",
+                messageId = null,
+                vendorListId = "65a01016e17a3c7a831ec515",
+                pubData = null,
+                pmSaveAndExitVariables =
+                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".trimMargin().encodeToJsonObject(),
+                sendPVData = true,
+                propertyId = propertyId,
+                sampleRate = 1f,
+                idfaStatus = SPIDFAStatus.Accepted,
+                granularStatus = null,
+                includeData = IncludeData()
+            )
+        )
+        assertTrue(response.consentStatus.rejectedAny == true)
+        assertTrue(response.consentStatus.consentedToAny == true)
+        assertContains(response.categories, "648c9c48e17a3c7a82360c54")
+    }
 }
