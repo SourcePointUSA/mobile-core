@@ -442,8 +442,8 @@ class SourcepointClientTest {
             )
         )
         assertTrue(response.consentStatus?.consentedAll == true)
-        assertTrue(response.acceptedVendors?.isNotEmpty() == true)
-        assertTrue(response.acceptedCategories?.isNotEmpty() == true)
+        assertTrue(response.acceptedVendors.isNotEmpty())
+        assertTrue(response.acceptedCategories.isNotEmpty())
     }
 
     @Test
@@ -467,8 +467,8 @@ class SourcepointClientTest {
             )
         )
         assertTrue(response.consentStatus?.rejectedAny == true)
-        assertTrue(response.acceptedVendors?.isEmpty() == true)
-        assertTrue(response.acceptedCategories?.isEmpty() == true)
+        assertTrue(response.acceptedVendors.isEmpty())
+        assertTrue(response.acceptedCategories.isEmpty())
     }
 
     @Test

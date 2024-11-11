@@ -4,6 +4,7 @@ import com.sourcepoint.core.BuildConfig
 import com.sourcepoint.mobile_core.DeviceInformation
 import com.sourcepoint.mobile_core.models.InvalidChoiceAllParamsError
 import com.sourcepoint.mobile_core.models.SPActionType
+import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPNetworkError
@@ -16,6 +17,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
+import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -87,6 +89,17 @@ interface SPClient {
     ): ChoiceAllResponse
 
     @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
+
+    suspend fun reportIdfaStatus(
+        propertyId: Int?,
+        uuid: String?,
+        requestUUID: String,
+        uuidType: SPCampaignType?,
+        messageId: Int?,
+        idfaStatus: SPIDFAStatus,
+        iosVersion: String,
+        partitionUUID: String?
+    )
 
     @Throws(Exception::class) suspend fun customConsentGDPR(
         consentUUID: String,
@@ -289,6 +302,39 @@ class SourcepointClient(
             path("wrapper", "v2", "messages")
             withParams(request)
         }.build()).bodyOr(::reportErrorAndThrow)
+
+    override suspend fun reportIdfaStatus(
+        propertyId: Int?,
+        uuid: String?,
+        requestUUID: String,
+        uuidType: SPCampaignType?,
+        messageId: Int?,
+        idfaStatus: SPIDFAStatus,
+        iosVersion: String,
+        partitionUUID: String?
+    ) {
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "metrics", "v1", "apple-tracking")
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(
+                IDFAStatusReportRequest(
+                    accountId = accountId,
+                    propertyId = propertyId,
+                    uuid = uuid,
+                    uuidType = uuidType,
+                    requestUUID = requestUUID,
+                    iosVersion = iosVersion,
+                    appleTracking = IDFAStatusReportRequest.AppleTrackingPayload(
+                        appleChoice = idfaStatus,
+                        appleMsgId = messageId,
+                        messagePartitionUUID = partitionUUID
+                    )
+                )
+            )
+        }
+    }
 
     override suspend fun customConsentGDPR(
         consentUUID: String,
