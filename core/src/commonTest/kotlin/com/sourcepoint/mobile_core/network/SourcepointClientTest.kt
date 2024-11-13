@@ -368,7 +368,12 @@ class SourcepointClientTest {
 
     @Test
     fun postGDPRChoiceActionContainCorrectUrl() = runTest {
-        val mockEngine = mock("""{"uuid":"1"}""")
+        val mockEngine = mock("""{"uuid":"1",
+            "specialFeatures": [],
+            "legIntCategories": [],
+            "legIntVendors": [],
+            "vendors": [],
+            "categories": []}""")
         SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
             SPActionType.AcceptAll,
             GDPRChoiceRequest(
@@ -396,7 +401,12 @@ class SourcepointClientTest {
 
     @Test
     fun postGDPRChoiceActionContainCorrectBody() = runTest {
-        val mockEngine = mock("""{"uuid":"1"}""")
+        val mockEngine = mock("""{"uuid":"1",
+            "specialFeatures": [],
+            "legIntCategories": [],
+            "legIntVendors": [],
+            "vendors": [],
+            "categories": []}""")
         SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
             SPActionType.AcceptAll,
             GDPRChoiceRequest(
