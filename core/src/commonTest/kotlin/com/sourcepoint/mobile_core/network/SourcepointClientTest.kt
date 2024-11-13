@@ -452,8 +452,8 @@ class SourcepointClientTest {
             )
         )
         assertTrue(response.consentStatus?.consentedAll == true)
-        assertTrue(response.acceptedVendors.isNotEmpty())
-        assertTrue(response.acceptedCategories.isNotEmpty())
+        assertTrue(response.acceptedVendors?.isNotEmpty() == true )
+        assertTrue(response.acceptedCategories?.isNotEmpty() == true)
     }
 
     @Test
@@ -477,8 +477,8 @@ class SourcepointClientTest {
             )
         )
         assertTrue(response.consentStatus?.rejectedAny == true)
-        assertTrue(response.acceptedVendors.isEmpty())
-        assertTrue(response.acceptedCategories.isEmpty())
+        assertTrue(response.acceptedVendors?.isEmpty() == true)
+        assertTrue(response.acceptedCategories?.isEmpty() == true)
     }
 
     @Test
@@ -507,8 +507,8 @@ class SourcepointClientTest {
         )
         assertTrue(response.consentStatus?.rejectedAny == true)
         assertTrue(response.consentStatus?.consentedToAny == true)
-        assertContains(response.acceptedLegIntVendors, "5f1b2fbeb8e05c306f2a1eb9")
-        assertContains(response.acceptedLegIntCategories, "608bad95d08d3112188e0e2f")
+        assertTrue(response.acceptedLegIntVendors?.contains("5f1b2fbeb8e05c306f2a1eb9") == true)
+        assertTrue(response.acceptedLegIntCategories?.contains("608bad95d08d3112188e0e2f") == true)
     }
 
     @Test
