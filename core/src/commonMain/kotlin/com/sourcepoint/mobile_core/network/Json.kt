@@ -1,9 +1,19 @@
 package com.sourcepoint.mobile_core.network
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonUnquotedLiteral
 
 @OptIn(ExperimentalSerializationApi::class)
 val json = Json {
@@ -22,3 +32,21 @@ val jsonWithNulls = Json {
 }
 
 fun String?.encodeToJsonObject() = this?.let { decodeFromString<JsonObject>(it) }
+
+class SPJsonSerializer : KSerializer<String> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("SPJson", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): String = when (decoder) {
+        is JsonDecoder -> decoder.decodeJsonElement().toString()
+        else -> decoder.decodeString()
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override fun serialize(encoder: Encoder, value: String) = when (encoder) {
+        is JsonEncoder -> encoder.encodeJsonElement(JsonUnquotedLiteral(value))
+        else -> encoder.encodeString(value)
+    }
+}
+
+typealias SPJson = @Serializable(with = SPJsonSerializer::class) String
+

@@ -32,6 +32,9 @@ import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -498,8 +501,7 @@ class SourcepointClientTest {
                 pmSaveAndExitVariables =
                 """{"lan":"EN","vendors":[{"consent":false,"_id":"5f1b2fbeb8e05c306f2a1eb9","vendorType":"CUSTOM","iabId":null,"legInt":true}],
                         |"privacyManagerId":"488393","categories":
-                        |[{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],"specialFeatures":[]}""".trimMargin()
-                    .encodeToJsonObject(),
+                        |[{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],"specialFeatures":[]}""".trimMargin(),
                 sampleRate = 1f,
                 idfaStatus = SPIDFAStatus.Accepted,
                 granularStatus = null
@@ -561,7 +563,7 @@ class SourcepointClientTest {
                 messageId = null,
                 pubData = null,
                 pmSaveAndExitVariables =
-                """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".trimMargin().encodeToJsonObject(),
+                """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".trimMargin(),
                 sendPVData = true,
                 propertyId = propertyId,
                 sampleRate = null,
@@ -630,7 +632,7 @@ class SourcepointClientTest {
                 vendorListId = "65a01016e17a3c7a831ec515",
                 pubData = null,
                 pmSaveAndExitVariables =
-                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".trimMargin().encodeToJsonObject(),
+                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".trimMargin(),
                 sendPVData = true,
                 propertyId = propertyId,
                 sampleRate = 1f,

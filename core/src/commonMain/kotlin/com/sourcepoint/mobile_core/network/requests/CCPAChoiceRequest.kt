@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core.network.requests
 
+import com.sourcepoint.mobile_core.network.SPJson
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
@@ -9,7 +10,7 @@ class CCPAChoiceRequest (
     val uuid: String?,
     val messageId: String?,
     val pubData: JsonObject?,
-    val pmSaveAndExitVariables: JsonObject?,
+    val pmSaveAndExitVariables: SPJson?,
     val sendPVData: Boolean,
     val propertyId: Int,
     val sampleRate: Float?,
