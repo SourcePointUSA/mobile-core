@@ -371,20 +371,15 @@ class SourcepointClientTest {
 
     @Test
     fun postGDPRChoiceActionContainCorrectUrl() = runTest {
-        val mockEngine = mock("""{"uuid":"1",
-            "specialFeatures": [],
-            "legIntCategories": [],
-            "legIntVendors": [],
-            "vendors": [],
-            "categories": []}""")
+        val mockEngine = mock("""{"uuid":"1"}""")
         SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
             SPActionType.AcceptAll,
             GDPRChoiceRequest(
-                uuid = null,
-                messageId = null,
                 sendPVData = true,
                 propertyId = 123,
                 includeData = IncludeData(),
+                uuid = null,
+                messageId = null,
                 authId = null,
                 consentAllRef = null,
                 vendorListId = null,
@@ -404,20 +399,15 @@ class SourcepointClientTest {
 
     @Test
     fun postGDPRChoiceActionContainCorrectBody() = runTest {
-        val mockEngine = mock("""{"uuid":"1",
-            "specialFeatures": [],
-            "legIntCategories": [],
-            "legIntVendors": [],
-            "vendors": [],
-            "categories": []}""")
+        val mockEngine = mock("""{"uuid":"1"}""")
         SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
             SPActionType.AcceptAll,
             GDPRChoiceRequest(
-                uuid = null,
-                messageId = null,
                 sendPVData = true,
                 propertyId = 123,
                 includeData = IncludeData(),
+                uuid = null,
+                messageId = null,
                 authId = null,
                 consentAllRef = null,
                 vendorListId = null,
@@ -439,11 +429,11 @@ class SourcepointClientTest {
         val response = api.postChoiceGDPRAction(
             SPActionType.AcceptAll,
             GDPRChoiceRequest(
-                uuid = null,
-                messageId = null,
                 sendPVData = true,
                 propertyId = 123,
                 includeData = IncludeData(),
+                uuid = null,
+                messageId = null,
                 authId = null,
                 consentAllRef = null,
                 vendorListId = null,
@@ -464,11 +454,11 @@ class SourcepointClientTest {
         val response = api.postChoiceGDPRAction(
             SPActionType.RejectAll,
             GDPRChoiceRequest(
-                uuid = null,
-                messageId = null,
                 sendPVData = true,
                 propertyId = 123,
                 includeData = IncludeData(),
+                uuid = null,
+                messageId = null,
                 authId = null,
                 consentAllRef = null,
                 vendorListId = null,
@@ -490,20 +480,20 @@ class SourcepointClientTest {
             SPActionType.SaveAndExit,
             GDPRChoiceRequest(
                 uuid = "uuid_36",
-                messageId = null,
                 sendPVData = true,
                 propertyId = propertyId,
                 includeData = IncludeData(),
-                authId = null,
-                consentAllRef = null,
-                vendorListId = null,
-                pubData = null,
                 pmSaveAndExitVariables =
                 """{"lan":"EN","vendors":[{"consent":false,"_id":"5f1b2fbeb8e05c306f2a1eb9","vendorType":"CUSTOM","iabId":null,"legInt":true}],
                         |"privacyManagerId":"488393","categories":
                         |[{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],"specialFeatures":[]}""".trimMargin(),
                 sampleRate = 1f,
                 idfaStatus = SPIDFAStatus.Accepted,
+                messageId = null,
+                authId = null,
+                consentAllRef = null,
+                vendorListId = null,
+                pubData = null,
                 granularStatus = null
             )
         )
@@ -518,15 +508,15 @@ class SourcepointClientTest {
         val response = api.postChoiceCCPAAction(
             SPActionType.AcceptAll,
             CCPAChoiceRequest(
+                sendPVData = true,
+                propertyId = propertyId,
+                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
                 pubData = null,
                 pmSaveAndExitVariables = null,
-                sendPVData = true,
-                propertyId = propertyId,
-                sampleRate = null,
-                includeData = IncludeData()
+                sampleRate = null
             )
         )
         assertTrue(response.consentedAll == true)
@@ -538,15 +528,15 @@ class SourcepointClientTest {
         val response = api.postChoiceCCPAAction(
             SPActionType.RejectAll,
             CCPAChoiceRequest(
+                sendPVData = true,
+                propertyId = propertyId,
+                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
                 pubData = null,
                 pmSaveAndExitVariables = null,
-                sendPVData = true,
-                propertyId = propertyId,
-                sampleRate = null,
-                includeData = IncludeData()
+                sampleRate = null
             )
         )
         assertTrue(response.rejectedAll == true)
@@ -558,16 +548,16 @@ class SourcepointClientTest {
         val response = api.postChoiceCCPAAction(
             SPActionType.SaveAndExit,
             CCPAChoiceRequest(
-                authId = null,
                 uuid = "uuid_36",
-                messageId = null,
-                pubData = null,
                 pmSaveAndExitVariables =
                 """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".trimMargin(),
                 sendPVData = true,
                 propertyId = propertyId,
-                sampleRate = null,
-                includeData = IncludeData()
+                includeData = IncludeData(),
+                authId = null,
+                messageId = null,
+                pubData = null,
+                sampleRate = null
             )
         )
         assertTrue(response.consentedAll == false)
@@ -580,18 +570,18 @@ class SourcepointClientTest {
         val response = api.postChoiceUSNatAction(
             SPActionType.AcceptAll,
             USNatChoiceRequest(
+                sendPVData = true,
+                propertyId = propertyId,
+                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
                 vendorListId = null,
                 pubData = null,
                 pmSaveAndExitVariables = null,
-                sendPVData = true,
-                propertyId = propertyId,
                 sampleRate = null,
                 idfaStatus = null,
-                granularStatus = null,
-                includeData = IncludeData()
+                granularStatus = null
             )
         )
         assertTrue(response.consentStatus.consentedToAll == true)
@@ -603,18 +593,18 @@ class SourcepointClientTest {
         val response = api.postChoiceUSNatAction(
             SPActionType.RejectAll,
             USNatChoiceRequest(
+                sendPVData = true,
+                propertyId = propertyId,
+                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
                 vendorListId = null,
                 pubData = null,
                 pmSaveAndExitVariables = null,
-                sendPVData = true,
-                propertyId = propertyId,
                 sampleRate = null,
                 idfaStatus = null,
-                granularStatus = null,
-                includeData = IncludeData()
+                granularStatus = null
             )
         )
         assertTrue(response.consentStatus.rejectedAny == true)
@@ -626,19 +616,19 @@ class SourcepointClientTest {
         val response = api.postChoiceUSNatAction(
             SPActionType.SaveAndExit,
             USNatChoiceRequest(
-                authId = null,
                 uuid = "uuid_36",
-                messageId = null,
                 vendorListId = "65a01016e17a3c7a831ec515",
-                pubData = null,
                 pmSaveAndExitVariables =
                     """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".trimMargin(),
                 sendPVData = true,
                 propertyId = propertyId,
                 sampleRate = 1f,
                 idfaStatus = SPIDFAStatus.Accepted,
-                granularStatus = null,
-                includeData = IncludeData()
+                includeData = IncludeData(),
+                authId = null,
+                messageId = null,
+                pubData = null,
+                granularStatus = null
             )
         )
         assertTrue(response.consentStatus.rejectedAny == true)

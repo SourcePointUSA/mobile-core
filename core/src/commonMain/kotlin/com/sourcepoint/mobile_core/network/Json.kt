@@ -33,6 +33,8 @@ val jsonWithNulls = Json {
 
 fun String?.encodeToJsonObject() = this?.let { decodeFromString<JsonObject>(it) }
 
+typealias SPJson = @Serializable(with = SPJsonSerializer::class) String
+
 class SPJsonSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("SPJson", PrimitiveKind.STRING)
 
@@ -47,6 +49,4 @@ class SPJsonSerializer : KSerializer<String> {
         else -> encoder.encodeString(value)
     }
 }
-
-typealias SPJson = @Serializable(with = SPJsonSerializer::class) String
 
