@@ -8,5 +8,6 @@ enum class SPCampaignType {
     @SerialName("GDPR") Gdpr,
     @SerialName("CCPA") Ccpa,
     @SerialName("usnat") UsNat,
-    @SerialName("ios14") IOS14
+    @SerialName("ios14") IOS14,
+    @SerialName("unknown") unknown
 }
