@@ -90,7 +90,7 @@ interface SPClient {
 
     @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
-    suspend fun reportIdfaStatus(
+    suspend fun postReportIdfaStatus(
         propertyId: Int?,
         uuid: String?,
         requestUUID: String,
@@ -303,7 +303,7 @@ class SourcepointClient(
             withParams(request)
         }.build()).bodyOr(::reportErrorAndThrow)
 
-    override suspend fun reportIdfaStatus(
+    override suspend fun postReportIdfaStatus(
         propertyId: Int?,
         uuid: String?,
         requestUUID: String,
