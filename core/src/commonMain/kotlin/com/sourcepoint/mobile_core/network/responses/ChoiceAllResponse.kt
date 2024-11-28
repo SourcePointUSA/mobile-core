@@ -6,6 +6,7 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
+import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -69,6 +70,7 @@ data class ChoiceAllResponse (
         val rejectedAny: Boolean,
         val gpcEnabled: Boolean?,
         val webConsentPayload: String?,
-        @SerialName("GPPData") val gppData: IABData = emptyMap()
+        @SerialName("GPPData") val gppData: IABData = emptyMap(),
+        val userConsents: USNatConsent.USNatUserConsents
     )
 }
