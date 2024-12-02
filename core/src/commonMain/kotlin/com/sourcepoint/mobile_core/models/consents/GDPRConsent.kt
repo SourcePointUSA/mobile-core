@@ -22,10 +22,10 @@ data class GDPRConsent (
 ) {
     @Serializable
     data class GCMStatus (
-        val analyticsStorage: String?,
-        val adStorage: String?,
-        val adUserData: String?,
-        val adPersonalization: String?
+        @SerialName("analytics_storage") val analyticsStorage: String?,
+        @SerialName("ad_storage") val adStorage: String?,
+        @SerialName("ad_user_data") val adUserData: String?,
+        @SerialName("ad_personalization") val adPersonalization: String?
     )
 
     @Serializable
