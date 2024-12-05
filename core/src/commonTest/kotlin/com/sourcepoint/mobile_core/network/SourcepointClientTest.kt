@@ -24,7 +24,6 @@ import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.engine.mock.toByteArray
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
@@ -32,9 +31,6 @@ import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -376,7 +372,6 @@ class SourcepointClientTest {
             GDPRChoiceRequest(
                 sendPVData = true,
                 propertyId = 123,
-                includeData = IncludeData(),
                 uuid = null,
                 messageId = null,
                 authId = null,
@@ -385,7 +380,6 @@ class SourcepointClientTest {
                 pubData = null,
                 pmSaveAndExitVariables = null,
                 sampleRate = null,
-                idfaStatus = null,
                 granularStatus = null
             )
         )
@@ -401,7 +395,6 @@ class SourcepointClientTest {
             GDPRChoiceRequest(
                 sendPVData = true,
                 propertyId = 123,
-                includeData = IncludeData(),
                 uuid = null,
                 messageId = null,
                 authId = null,
@@ -410,7 +403,6 @@ class SourcepointClientTest {
                 pubData = null,
                 pmSaveAndExitVariables = null,
                 sampleRate = null,
-                idfaStatus = null,
                 granularStatus = null
             )
         )
@@ -427,7 +419,6 @@ class SourcepointClientTest {
                 uuid = "uuid_36",
                 sendPVData = true,
                 propertyId = propertyId,
-                includeData = IncludeData(),
                 pmSaveAndExitVariables =
                 """{"lan":"EN","vendors":[{"consent":false,"_id":"5f1b2fbeb8e05c306f2a1eb9","vendorType":"CUSTOM","iabId":null,"legInt":true}],
                         |"privacyManagerId":"488393","categories":
@@ -455,7 +446,6 @@ class SourcepointClientTest {
             CCPAChoiceRequest(
                 sendPVData = true,
                 propertyId = propertyId,
-                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
@@ -473,10 +463,9 @@ class SourcepointClientTest {
         val response = api.postChoiceCCPAAction(
             SPActionType.RejectAll,
             CCPAChoiceRequest(
+                authId = null,
                 sendPVData = true,
                 propertyId = propertyId,
-                includeData = IncludeData(),
-                authId = null,
                 uuid = null,
                 messageId = null,
                 pubData = null,
@@ -498,7 +487,6 @@ class SourcepointClientTest {
                 """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".trimMargin(),
                 sendPVData = true,
                 propertyId = propertyId,
-                includeData = IncludeData(),
                 authId = null,
                 messageId = null,
                 pubData = null,
@@ -509,7 +497,7 @@ class SourcepointClientTest {
         assertTrue(response.rejectedAll == false)
         assertTrue(response.rejectedCategories?.contains("608bae685461ff11a2c2865d") == true)
     }
-    
+
     @Test
     fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
         val response = api.postChoiceUSNatAction(
@@ -517,7 +505,6 @@ class SourcepointClientTest {
             USNatChoiceRequest(
                 sendPVData = true,
                 propertyId = propertyId,
-                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
@@ -525,7 +512,6 @@ class SourcepointClientTest {
                 pubData = null,
                 pmSaveAndExitVariables = null,
                 sampleRate = null,
-                idfaStatus = null,
                 granularStatus = null
             )
         )
@@ -540,7 +526,6 @@ class SourcepointClientTest {
             USNatChoiceRequest(
                 sendPVData = true,
                 propertyId = propertyId,
-                includeData = IncludeData(),
                 authId = null,
                 uuid = null,
                 messageId = null,
@@ -548,7 +533,6 @@ class SourcepointClientTest {
                 pubData = null,
                 pmSaveAndExitVariables = null,
                 sampleRate = null,
-                idfaStatus = null,
                 granularStatus = null
             )
         )
@@ -568,8 +552,6 @@ class SourcepointClientTest {
                 sendPVData = true,
                 propertyId = propertyId,
                 sampleRate = 1f,
-                idfaStatus = SPIDFAStatus.Accepted,
-                includeData = IncludeData(),
                 authId = null,
                 messageId = null,
                 pubData = null,
