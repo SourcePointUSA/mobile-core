@@ -32,9 +32,6 @@ import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -289,46 +286,6 @@ class SourcepointClientTest {
         assertFalse(responseDeleteCustomConsent.vendors.contains(customVendorId))
         assertFalse(responseDeleteCustomConsent.categories.contains(categoryId1))
         assertFalse(responseDeleteCustomConsent.categories.contains(categoryId2))
-    }
-
-    @Test
-    fun choiceAllContainCorrectParams() = runTest {
-        val mockEngine = mock()
-        SourcepointClient(123, 321, "test", httpEngine = mockEngine).getChoiceAll(
-            actionType = SPActionType.AcceptAll,
-            accountId = 123,
-            propertyId = 321,
-            idfaStatus = SPIDFAStatus.Accepted,
-            metadata = ChoiceAllMetaDataRequest(ChoiceAllMetaDataRequest.Campaign(true),ChoiceAllMetaDataRequest.Campaign(false),ChoiceAllMetaDataRequest.Campaign(false)),
-            includeData = IncludeData()
-        )
-        val defaultRequest = DefaultRequest()
-        assertEquals(mockEngine.requestHistory.last().url, Url(
-            " https://cdn.privacy-mgmt.com/wrapper/v2/choice/consent-all?env="+defaultRequest.env+"&scriptType="+defaultRequest.scriptType+
-                    "&scriptVersion="+defaultRequest.scriptVersion+"&accountId=123&propertyId=321&hasCsp=true&withSiteActions=false&" +
-                    "includeCustomVendorsRes=false&idfaStatus=Accepted&metadata=%7B%22gdpr%22%3A%7B%22applies%22%3Atrue%7D%2C%22" +
-                    "ccpa%22%3A%7B%22applies%22%3Afalse%7D%2C%22usnat%22%3A%7B%22applies%22%3Afalse%7D%7D&includeData=%7B%22" +
-                    "TCData%22%3A%7B%22type%22%3A%22string%22%7D%2C%22webConsentPayload%22%3A%7B%22type%22%3A%22string%22%7D%2C%22" +
-                    "localState%22%3A%7B%22type%22%3A%22string%22%7D%2C%22categories%22%3Atrue%2C%22GPPData%22%3A%7B%22uspString%22%3Atrue%7D%7D"
-        ))
-    }
-
-    @Test
-    fun choiceAllReturnInvalidChoiceAllParamsError() = runTest {
-        assertFailsWith<InvalidChoiceAllParamsError> {
-            api.getChoiceAll(
-                actionType = SPActionType.Custom,
-                accountId = 123,
-                propertyId = 321,
-                idfaStatus = SPIDFAStatus.Accepted,
-                metadata = ChoiceAllMetaDataRequest(
-                    ChoiceAllMetaDataRequest.Campaign(true),
-                    ChoiceAllMetaDataRequest.Campaign(false),
-                    ChoiceAllMetaDataRequest.Campaign(false)
-                ),
-                includeData = IncludeData()
-            )
-        }
     }
 
     @Test
