@@ -15,7 +15,7 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
-import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
@@ -292,15 +292,11 @@ class SourcepointClientTest {
     fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTest {
         val response = api.getChoiceAll(
             actionType = SPActionType.AcceptAll,
-            accountId = accountId,
-            propertyId = propertyId,
-            idfaStatus = SPIDFAStatus.Accepted,
-            metadata = ChoiceAllMetaDataRequest(
-                ChoiceAllMetaDataRequest.Campaign(true),
-                ChoiceAllMetaDataRequest.Campaign(false),
-                ChoiceAllMetaDataRequest.Campaign(false)
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
-            includeData = IncludeData()
         )
         assertTrue(response.gdpr?.consentStatus?.consentedAll == true)
         assertTrue(response.gdpr?.acceptedVendors?.isNotEmpty() == true)
@@ -311,15 +307,11 @@ class SourcepointClientTest {
     fun getGDPRChoiceRejectAllContainCorrectResponse() = runTest {
         val response = api.getChoiceAll(
             actionType = SPActionType.RejectAll,
-            accountId = accountId,
-            propertyId = propertyId,
-            idfaStatus = SPIDFAStatus.Accepted,
-            metadata = ChoiceAllMetaDataRequest(
-                ChoiceAllMetaDataRequest.Campaign(true),
-                ChoiceAllMetaDataRequest.Campaign(false),
-                ChoiceAllMetaDataRequest.Campaign(false)
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
-            includeData = IncludeData()
         )
         assertTrue(response.gdpr?.consentStatus?.rejectedAny == true)
         assertTrue(response.gdpr?.acceptedVendors?.isEmpty() == true)
@@ -521,7 +513,7 @@ class SourcepointClientTest {
         assertTrue(response.rejectedAll == false)
         assertTrue(response.rejectedCategories?.contains("608bae685461ff11a2c2865d") == true)
     }
-    
+
     @Test
     fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
         val response = api.postChoiceUSNatAction(
