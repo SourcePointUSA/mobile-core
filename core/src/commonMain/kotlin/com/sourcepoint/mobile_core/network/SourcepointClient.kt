@@ -12,7 +12,7 @@ import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
-import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
@@ -81,11 +81,7 @@ interface SPClient {
 
     @Throws(Exception::class) suspend fun getChoiceAll(
         actionType: SPActionType,
-        accountId: Int,
-        propertyId: Int,
-        idfaStatus: SPIDFAStatus,
-        metadata: ChoiceAllMetaDataRequest,
-        includeData: IncludeData
+        campaigns: ChoiceAllRequest.ChoiceAllCampaigns
     ): ChoiceAllResponse
 
     @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
@@ -262,38 +258,16 @@ class SourcepointClient(
 
     override suspend fun getChoiceAll(
         actionType: SPActionType,
-        accountId: Int,
-        propertyId: Int,
-        idfaStatus: SPIDFAStatus,
-        metadata: ChoiceAllMetaDataRequest,
-        includeData: IncludeData
+        campaigns: ChoiceAllRequest.ChoiceAllCampaigns
     ): ChoiceAllResponse {
         val choicePath = when (actionType) {
-            SPActionType.AcceptAll -> {
-                "consent-all"
-            }
-            SPActionType.RejectAll -> {
-                "reject-all"
-            }
+            SPActionType.AcceptAll -> { "consent-all" }
+            SPActionType.RejectAll -> { "reject-all" }
             else -> throw InvalidChoiceAllParamsError()
         }
         return http.get(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", choicePath)
-            withParams(DefaultRequest())
-            withParams(mapOf(
-                "accountId" to accountId,
-                "propertyId" to propertyId
-                )
-            )
-            withParams(mapOf(
-                "hasCsp" to true,
-                "withSiteActions" to false,
-                "includeCustomVendorsRes" to false
-                )
-            )
-            withParams(mapOf("idfaStatus" to idfaStatus.name))
-            withParams(mapOf("metadata" to metadata))
-            withParams(mapOf("includeData" to includeData))
+            withParams(ChoiceAllRequest(accountId, propertyId, campaigns))
         }.build()).bodyOr(::reportErrorAndThrow)
     }
 
