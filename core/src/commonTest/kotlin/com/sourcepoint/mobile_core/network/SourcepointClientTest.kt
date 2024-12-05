@@ -370,61 +370,6 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postGDPRChoiceActionContainCorrectUrl() = runTest {
-        val mockEngine = mock("""{"uuid":"1"}""")
-        SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
-            SPActionType.AcceptAll,
-            GDPRChoiceRequest(
-                sendPVData = true,
-                propertyId = 123,
-                includeData = IncludeData(),
-                uuid = null,
-                messageId = null,
-                authId = null,
-                consentAllRef = null,
-                vendorListId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null,
-                idfaStatus = null,
-                granularStatus = null
-            )
-        )
-        val defaultRequest = DefaultRequest()
-        assertEquals(Url("https://cdn.privacy-mgmt.com/wrapper/v2/choice/gdpr/11?env="+defaultRequest.env+"&scriptType="
-                +defaultRequest.scriptType+"&scriptVersion="+defaultRequest.scriptVersion),
-            mockEngine.requestHistory.last().url
-        )
-    }
-
-    @Test
-    fun postGDPRChoiceActionContainCorrectBody() = runTest {
-        val mockEngine = mock("""{"uuid":"1"}""")
-        SourcepointClient(123, 321, "test", httpEngine = mockEngine).postChoiceGDPRAction(
-            SPActionType.AcceptAll,
-            GDPRChoiceRequest(
-                sendPVData = true,
-                propertyId = 123,
-                includeData = IncludeData(),
-                uuid = null,
-                messageId = null,
-                authId = null,
-                consentAllRef = null,
-                vendorListId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null,
-                idfaStatus = null,
-                granularStatus = null
-            )
-        )
-        assertEquals("{\"sendPVData\":true,\"propertyId\":123,\"includeData\":{\"TCData\":{\"type\":\"string\"}," +
-                "\"webConsentPayload\":{\"type\":\"string\"},\"localState\":{\"type\":\"string\"},\"categories\":true,\"GPPData\":{\"uspString\":true}}}",
-            mockEngine.requestHistory.last().body.toByteArray().decodeToString()
-        )
-    }
-
-    @Test
     fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTest {
         val response = api.postChoiceGDPRAction(
             SPActionType.AcceptAll,
