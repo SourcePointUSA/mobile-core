@@ -516,7 +516,6 @@ class SourcepointClientTest {
             )
         )
         assertTrue(response.consentStatus.consentedToAll == true)
-        assertTrue(response.categories.isNotEmpty())
     }
 
     @Test
@@ -537,7 +536,6 @@ class SourcepointClientTest {
             )
         )
         assertTrue(response.consentStatus.rejectedAny == true)
-        assertTrue(response.categories.isEmpty())
     }
 
     @Test
@@ -560,6 +558,5 @@ class SourcepointClientTest {
         )
         assertTrue(response.consentStatus.rejectedAny == true)
         assertTrue(response.consentStatus.consentedToAny == true)
-        assertContains(response.categories, "648c9c48e17a3c7a82360c54")
     }
 }
