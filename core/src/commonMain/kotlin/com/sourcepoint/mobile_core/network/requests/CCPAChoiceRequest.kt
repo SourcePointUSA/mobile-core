@@ -14,5 +14,5 @@ class CCPAChoiceRequest (
     val sendPVData: Boolean,
     val propertyId: Int,
     val sampleRate: Float?,
-    val includeData: IncludeData
+    val includeData: IncludeData = IncludeData()
 )

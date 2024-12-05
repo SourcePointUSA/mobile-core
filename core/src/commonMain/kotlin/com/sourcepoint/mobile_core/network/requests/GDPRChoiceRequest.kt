@@ -18,7 +18,7 @@ data class GDPRChoiceRequest (
     val sendPVData: Boolean,
     val propertyId: Int,
     val sampleRate: Float?,
-    val idfaStatus: SPIDFAStatus?,
+    val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
     val granularStatus: ConsentStatus.ConsentStatusGranularStatus?,
-    val includeData: IncludeData
+    val includeData: IncludeData = IncludeData()
 )

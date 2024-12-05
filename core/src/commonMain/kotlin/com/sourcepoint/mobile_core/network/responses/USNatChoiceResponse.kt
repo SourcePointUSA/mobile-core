@@ -10,7 +10,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class USNatChoiceResponse (
     val uuid: String?,
-    val categories: List<String>,
     val consentStatus: ConsentStatus,
     val consentStrings: ConsentStrings,
     val dateCreated: String?,
