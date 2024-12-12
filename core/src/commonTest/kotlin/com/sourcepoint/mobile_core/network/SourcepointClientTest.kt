@@ -15,7 +15,7 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
-import com.sourcepoint.mobile_core.network.requests.ChoiceAllMetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
@@ -288,58 +288,14 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun choiceAllContainCorrectParams() = runTest {
-        val mockEngine = mock()
-        SourcepointClient(123, 321, "test", httpEngine = mockEngine).getChoiceAll(
-            actionType = SPActionType.AcceptAll,
-            accountId = 123,
-            propertyId = 321,
-            idfaStatus = SPIDFAStatus.Accepted,
-            metadata = ChoiceAllMetaDataRequest(ChoiceAllMetaDataRequest.Campaign(true),ChoiceAllMetaDataRequest.Campaign(false),ChoiceAllMetaDataRequest.Campaign(false)),
-            includeData = IncludeData()
-        )
-        val defaultRequest = DefaultRequest()
-        assertEquals(mockEngine.requestHistory.last().url, Url(
-            " https://cdn.privacy-mgmt.com/wrapper/v2/choice/consent-all?env="+defaultRequest.env+"&scriptType="+defaultRequest.scriptType+
-                    "&scriptVersion="+defaultRequest.scriptVersion+"&accountId=123&propertyId=321&hasCsp=true&withSiteActions=false&" +
-                    "includeCustomVendorsRes=false&idfaStatus=Accepted&metadata=%7B%22gdpr%22%3A%7B%22applies%22%3Atrue%7D%2C%22" +
-                    "ccpa%22%3A%7B%22applies%22%3Afalse%7D%2C%22usnat%22%3A%7B%22applies%22%3Afalse%7D%7D&includeData=%7B%22" +
-                    "TCData%22%3A%7B%22type%22%3A%22string%22%7D%2C%22webConsentPayload%22%3A%7B%22type%22%3A%22string%22%7D%2C%22" +
-                    "localState%22%3A%7B%22type%22%3A%22string%22%7D%2C%22categories%22%3Atrue%2C%22GPPData%22%3A%7B%22uspString%22%3Atrue%7D%7D"
-        ))
-    }
-
-    @Test
-    fun choiceAllReturnInvalidChoiceAllParamsError() = runTest {
-        assertFailsWith<InvalidChoiceAllParamsError> {
-            api.getChoiceAll(
-                actionType = SPActionType.Custom,
-                accountId = 123,
-                propertyId = 321,
-                idfaStatus = SPIDFAStatus.Accepted,
-                metadata = ChoiceAllMetaDataRequest(
-                    ChoiceAllMetaDataRequest.Campaign(true),
-                    ChoiceAllMetaDataRequest.Campaign(false),
-                    ChoiceAllMetaDataRequest.Campaign(false)
-                ),
-                includeData = IncludeData()
-            )
-        }
-    }
-
-    @Test
     fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTest {
         val response = api.getChoiceAll(
             actionType = SPActionType.AcceptAll,
-            accountId = accountId,
-            propertyId = propertyId,
-            idfaStatus = SPIDFAStatus.Accepted,
-            metadata = ChoiceAllMetaDataRequest(
-                ChoiceAllMetaDataRequest.Campaign(true),
-                ChoiceAllMetaDataRequest.Campaign(false),
-                ChoiceAllMetaDataRequest.Campaign(false)
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
-            includeData = IncludeData()
         )
         assertTrue(response.gdpr?.consentStatus?.consentedAll == true)
         assertTrue(response.gdpr?.acceptedVendors?.isNotEmpty() == true)
@@ -350,15 +306,11 @@ class SourcepointClientTest {
     fun getGDPRChoiceRejectAllContainCorrectResponse() = runTest {
         val response = api.getChoiceAll(
             actionType = SPActionType.RejectAll,
-            accountId = accountId,
-            propertyId = propertyId,
-            idfaStatus = SPIDFAStatus.Accepted,
-            metadata = ChoiceAllMetaDataRequest(
-                ChoiceAllMetaDataRequest.Campaign(true),
-                ChoiceAllMetaDataRequest.Campaign(false),
-                ChoiceAllMetaDataRequest.Campaign(false)
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+                ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
-            includeData = IncludeData()
         )
         assertTrue(response.gdpr?.consentStatus?.rejectedAny == true)
         assertTrue(response.gdpr?.acceptedVendors?.isEmpty() == true)
