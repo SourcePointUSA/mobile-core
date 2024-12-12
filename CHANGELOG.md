@@ -1,4 +1,4 @@
-## 0.0.10 (December, 2, 2024)
+## 0.0.10 (December, 12, 2024)
 * [DIA-3496](https://sourcepoint.atlassian.net/browse/DIA-3496) Implement `GET` consent-all and reject-all calls
 * [DIA-3497](https://sourcepoint.atlassian.net/browse/DIA-3497) Implement `POST` gdpr choice call
 * [DIA-3498](https://sourcepoint.atlassian.net/browse/DIA-3498) Implement `POST` ccpa choice call
