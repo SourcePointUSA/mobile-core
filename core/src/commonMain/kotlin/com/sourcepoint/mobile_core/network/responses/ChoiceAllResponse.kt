@@ -70,7 +70,6 @@ data class ChoiceAllResponse (
         val rejectedAny: Boolean,
         val gpcEnabled: Boolean?,
         val webConsentPayload: String?,
-        @SerialName("GPPData") val gppData: IABData = emptyMap(),
-        val userConsents: USNatConsent.USNatUserConsents
+        @SerialName("GPPData") val gppData: IABData = emptyMap()
     )
 }
