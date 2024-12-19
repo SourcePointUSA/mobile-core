@@ -7,15 +7,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CCPAConsent(
     val uuid: String? = null,
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    var dateCreated: String? = null,
+    var expirationDate: String? = null,
     val signedLspa: Boolean? = null,
     var uspstring: String? = null,
     val rejectedVendors: List<String> = emptyList(),
     val rejectedCategories: List<String> = emptyList(),
-    val status: CCPAConsentStatus? = null,
+    var status: CCPAConsentStatus? = null,
     val webConsentPayload: String? = null,
-    @SerialName("GPPData") val gppData: IABData = emptyMap(),
+    @SerialName("GPPData") var gppData: IABData = emptyMap(),
 ) {
     @Serializable
     enum class CCPAConsentStatus {

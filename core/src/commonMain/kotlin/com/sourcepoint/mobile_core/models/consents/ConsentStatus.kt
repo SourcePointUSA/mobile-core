@@ -4,11 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ConsentStatus (
-    val rejectedAny: Boolean? = null,
+    var rejectedAny: Boolean? = null,
     val rejectedLI: Boolean? = null,
     val rejectedAll: Boolean? = null,
     val consentedAll: Boolean? = null,
-    val consentedToAll: Boolean? = null,
+    var consentedToAll: Boolean? = null,
     val consentedToAny: Boolean? = null,
     val hasConsentData: Boolean? = null,
     val vendorListAdditions: Boolean? = null,
@@ -28,6 +28,6 @@ data class ConsentStatus (
         val sellStatus: Boolean? = null,
         val shareStatus: Boolean? = null,
         val sensitiveDataStatus: Boolean? = null,
-        val gpcStatus: Boolean? = null
+        var gpcStatus: Boolean? = null
     )
 }
