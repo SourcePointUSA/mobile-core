@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class USNatConsent(
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    var dateCreated: String? = null,
+    var expirationDate: String? = null,
     val uuid: String? = null,
     val webConsentPayload: String? = null,
-    val consentStatus: ConsentStatus = ConsentStatus(),
-    val consentStrings: ConsentStrings = emptyList(),
+    var consentStatus: ConsentStatus = ConsentStatus(),
+    var consentStrings: ConsentStrings = emptyList(),
     val userConsents: USNatUserConsents = USNatUserConsents(),
-    @SerialName("GPPData") val gppData: IABData = emptyMap()
+    @SerialName("GPPData") var gppData: IABData = emptyMap()
 ) {
     @Serializable
     data class USNatConsentSection (

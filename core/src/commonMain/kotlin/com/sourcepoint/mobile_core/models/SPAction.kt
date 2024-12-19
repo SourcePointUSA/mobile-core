@@ -1,5 +1,8 @@
 package com.sourcepoint.mobile_core.models
 
+import com.sourcepoint.mobile_core.network.SPJson
+import kotlinx.serialization.json.JsonObject
+
 enum class SPActionType(val type: Int) {
     SaveAndExit(1),
     PMCancel(2),
@@ -13,3 +16,11 @@ enum class SPActionType(val type: Int) {
     IDFADenied(18),
     Unknown(0)
 }
+
+data class SPAction(
+    val type:SPActionType,
+    val campaignType: SPCampaignType,
+    val messageId: String?,
+    val pmPayload: SPJson?,
+    val encodablePubData: JsonObject?
+)

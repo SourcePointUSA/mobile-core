@@ -5,20 +5,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GDPRConsent (
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    var dateCreated: String? = null,
+    var expirationDate: String? = null,
     val uuid: String? = null,
-    val euconsent: String? = null,
+    var euconsent: String? = null,
     val legIntCategories: List<String> = emptyList(),
     val legIntVendors: List<String> = emptyList(),
     val vendors: List<String> = emptyList(),
     val categories: List<String> = emptyList(),
     val specialFeatures: List<String> = emptyList(),
-    val grants: SPGDPRVendorGrants = emptyMap(),
-    val gcmStatus: GCMStatus? = null,
+    var grants: SPGDPRVendorGrants = emptyMap(),
+    var gcmStatus: GCMStatus? = null,
     val webConsentPayload: String? = null,
-    val consentStatus: ConsentStatus = ConsentStatus(),
-    @SerialName("TCData") val tcData: IABData = emptyMap(),
+    var consentStatus: ConsentStatus = ConsentStatus(),
+    @SerialName("TCData") var tcData: IABData = emptyMap(),
 ) {
     @Serializable
     data class GCMStatus (

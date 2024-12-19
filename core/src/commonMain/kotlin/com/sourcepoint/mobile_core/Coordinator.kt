@@ -1,11 +1,17 @@
 package com.sourcepoint.mobile_core
 
+import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
+import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.SPIDFAStatus
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
+import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
@@ -16,7 +22,7 @@ import com.sourcepoint.mobile_core.storage.Repository
 
 interface SPCoordinator {
     @Throws(Exception::class) suspend fun getChoiceAll(
-        action: SPActionType,
+        action: SPAction,
         campaigns: ChoiceAllRequest.ChoiceAllCampaigns
     ): ChoiceAllResponse?
 }
@@ -27,6 +33,8 @@ class Coordinator(
     private val repository: Repository,
     private val spClient: SourcepointClient
 ): SPCoordinator {
+    lateinit var state: State
+
     constructor(accountId: Int, propertyId: Int, propertyName: String) : this(
         accountId,
         propertyId,
@@ -73,7 +81,39 @@ class Coordinator(
 
     suspend fun postChoice(ccpaChoiceRequest: CCPAChoiceRequest, action: SPActionType): CCPAChoiceResponse =
         spClient.postChoiceCCPAAction(actionType = action, request = ccpaChoiceRequest)
+    suspend fun postChoice(usNatChoiceRequest: USNatChoiceRequest, action: SPAction): USNatChoiceResponse =
+        spClient.postChoiceUSNatAction(actionType = action.type, request = usNatChoiceRequest)
 
-    suspend fun postChoice(usNatChoiceRequest: USNatChoiceRequest, action: SPActionType): USNatChoiceResponse =
-        spClient.postChoiceUSNatAction(actionType = action, request = usNatChoiceRequest)
+}
+
+data class State (
+    val gdpr: GDPRConsent?,
+    val ccpa: CCPAConsent?,
+    val usNat:USNatConsent?,
+    var gdprMetaData: GDPRMetaData?,
+    var ccpaMetaData: CCPAMetaData?,
+    var usNatMetaData: UsNatMetaData?
+) {
+    data class GDPRMetaData (
+        var additionsChangeDate: String,
+        var legalBasisChangeDate: String?,
+        var sampleRate: Float = 1f,
+        var wasSampled: Boolean?,
+        var wasSampledAt: Float?
+    )
+
+    data class CCPAMetaData (
+        var sampleRate: Float = 1f,
+        var wasSampled: Boolean?,
+        var wasSampledAt: Float?
+    )
+
+    data class UsNatMetaData (
+        var additionsChangeDate: String,
+        var sampleRate:Float = 1f,
+        var wasSampled: Boolean?,
+        var wasSampledAt: Float?,
+        var vendorListId: String = "",
+        var applicableSections: List<Int> = emptyList()
+    )
 }
