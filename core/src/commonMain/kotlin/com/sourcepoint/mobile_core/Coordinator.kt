@@ -214,7 +214,7 @@ class Coordinator(
             throw error
         }
 
-    fun handleGPDRPostChoice(
+    private fun handleGPDRPostChoice(
         action: SPAction,
         getResponse: ChoiceAllResponse?,
         postResponse: GDPRChoiceResponse
@@ -253,6 +253,41 @@ class Coordinator(
                 authId = authId
             )
             handleGPDRPostChoice(action, getResponse, response)
+            response
+        }
+        catch (error: Throwable) {
+            throw error
+        }
+
+    private fun handleCCPAPostChoice(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        postResponse: CCPAChoiceResponse
+    ) {
+        if (action.type == SPActionType.SaveAndExit) {
+            state.ccpa?.gppData = postResponse.gppData
+        }
+        state.ccpa?.uuid = postResponse.uuid
+        state.ccpa?.dateCreated = postResponse.dateCreated
+        state.ccpa?.status = postResponse.status?: getResponse?.ccpa?.status?: CCPAConsent.CCPAConsentStatus.RejectedAll
+        state.ccpa?.rejectedVendors = postResponse.rejectedVendors?: getResponse?.ccpa?.rejectedVendors?: emptyList()
+        state.ccpa?.rejectedCategories = postResponse.rejectedCategories?: getResponse?.ccpa?.rejectedCategories?: emptyList()
+        state.ccpa?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload
+    }
+
+    suspend fun reportCCPAAction(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        includeData: IncludeData,
+        authId: String?
+    ): CCPAChoiceResponse =
+        try {
+            val response = postChoiceCCPA(
+                action = action,
+                includeData = includeData,
+                authId = authId
+            )
+            handleCCPAPostChoice(action, getResponse, response)
             response
         }
         catch (error: Throwable) {
