@@ -5,10 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class USNatConsent(
+    var applies: Boolean? = false,
     var dateCreated: String? = null,
     var expirationDate: String? = null,
-    val uuid: String? = null,
-    val webConsentPayload: String? = null,
+    var uuid: String? = null,
+    var webConsentPayload: String? = null,
     var consentStatus: ConsentStatus = ConsentStatus(),
     var consentStrings: ConsentStrings = emptyList(),
     val userConsents: USNatUserConsents = USNatUserConsents(),
@@ -23,8 +24,8 @@ data class USNatConsent(
 
     @Serializable
     data class USNatUserConsents (
-        val vendors: List<USNatConsentable> = emptyList(),
-        val categories: List<USNatConsentable> = emptyList()
+        var vendors: List<USNatConsentable> = emptyList(),
+        var categories: List<USNatConsentable> = emptyList()
     )
 
     @Serializable

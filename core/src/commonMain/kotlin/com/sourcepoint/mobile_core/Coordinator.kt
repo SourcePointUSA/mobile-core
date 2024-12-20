@@ -47,6 +47,29 @@ interface SPCoordinator {
         idfaStatus:SPIDFAStatus,
         authId: String?
     ): USNatChoiceResponse
+
+    @Throws(Exception::class) suspend fun reportGDPRAction(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        includeData: IncludeData,
+        idfaStatus: SPIDFAStatus,
+        authId: String?
+    ): GDPRChoiceResponse
+
+    @Throws(Exception::class) suspend fun reportCCPAAction(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        includeData: IncludeData,
+        authId: String?
+    ): CCPAChoiceResponse
+
+    @Throws(Exception::class) suspend fun reportUSNatAction(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        includeData: IncludeData,
+        authId: String?,
+        idfaStatus: SPIDFAStatus
+    ): USNatChoiceResponse
 }
 class Coordinator(
     private val accountId: Int,
@@ -237,7 +260,7 @@ class Coordinator(
         state.gdpr?.specialFeatures = postResponse.acceptedSpecialFeatures?: getResponse?.gdpr?.acceptedSpecialFeatures?: emptyList()
     }
 
-    suspend fun reportGDPRAction(
+    override suspend fun reportGDPRAction(
         action: SPAction,
         getResponse: ChoiceAllResponse?,
         includeData: IncludeData,
@@ -275,7 +298,7 @@ class Coordinator(
         state.ccpa?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload
     }
 
-    suspend fun reportCCPAAction(
+    override suspend fun reportCCPAAction(
         action: SPAction,
         getResponse: ChoiceAllResponse?,
         includeData: IncludeData,
@@ -288,6 +311,44 @@ class Coordinator(
                 authId = authId
             )
             handleCCPAPostChoice(action, getResponse, response)
+            response
+        }
+        catch (error: Throwable) {
+            throw error
+        }
+
+    private fun handleUSNatPostChoice(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        postResponse: USNatChoiceResponse
+    ) {
+        state.usNat?.uuid = postResponse.uuid
+        state.usNat?.applies = state.usNat?.applies
+        state.usNat?.dateCreated = postResponse.dateCreated
+        state.usNat?.expirationDate = postResponse.expirationDate
+        state.usNat?.consentStrings = postResponse.consentStrings
+        state.usNat?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.usnat?.webConsentPayload
+        state.usNat?.userConsents?.categories = postResponse.userConsents.categories
+        state.usNat?.userConsents?.vendors = postResponse.userConsents.vendors
+        state.usNat?.consentStatus = postResponse.consentStatus
+        state.usNat?.gppData = postResponse.gppData
+    }
+
+    override suspend fun reportUSNatAction(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        includeData: IncludeData,
+        authId: String?,
+        idfaStatus: SPIDFAStatus
+    ): USNatChoiceResponse =
+        try {
+            val response = postChoiceUSNat(
+                action = action,
+                includeData = includeData,
+                authId = authId,
+                idfaStatus = idfaStatus
+            )
+            handleUSNatPostChoice(action, getResponse, response)
             response
         }
         catch (error: Throwable) {
