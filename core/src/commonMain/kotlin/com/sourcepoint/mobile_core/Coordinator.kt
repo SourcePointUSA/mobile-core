@@ -5,6 +5,7 @@ import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
+import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -27,24 +28,24 @@ interface SPCoordinator {
     ): ChoiceAllResponse?
 
     @Throws(Exception::class) suspend fun postChoiceGDPR(
-        idfaStatus:SPIDFAStatus,
-        includeData: IncludeData,
-        authId: String?,
+        action: SPAction,
         postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?,
-        action: SPAction
+        includeData: IncludeData,
+        idfaStatus:SPIDFAStatus,
+        authId: String?
     ): GDPRChoiceResponse
 
     @Throws(Exception::class) suspend fun postChoiceCCPA(
+        action: SPAction,
         includeData: IncludeData,
-        authId: String?,
-        action: SPAction
+        authId: String?
     ): CCPAChoiceResponse
 
     @Throws(Exception::class) suspend fun postChoiceUSNat(
+        action: SPAction,
         includeData: IncludeData,
         idfaStatus:SPIDFAStatus,
-        authId: String?,
-        action: SPAction
+        authId: String?
     ): USNatChoiceResponse
 }
 class Coordinator(
@@ -129,11 +130,11 @@ class Coordinator(
             }
 
     override suspend fun postChoiceGDPR(
-        idfaStatus:SPIDFAStatus,
-        includeData: IncludeData,
-        authId: String?,
+        action: SPAction,
         postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?,
-        action: SPAction
+        includeData: IncludeData,
+        idfaStatus: SPIDFAStatus,
+        authId: String?
     ): GDPRChoiceResponse =
         try {
             spClient.postChoiceGDPRAction(
@@ -160,9 +161,9 @@ class Coordinator(
         }
 
     override suspend fun postChoiceCCPA(
+        action: SPAction,
         includeData: IncludeData,
-        authId: String?,
-        action: SPAction
+        authId: String?
     ): CCPAChoiceResponse =
         try {
             spClient.postChoiceCCPAAction(
@@ -185,10 +186,10 @@ class Coordinator(
         }
 
     override suspend fun postChoiceUSNat(
+        action: SPAction,
         includeData: IncludeData,
-        idfaStatus:SPIDFAStatus,
-        authId: String?,
-        action: SPAction
+        idfaStatus: SPIDFAStatus,
+        authId: String?
     ): USNatChoiceResponse =
         try {
             spClient.postChoiceUSNatAction(
@@ -213,6 +214,50 @@ class Coordinator(
             throw error
         }
 
+    fun handleGPDRPostChoice(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        postResponse: GDPRChoiceResponse
+    ) {
+        if (action.type == SPActionType.SaveAndExit) {
+            state.gdpr?.tcData = postResponse.tcData?: emptyMap()
+        }
+        state.gdpr?.uuid = postResponse.uuid
+        state.gdpr?.dateCreated = postResponse.dateCreated
+        state.gdpr?.expirationDate = postResponse.expirationDate
+        state.gdpr?.consentStatus = postResponse.consentStatus?: getResponse?.gdpr?.consentStatus?: ConsentStatus()
+        state.gdpr?.euconsent = postResponse.euconsent?: getResponse?.gdpr?.euconsent
+        state.gdpr?.grants = postResponse.grants?: getResponse?.gdpr?.grants?: emptyMap()
+        state.gdpr?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.gdpr?.webConsentPayload
+        state.gdpr?.gcmStatus = postResponse.gcmStatus?: getResponse?.gdpr?.gcmStatus
+        state.gdpr?.legIntCategories = postResponse.acceptedLegIntCategories?: getResponse?.gdpr?.acceptedLegIntCategories?: emptyList()
+        state.gdpr?.legIntVendors = postResponse.acceptedLegIntVendors?: getResponse?.gdpr?.acceptedLegIntVendors?: emptyList()
+        state.gdpr?.vendors = postResponse.acceptedVendors?: getResponse?.gdpr?.acceptedVendors?: emptyList()
+        state.gdpr?.categories = postResponse.acceptedCategories?: getResponse?.gdpr?.acceptedCategories?: emptyList()
+        state.gdpr?.specialFeatures = postResponse.acceptedSpecialFeatures?: getResponse?.gdpr?.acceptedSpecialFeatures?: emptyList()
+    }
+
+    suspend fun reportGDPRAction(
+        action: SPAction,
+        getResponse: ChoiceAllResponse?,
+        includeData: IncludeData,
+        idfaStatus: SPIDFAStatus,
+        authId: String?
+    ): GDPRChoiceResponse =
+        try {
+            val response = postChoiceGDPR(
+                action = action,
+                postPayloadFromGetCall = getResponse?.gdpr?.postPayload,
+                includeData = includeData,
+                idfaStatus = idfaStatus,
+                authId = authId
+            )
+            handleGPDRPostChoice(action, getResponse, response)
+            response
+        }
+        catch (error: Throwable) {
+            throw error
+        }
 }
 
 data class State (
