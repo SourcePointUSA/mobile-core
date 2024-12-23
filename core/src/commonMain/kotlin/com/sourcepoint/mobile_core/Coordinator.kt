@@ -137,20 +137,19 @@ class Coordinator(
         }
     }
 
-    private fun shouldCallGetChoice(actionType: SPActionType): Boolean =
-        (actionType == SPActionType.AcceptAll || actionType == SPActionType.RejectAll)
+    override suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? {
+        val shouldCallGetChoice: Boolean = (action.type == SPActionType.AcceptAll || action.type == SPActionType.RejectAll)
+        if (!shouldCallGetChoice)
+            return null
 
-    override suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? =
-        if (!shouldCallGetChoice(action.type))
-            null
-        else
-            try {
-                val response = spClient.getChoiceAll(action.type,campaigns)
-                handleGetChoiceAll(response, action.campaignType)
-                response
-            } catch (error: Throwable) {
-                throw error
-            }
+        try {
+            val response = spClient.getChoiceAll(action.type, campaigns)
+            handleGetChoiceAll(response, action.campaignType)
+            return response
+        } catch (error: Throwable) {
+            throw error
+        }
+    }
 
     override suspend fun postChoiceGDPR(
         action: SPAction,
@@ -323,7 +322,7 @@ class Coordinator(
         postResponse: USNatChoiceResponse
     ) {
         state.usNat?.uuid = postResponse.uuid
-        state.usNat?.applies = state.usNat?.applies
+        state.usNat?.applies = state.usNat?.applies?: false
         state.usNat?.dateCreated = postResponse.dateCreated
         state.usNat?.expirationDate = postResponse.expirationDate
         state.usNat?.consentStrings = postResponse.consentStrings
@@ -354,6 +353,48 @@ class Coordinator(
         catch (error: Throwable) {
             throw error
         }
+
+    suspend fun reportAction(
+        action: SPAction,
+        campaigns: ChoiceAllRequest.ChoiceAllCampaigns,
+        includeData: IncludeData,
+        idfaStatus: SPIDFAStatus,
+        authId: String?
+    ): State {
+        try {
+            val getResponse = getChoiceAll(
+                action = action,
+                campaigns = campaigns
+            )
+            when (action.campaignType) {
+                SPCampaignType.Gdpr -> reportGDPRAction(
+                    action = action,
+                    getResponse = getResponse,
+                    includeData = includeData,
+                    idfaStatus = idfaStatus,
+                    authId = authId
+                )
+                SPCampaignType.Ccpa -> reportCCPAAction(
+                    action = action,
+                    getResponse = getResponse,
+                    includeData = includeData,
+                    authId = authId
+                )
+                SPCampaignType.UsNat -> reportUSNatAction(
+                    action = action,
+                    getResponse = getResponse,
+                    includeData = includeData,
+                    authId = authId,
+                    idfaStatus = idfaStatus
+                )
+                SPCampaignType.IOS14, SPCampaignType.unknown -> throw IllegalStateException()
+            }
+        }
+        catch (error: Exception) {
+            throw error
+        }
+        return state
+    }
 }
 
 data class State (

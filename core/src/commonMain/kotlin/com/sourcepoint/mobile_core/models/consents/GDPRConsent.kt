@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GDPRConsent (
+    var applies: Boolean = false,
     var dateCreated: String? = null,
     var expirationDate: String? = null,
     var uuid: String? = null,

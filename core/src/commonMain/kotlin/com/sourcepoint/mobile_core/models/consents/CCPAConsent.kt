@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 // TODO: implement USPString logic
 @Serializable
 data class CCPAConsent(
+    var applies: Boolean = false,
     var uuid: String? = null,
     var dateCreated: String? = null,
     var expirationDate: String? = null,

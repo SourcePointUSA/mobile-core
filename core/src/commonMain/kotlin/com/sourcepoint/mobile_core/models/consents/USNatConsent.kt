@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class USNatConsent(
-    var applies: Boolean? = false,
+    var applies: Boolean = false,
     var dateCreated: String? = null,
     var expirationDate: String? = null,
     var uuid: String? = null,
