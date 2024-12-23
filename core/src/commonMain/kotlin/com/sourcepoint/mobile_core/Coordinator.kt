@@ -29,47 +29,32 @@ interface SPCoordinator {
 
     @Throws(Exception::class) suspend fun postChoiceGDPR(
         action: SPAction,
-        postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?,
-        includeData: IncludeData,
-        idfaStatus:SPIDFAStatus,
-        authId: String?
+        postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?
     ): GDPRChoiceResponse
 
-    @Throws(Exception::class) suspend fun postChoiceCCPA(
-        action: SPAction,
-        includeData: IncludeData,
-        authId: String?
-    ): CCPAChoiceResponse
+    @Throws(Exception::class) suspend fun postChoiceCCPA(action: SPAction): CCPAChoiceResponse
 
-    @Throws(Exception::class) suspend fun postChoiceUSNat(
-        action: SPAction,
-        includeData: IncludeData,
-        idfaStatus:SPIDFAStatus,
-        authId: String?
-    ): USNatChoiceResponse
+    @Throws(Exception::class) suspend fun postChoiceUSNat(action: SPAction): USNatChoiceResponse
 
     @Throws(Exception::class) suspend fun reportGDPRAction(
         action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        includeData: IncludeData,
-        idfaStatus: SPIDFAStatus,
-        authId: String?
+        getResponse: ChoiceAllResponse?
     ): GDPRChoiceResponse
 
     @Throws(Exception::class) suspend fun reportCCPAAction(
         action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        includeData: IncludeData,
-        authId: String?
+        getResponse: ChoiceAllResponse?
     ): CCPAChoiceResponse
 
     @Throws(Exception::class) suspend fun reportUSNatAction(
         action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        includeData: IncludeData,
-        authId: String?,
-        idfaStatus: SPIDFAStatus
+        getResponse: ChoiceAllResponse?
     ): USNatChoiceResponse
+
+    @Throws(Exception::class) suspend fun reportAction(
+        action: SPAction,
+        campaigns: ChoiceAllRequest.ChoiceAllCampaigns
+    ): State
 }
 class Coordinator(
     private val accountId: Int,
@@ -79,6 +64,9 @@ class Coordinator(
     private val spClient: SourcepointClient
 ): SPCoordinator {
     lateinit var state: State
+    var authId: String? = null
+    var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
+    var includeData: IncludeData = IncludeData()
 
     constructor(accountId: Int, propertyId: Int, propertyName: String) : this(
         accountId,
@@ -153,10 +141,7 @@ class Coordinator(
 
     override suspend fun postChoiceGDPR(
         action: SPAction,
-        postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?,
-        includeData: IncludeData,
-        idfaStatus: SPIDFAStatus,
-        authId: String?
+        postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?
     ): GDPRChoiceResponse =
         try {
             spClient.postChoiceGDPRAction(
@@ -182,11 +167,7 @@ class Coordinator(
             throw error
         }
 
-    override suspend fun postChoiceCCPA(
-        action: SPAction,
-        includeData: IncludeData,
-        authId: String?
-    ): CCPAChoiceResponse =
+    override suspend fun postChoiceCCPA(action: SPAction): CCPAChoiceResponse =
         try {
             spClient.postChoiceCCPAAction(
                 actionType = action.type,
@@ -207,12 +188,7 @@ class Coordinator(
             throw error
         }
 
-    override suspend fun postChoiceUSNat(
-        action: SPAction,
-        includeData: IncludeData,
-        idfaStatus: SPIDFAStatus,
-        authId: String?
-    ): USNatChoiceResponse =
+    override suspend fun postChoiceUSNat(action: SPAction): USNatChoiceResponse =
         try {
             spClient.postChoiceUSNatAction(
                 actionType = action.type,
@@ -259,20 +235,11 @@ class Coordinator(
         state.gdpr?.specialFeatures = postResponse.acceptedSpecialFeatures?: getResponse?.gdpr?.acceptedSpecialFeatures?: emptyList()
     }
 
-    override suspend fun reportGDPRAction(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        includeData: IncludeData,
-        idfaStatus: SPIDFAStatus,
-        authId: String?
-    ): GDPRChoiceResponse =
+    override suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
         try {
             val response = postChoiceGDPR(
                 action = action,
-                postPayloadFromGetCall = getResponse?.gdpr?.postPayload,
-                includeData = includeData,
-                idfaStatus = idfaStatus,
-                authId = authId
+                postPayloadFromGetCall = getResponse?.gdpr?.postPayload
             )
             handleGPDRPostChoice(action, getResponse, response)
             response
@@ -297,17 +264,10 @@ class Coordinator(
         state.ccpa?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload
     }
 
-    override suspend fun reportCCPAAction(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        includeData: IncludeData,
-        authId: String?
-    ): CCPAChoiceResponse =
+    override suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
         try {
             val response = postChoiceCCPA(
-                action = action,
-                includeData = includeData,
-                authId = authId
+                action = action
             )
             handleCCPAPostChoice(action, getResponse, response)
             response
@@ -333,19 +293,10 @@ class Coordinator(
         state.usNat?.gppData = postResponse.gppData
     }
 
-    override suspend fun reportUSNatAction(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        includeData: IncludeData,
-        authId: String?,
-        idfaStatus: SPIDFAStatus
-    ): USNatChoiceResponse =
+    override suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
         try {
             val response = postChoiceUSNat(
-                action = action,
-                includeData = includeData,
-                authId = authId,
-                idfaStatus = idfaStatus
+                action = action
             )
             handleUSNatPostChoice(action, getResponse, response)
             response
@@ -354,13 +305,7 @@ class Coordinator(
             throw error
         }
 
-    suspend fun reportAction(
-        action: SPAction,
-        campaigns: ChoiceAllRequest.ChoiceAllCampaigns,
-        includeData: IncludeData,
-        idfaStatus: SPIDFAStatus,
-        authId: String?
-    ): State {
+    override suspend fun reportAction(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): State {
         try {
             val getResponse = getChoiceAll(
                 action = action,
@@ -369,23 +314,15 @@ class Coordinator(
             when (action.campaignType) {
                 SPCampaignType.Gdpr -> reportGDPRAction(
                     action = action,
-                    getResponse = getResponse,
-                    includeData = includeData,
-                    idfaStatus = idfaStatus,
-                    authId = authId
+                    getResponse = getResponse
                 )
                 SPCampaignType.Ccpa -> reportCCPAAction(
                     action = action,
-                    getResponse = getResponse,
-                    includeData = includeData,
-                    authId = authId
+                    getResponse = getResponse
                 )
                 SPCampaignType.UsNat -> reportUSNatAction(
                     action = action,
-                    getResponse = getResponse,
-                    includeData = includeData,
-                    authId = authId,
-                    idfaStatus = idfaStatus
+                    getResponse = getResponse
                 )
                 SPCampaignType.IOS14, SPCampaignType.unknown -> throw IllegalStateException()
             }
