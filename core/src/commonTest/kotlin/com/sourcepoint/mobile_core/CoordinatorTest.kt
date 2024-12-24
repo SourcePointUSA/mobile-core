@@ -4,32 +4,42 @@ import com.russhwolf.settings.MapSettings
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.consents.CCPAConsent
+import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
-import com.sourcepoint.mobile_core.network.encodeToJsonObject
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContains
-import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class CoordinatorTest {
+    val storage = MapSettings()
+    val repository = Repository(storage)
+    val coordinator = Coordinator(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo",  repository)
 
     @Test
     fun metaDataIsCached() = runTest {
-        val storage = MapSettings()
-        val repository = Repository(storage)
-        val coordinator = Coordinator(accountId = 22, propertyId = 16893, propertyName = "",  repository)
         val campaigns = MetaDataRequest.Campaigns(gdpr = MetaDataRequest.Campaigns.Campaign())
         val metaData = coordinator.getMetaData(campaigns)
         assertContains(metaData, "/meta-data")
         assertContains(storage.keys, "MetaData")
+    }
+
+    @BeforeTest
+    fun initCoordinatorState(){
+        coordinator.state = State(
+            gdpr = GDPRConsent(),
+            ccpa = CCPAConsent(),
+            usNat = USNatConsent(),
+            gdprMetaData = null,
+            ccpaMetaData = null,
+            usNatMetaData = null
+        )
     }
 
     @Test
@@ -47,18 +57,11 @@ class CoordinatorTest {
                     "}",
             encodablePubData = null
         )
-        val storage = MapSettings()
-        val repository = Repository(storage)
-        val coordinator = Coordinator(accountId = 22, propertyId = 16893, propertyName = "", repository)
-        coordinator.state = State(
-            gdpr = null,
-            ccpa = null,
-            usNat = USNatConsent(),
-            gdprMetaData = null,
-            ccpaMetaData = null,
-            usNatMetaData = null
-        )
-        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)))
-        assertTrue(!state.usNat?.uuid.isNullOrEmpty())
+        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(
+            usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+            gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+            ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
+        ))
+        assertFalse(state.usNat?.uuid.isNullOrEmpty())
     }
 }
