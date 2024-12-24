@@ -26,7 +26,7 @@ class Coordinator(
     private val propertyName: String,
     private val repository: Repository,
     private val spClient: SourcepointClient
-): SPCoordinator {
+): ICoordinator {
     lateinit var state: State
     var authId: String? = null
     var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
@@ -68,7 +68,7 @@ class Coordinator(
             state.gdpr?.grants = response.gdpr.grants
             state.gdpr?.euconsent = response.gdpr.euconsent
             state.gdpr?.consentStatus = response.gdpr.consentStatus
-            //state.gdpr?.childPmId = gdpr.childPmId
+            state.gdpr?.childPmId = response.gdpr.childPmId
             state.gdpr?.gcmStatus = response.gdpr.gcmStatus
         }
         if (response.ccpa != null && campaign == SPCampaignType.Ccpa) {

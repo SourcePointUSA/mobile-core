@@ -9,6 +9,7 @@ data class GDPRConsent (
     var dateCreated: String? = null,
     var expirationDate: String? = null,
     var uuid: String? = null,
+    var childPmId: String? = null,
     var euconsent: String? = null,
     var legIntCategories: List<String> = emptyList(),
     var legIntVendors: List<String> = emptyList(),

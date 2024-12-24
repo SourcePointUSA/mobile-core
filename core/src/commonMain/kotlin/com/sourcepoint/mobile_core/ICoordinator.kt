@@ -8,7 +8,7 @@ import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 
-interface SPCoordinator {
+interface ICoordinator {
     @Throws(Exception::class) suspend fun getChoiceAll(
         action: SPAction,
         campaigns: ChoiceAllRequest.ChoiceAllCampaigns
