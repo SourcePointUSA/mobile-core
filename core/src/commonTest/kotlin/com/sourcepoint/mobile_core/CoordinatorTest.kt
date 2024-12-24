@@ -43,6 +43,52 @@ class CoordinatorTest {
     }
 
     @Test
+    fun reportActionReturnsGDPRConsent() = runTest {
+        val saveAndExitAction = SPAction(
+            type = SPActionType.SaveAndExit,
+            campaignType = SPCampaignType.Gdpr,
+            messageId = null,
+            pmPayload = "{" +
+                    "\"vendors\":[], " +
+                    "\"categories\":[], " +
+                    "\"specialFeatures\":[], " +
+                    "\"lan\":\"EN\", " +
+                    "\"privacyManagerId\":\"488393\", " +
+                    "\"vendors\":[]" +
+                    "}",
+            encodablePubData = null
+        )
+        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(
+            gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+            usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+            ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
+        ))
+        assertFalse(state.gdpr?.uuid.isNullOrEmpty())
+    }
+
+    @Test
+    fun reportActionReturnsCCPAConsent() = runTest {
+        val saveAndExitAction = SPAction(
+            type = SPActionType.SaveAndExit,
+            campaignType = SPCampaignType.Ccpa,
+            messageId = null,
+            pmPayload = "{" +
+                    "\"rejectedCategories\":[], " +
+                    "\"rejectedVendors\":[], " +
+                    "\"lan\":\"EN\", " +
+                    "\"privacyManagerId\":\"509688\" " +
+                    "}",
+            encodablePubData = null
+        )
+        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(
+            ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
+            gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
+            usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
+        ))
+        assertFalse(state.ccpa?.uuid.isNullOrEmpty())
+    }
+
+    @Test
     fun reportActionReturnsUSNatConsent() = runTest {
         val saveAndExitAction = SPAction(
             type = SPActionType.SaveAndExit,
