@@ -6,8 +6,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
-import com.sourcepoint.mobile_core.models.consents.GDPRConsent
-import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
@@ -21,41 +20,6 @@ import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import com.sourcepoint.mobile_core.storage.Repository
 
-interface SPCoordinator {
-    @Throws(Exception::class) suspend fun getChoiceAll(
-        action: SPAction,
-        campaigns: ChoiceAllRequest.ChoiceAllCampaigns
-    ): ChoiceAllResponse?
-
-    @Throws(Exception::class) suspend fun postChoiceGDPR(
-        action: SPAction,
-        postPayloadFromGetCall: ChoiceAllResponse.GDPR.PostPayload?
-    ): GDPRChoiceResponse
-
-    @Throws(Exception::class) suspend fun postChoiceCCPA(action: SPAction): CCPAChoiceResponse
-
-    @Throws(Exception::class) suspend fun postChoiceUSNat(action: SPAction): USNatChoiceResponse
-
-    @Throws(Exception::class) suspend fun reportGDPRAction(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?
-    ): GDPRChoiceResponse
-
-    @Throws(Exception::class) suspend fun reportCCPAAction(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?
-    ): CCPAChoiceResponse
-
-    @Throws(Exception::class) suspend fun reportUSNatAction(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?
-    ): USNatChoiceResponse
-
-    @Throws(Exception::class) suspend fun reportAction(
-        action: SPAction,
-        campaigns: ChoiceAllRequest.ChoiceAllCampaigns
-    ): State
-}
 class Coordinator(
     private val accountId: Int,
     private val propertyId: Int,
@@ -334,34 +298,3 @@ class Coordinator(
     }
 }
 
-data class State (
-    val gdpr: GDPRConsent?,
-    val ccpa: CCPAConsent?,
-    val usNat:USNatConsent?,
-    var gdprMetaData: GDPRMetaData?,
-    var ccpaMetaData: CCPAMetaData?,
-    var usNatMetaData: UsNatMetaData?
-) {
-    data class GDPRMetaData (
-        var additionsChangeDate: String,
-        var legalBasisChangeDate: String?,
-        var sampleRate: Float = 1f,
-        var wasSampled: Boolean?,
-        var wasSampledAt: Float?
-    )
-
-    data class CCPAMetaData (
-        var sampleRate: Float = 1f,
-        var wasSampled: Boolean?,
-        var wasSampledAt: Float?
-    )
-
-    data class UsNatMetaData (
-        var additionsChangeDate: String,
-        var sampleRate:Float = 1f,
-        var wasSampled: Boolean?,
-        var wasSampledAt: Float?,
-        var vendorListId: String = "",
-        var applicableSections: List<Int> = emptyList()
-    )
-}
