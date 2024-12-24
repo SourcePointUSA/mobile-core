@@ -45,7 +45,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsGDPRConsent() = runTest {
         val saveAndExitAction = SPAction(
-            type = SPActionType.SaveAndExit,
+            type = SPActionType.AcceptAll,
             campaignType = SPCampaignType.Gdpr,
             messageId = null,
             pmPayload = "{" +
@@ -69,7 +69,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsCCPAConsent() = runTest {
         val saveAndExitAction = SPAction(
-            type = SPActionType.SaveAndExit,
+            type = SPActionType.RejectAll,
             campaignType = SPCampaignType.Ccpa,
             messageId = null,
             pmPayload = "{" +
