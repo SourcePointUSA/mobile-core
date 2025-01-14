@@ -6,16 +6,16 @@ import kotlinx.serialization.Serializable
 // TODO: implement USPString logic
 @Serializable
 data class CCPAConsent(
-    var applies: Boolean = false,
-    var uuid: String? = null,
-    var dateCreated: String? = null,
-    var expirationDate: String? = null,
+    val applies: Boolean = false,
+    val uuid: String? = null,
+    val dateCreated: String? = null,
+    val expirationDate: String? = null,
     val signedLspa: Boolean? = null,
-    var uspstring: String? = null,
-    var rejectedVendors: List<String> = emptyList(),
-    var rejectedCategories: List<String> = emptyList(),
-    var status: CCPAConsentStatus? = null,
-    var webConsentPayload: String? = null,
+    val uspstring: String? = null,
+    val rejectedVendors: List<String> = emptyList(),
+    val rejectedCategories: List<String> = emptyList(),
+    val status: CCPAConsentStatus? = null,
+    val webConsentPayload: String? = null,
     @SerialName("GPPData") var gppData: IABData = emptyMap(),
 ) {
     @Serializable

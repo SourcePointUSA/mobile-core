@@ -1,34 +1,34 @@
 package com.sourcepoint.mobile_core.models.consents
 
 data class State (
-    val gdpr: GDPRConsent?,
-    val ccpa: CCPAConsent?,
-    val usNat: USNatConsent?,
-    var gdprMetaData: GDPRMetaData?,
-    var ccpaMetaData: CCPAMetaData?,
-    var usNatMetaData: UsNatMetaData?
+    var gdpr: GDPRConsent?,
+    var ccpa: CCPAConsent?,
+    var usNat: USNatConsent?,
+    val gdprMetaData: GDPRMetaData?,
+    val ccpaMetaData: CCPAMetaData?,
+    val usNatMetaData: UsNatMetaData?
 ) {
     data class GDPRMetaData (
-        var additionsChangeDate: String,
-        var legalBasisChangeDate: String?,
-        var sampleRate: Float = 1f,
-        var wasSampled: Boolean?,
-        var wasSampledAt: Float?,
-        var vendorListId: String?
+        val additionsChangeDate: String,
+        val legalBasisChangeDate: String?,
+        val sampleRate: Float = 1f,
+        val wasSampled: Boolean?,
+        val wasSampledAt: Float?,
+        val vendorListId: String?
     )
 
     data class CCPAMetaData (
-        var sampleRate: Float = 1f,
-        var wasSampled: Boolean?,
-        var wasSampledAt: Float?
+        val sampleRate: Float = 1f,
+        val wasSampled: Boolean?,
+        val wasSampledAt: Float?
     )
 
     data class UsNatMetaData (
-        var additionsChangeDate: String,
-        var sampleRate:Float = 1f,
-        var wasSampled: Boolean?,
-        var wasSampledAt: Float?,
-        var vendorListId: String?,
-        var applicableSections: List<Int> = emptyList()
+        val additionsChangeDate: String,
+        val sampleRate:Float = 1f,
+        val wasSampled: Boolean?,
+        val wasSampledAt: Float?,
+        val vendorListId: String?,
+        val applicableSections: List<Int> = emptyList()
     )
 }

@@ -1,6 +1,5 @@
 package com.sourcepoint.mobile_core.models
 
-import com.sourcepoint.mobile_core.network.SPJson
 import kotlinx.serialization.json.JsonObject
 
 enum class SPActionType(val type: Int) {

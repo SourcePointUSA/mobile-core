@@ -7,6 +7,7 @@ import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.State
+import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
@@ -62,31 +63,34 @@ class Coordinator(
 
     private fun handleGetChoiceAll(response: ChoiceAllResponse, campaign: SPCampaignType) {
         if (response.gdpr != null && campaign == SPCampaignType.Gdpr) {
-            state.gdpr?.dateCreated = response.gdpr.dateCreated
-            state.gdpr?.expirationDate = response.gdpr.expirationDate
-            state.gdpr?.tcData = response.gdpr.tcData?: emptyMap()
-            state.gdpr?.grants = response.gdpr.grants
-            state.gdpr?.euconsent = response.gdpr.euconsent
-            state.gdpr?.consentStatus = response.gdpr.consentStatus
-            state.gdpr?.childPmId = response.gdpr.childPmId
-            state.gdpr?.gcmStatus = response.gdpr.gcmStatus
+            state.gdpr = state.gdpr?.copy(
+                dateCreated = response.gdpr.dateCreated,
+                expirationDate = response.gdpr.expirationDate,
+                tcData = response.gdpr.tcData?: emptyMap(),
+                grants = response.gdpr.grants,
+                euconsent = response.gdpr.euconsent,
+                consentStatus = response.gdpr.consentStatus,
+                childPmId = response.gdpr.childPmId,
+                gcmStatus = response.gdpr.gcmStatus
+            )
         }
         if (response.ccpa != null && campaign == SPCampaignType.Ccpa) {
-            state.ccpa?.dateCreated = response.ccpa.dateCreated
-            state.ccpa?.expirationDate = response.ccpa.expirationDate
-            state.ccpa?.status = response.ccpa.status
-            state.ccpa?.gppData = response.ccpa.gppData
-            state.ccpa?.uspstring = response.ccpa.uspstring
+            state.ccpa = state.ccpa?.copy(
+                dateCreated = response.ccpa.dateCreated,
+                expirationDate = response.ccpa.expirationDate,
+                status = response.ccpa.status,
+                gppData = response.ccpa.gppData,
+                uspstring = response.ccpa.uspstring,
+            )
         }
         if (response.usnat != null && campaign == SPCampaignType.UsNat) {
-            state.usNat?.dateCreated = response.usnat.dateCreated
-            state.usNat?.expirationDate = response.usnat.expirationDate
-            state.usNat?.consentStatus = response.usnat.consentStatus
-            state.usNat?.gppData = response.usnat.gppData
-            state.usNat?.consentStrings = response.usnat.consentStrings
-            state.usNat?.consentStatus?.consentedToAll = response.usnat.consentedToAll
-            state.usNat?.consentStatus?.rejectedAny = response.usnat.rejectedAny
-            state.usNat?.consentStatus?.granularStatus?.gpcStatus = response.usnat.gpcEnabled
+            state.usNat = state.usNat?.copy(
+                dateCreated = response.usnat.dateCreated,
+                expirationDate = response.usnat.expirationDate,
+                consentStatus = response.usnat.consentStatus,
+                gppData = response.usnat.gppData,
+                consentStrings = response.usnat.consentStrings
+            )
         }
     }
 
@@ -185,19 +189,21 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.gdpr?.tcData = postResponse.tcData?: emptyMap()
         }
-        state.gdpr?.uuid = postResponse.uuid
-        state.gdpr?.dateCreated = postResponse.dateCreated
-        state.gdpr?.expirationDate = postResponse.expirationDate
-        state.gdpr?.consentStatus = postResponse.consentStatus?: getResponse?.gdpr?.consentStatus?: ConsentStatus()
-        state.gdpr?.euconsent = postResponse.euconsent?: getResponse?.gdpr?.euconsent
-        state.gdpr?.grants = postResponse.grants?: getResponse?.gdpr?.grants?: emptyMap()
-        state.gdpr?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.gdpr?.webConsentPayload
-        state.gdpr?.gcmStatus = postResponse.gcmStatus?: getResponse?.gdpr?.gcmStatus
-        state.gdpr?.legIntCategories = postResponse.acceptedLegIntCategories?: getResponse?.gdpr?.acceptedLegIntCategories?: emptyList()
-        state.gdpr?.legIntVendors = postResponse.acceptedLegIntVendors?: getResponse?.gdpr?.acceptedLegIntVendors?: emptyList()
-        state.gdpr?.vendors = postResponse.acceptedVendors?: getResponse?.gdpr?.acceptedVendors?: emptyList()
-        state.gdpr?.categories = postResponse.acceptedCategories?: getResponse?.gdpr?.acceptedCategories?: emptyList()
-        state.gdpr?.specialFeatures = postResponse.acceptedSpecialFeatures?: getResponse?.gdpr?.acceptedSpecialFeatures?: emptyList()
+        state.gdpr = state.gdpr?.copy(
+            uuid = postResponse.uuid,
+            dateCreated = postResponse.dateCreated,
+            expirationDate = postResponse.expirationDate,
+            consentStatus = postResponse.consentStatus?: getResponse?.gdpr?.consentStatus?: ConsentStatus(),
+            euconsent = postResponse.euconsent?: getResponse?.gdpr?.euconsent,
+            grants = postResponse.grants?: getResponse?.gdpr?.grants?: emptyMap(),
+            webConsentPayload = postResponse.webConsentPayload?: getResponse?.gdpr?.webConsentPayload,
+            gcmStatus = postResponse.gcmStatus?: getResponse?.gdpr?.gcmStatus,
+            legIntCategories = postResponse.acceptedLegIntCategories?: getResponse?.gdpr?.acceptedLegIntCategories?: emptyList(),
+            legIntVendors = postResponse.acceptedLegIntVendors?: getResponse?.gdpr?.acceptedLegIntVendors?: emptyList(),
+            vendors = postResponse.acceptedVendors?: getResponse?.gdpr?.acceptedVendors?: emptyList(),
+            categories = postResponse.acceptedCategories?: getResponse?.gdpr?.acceptedCategories?: emptyList(),
+            specialFeatures = postResponse.acceptedSpecialFeatures?: getResponse?.gdpr?.acceptedSpecialFeatures?: emptyList()
+        )
     }
 
     override suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
@@ -221,13 +227,15 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa?.gppData = postResponse.gppData
         }
-        state.ccpa?.uuid = postResponse.uuid
-        state.ccpa?.dateCreated = postResponse.dateCreated
-        state.ccpa?.status = postResponse.status?: getResponse?.ccpa?.status?: CCPAConsent.CCPAConsentStatus.RejectedAll
-        state.ccpa?.rejectedVendors = postResponse.rejectedVendors?: getResponse?.ccpa?.rejectedVendors?: emptyList()
-        state.ccpa?.rejectedCategories = postResponse.rejectedCategories?: getResponse?.ccpa?.rejectedCategories?: emptyList()
-        state.ccpa?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload
-        state.ccpa?.uspstring = postResponse.uspstring?: getResponse?.ccpa?.webConsentPayload
+        state.ccpa = state.ccpa?.copy(
+            uuid = postResponse.uuid,
+            dateCreated = postResponse.dateCreated,
+            status = postResponse.status?: getResponse?.ccpa?.status?: CCPAConsent.CCPAConsentStatus.RejectedAll,
+            rejectedVendors = postResponse.rejectedVendors?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
+            rejectedCategories = postResponse.rejectedCategories?: getResponse?.ccpa?.rejectedCategories?: emptyList(),
+            webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload,
+            uspstring = postResponse.uspstring?: getResponse?.ccpa?.webConsentPayload
+        )
     }
 
     override suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
@@ -247,16 +255,20 @@ class Coordinator(
         getResponse: ChoiceAllResponse?,
         postResponse: USNatChoiceResponse
     ) {
-        state.usNat?.uuid = postResponse.uuid
-        state.usNat?.applies = state.usNat?.applies?: false
-        state.usNat?.dateCreated = postResponse.dateCreated
-        state.usNat?.expirationDate = postResponse.expirationDate
-        state.usNat?.consentStrings = postResponse.consentStrings
-        state.usNat?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.usnat?.webConsentPayload
-        state.usNat?.userConsents?.categories = postResponse.userConsents.categories
-        state.usNat?.userConsents?.vendors = postResponse.userConsents.vendors
-        state.usNat?.consentStatus = postResponse.consentStatus
-        state.usNat?.gppData = postResponse.gppData
+        state.usNat = state.usNat?.copy(
+            uuid = postResponse.uuid,
+            applies = state.usNat?.applies?: false,
+            dateCreated = postResponse.dateCreated,
+            expirationDate = postResponse.expirationDate,
+            consentStrings = postResponse.consentStrings,
+            webConsentPayload = postResponse.webConsentPayload?: getResponse?.usnat?.webConsentPayload,
+            consentStatus = postResponse.consentStatus,
+            gppData = postResponse.gppData
+        )
+        state.usNat?.userConsents = state.usNat?.userConsents?.copy(
+            categories = postResponse.userConsents.categories,
+            vendors = postResponse.userConsents.vendors
+        )?: USNatConsent.USNatUserConsents()
     }
 
     override suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =

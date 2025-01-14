@@ -2,7 +2,7 @@ package com.sourcepoint.mobile_core.network.requests
 
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
-import com.sourcepoint.mobile_core.network.SPJson
+import com.sourcepoint.mobile_core.models.SPJson
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 
