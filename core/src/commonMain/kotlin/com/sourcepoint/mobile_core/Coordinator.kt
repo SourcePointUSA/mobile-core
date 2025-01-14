@@ -76,6 +76,7 @@ class Coordinator(
             state.ccpa?.expirationDate = response.ccpa.expirationDate
             state.ccpa?.status = response.ccpa.status
             state.ccpa?.gppData = response.ccpa.gppData
+            state.ccpa?.uspstring = response.ccpa.uspstring
         }
         if (response.usnat != null && campaign == SPCampaignType.UsNat) {
             state.usNat?.dateCreated = response.usnat.dateCreated
@@ -226,6 +227,7 @@ class Coordinator(
         state.ccpa?.rejectedVendors = postResponse.rejectedVendors?: getResponse?.ccpa?.rejectedVendors?: emptyList()
         state.ccpa?.rejectedCategories = postResponse.rejectedCategories?: getResponse?.ccpa?.rejectedCategories?: emptyList()
         state.ccpa?.webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload
+        state.ccpa?.uspstring = postResponse.uspstring?: getResponse?.ccpa?.webConsentPayload
     }
 
     override suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
