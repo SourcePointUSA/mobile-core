@@ -161,7 +161,7 @@ class Coordinator(
                     authId = authId,
                     uuid = state.usNat?.uuid,
                     messageId = action.messageId,
-                    vendorListId = action.messageId,
+                    vendorListId = state.usNatMetaData?.vendorListId,
                     pubData = action.encodablePubData,
                     pmSaveAndExitVariables = action.pmPayload,
                     sendPVData = state.usNatMetaData?.wasSampled?: false,

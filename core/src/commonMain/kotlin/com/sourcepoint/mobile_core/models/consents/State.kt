@@ -13,7 +13,8 @@ data class State (
         var legalBasisChangeDate: String?,
         var sampleRate: Float = 1f,
         var wasSampled: Boolean?,
-        var wasSampledAt: Float?
+        var wasSampledAt: Float?,
+        var vendorListId: String?
     )
 
     data class CCPAMetaData (
@@ -27,7 +28,7 @@ data class State (
         var sampleRate:Float = 1f,
         var wasSampled: Boolean?,
         var wasSampledAt: Float?,
-        var vendorListId: String = "",
+        var vendorListId: String?,
         var applicableSections: List<Int> = emptyList()
     )
 }
