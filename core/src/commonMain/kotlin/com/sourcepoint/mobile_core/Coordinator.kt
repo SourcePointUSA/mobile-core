@@ -6,6 +6,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
+import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -63,7 +64,7 @@ class Coordinator(
 
     private fun handleGetChoiceAll(response: ChoiceAllResponse, campaign: SPCampaignType) {
         if (response.gdpr != null && campaign == SPCampaignType.Gdpr) {
-            state.gdpr = state.gdpr?.copy(
+            state.gdpr = (state.gdpr?: GDPRConsent()).copy(
                 dateCreated = response.gdpr.dateCreated,
                 expirationDate = response.gdpr.expirationDate,
                 tcData = response.gdpr.tcData?: emptyMap(),
@@ -75,7 +76,7 @@ class Coordinator(
             )
         }
         if (response.ccpa != null && campaign == SPCampaignType.Ccpa) {
-            state.ccpa = state.ccpa?.copy(
+            state.ccpa = (state.ccpa?: CCPAConsent()).copy(
                 dateCreated = response.ccpa.dateCreated,
                 expirationDate = response.ccpa.expirationDate,
                 status = response.ccpa.status,
@@ -84,7 +85,7 @@ class Coordinator(
             )
         }
         if (response.usnat != null && campaign == SPCampaignType.UsNat) {
-            state.usNat = state.usNat?.copy(
+            state.usNat = (state.usNat?: USNatConsent()).copy(
                 dateCreated = response.usnat.dateCreated,
                 expirationDate = response.usnat.expirationDate,
                 consentStatus = response.usnat.consentStatus,
@@ -189,7 +190,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.gdpr?.tcData = postResponse.tcData?: emptyMap()
         }
-        state.gdpr = state.gdpr?.copy(
+        state.gdpr = (state.gdpr?: GDPRConsent()).copy(
             uuid = postResponse.uuid,
             dateCreated = postResponse.dateCreated,
             expirationDate = postResponse.expirationDate,
@@ -227,14 +228,14 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa?.gppData = postResponse.gppData
         }
-        state.ccpa = state.ccpa?.copy(
+        state.ccpa = (state.ccpa?: CCPAConsent()).copy(
             uuid = postResponse.uuid,
             dateCreated = postResponse.dateCreated,
             status = postResponse.status?: getResponse?.ccpa?.status?: CCPAConsent.CCPAConsentStatus.RejectedAll,
             rejectedVendors = postResponse.rejectedVendors?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
             rejectedCategories = postResponse.rejectedCategories?: getResponse?.ccpa?.rejectedCategories?: emptyList(),
             webConsentPayload = postResponse.webConsentPayload?: getResponse?.ccpa?.webConsentPayload,
-            uspstring = postResponse.uspstring?: getResponse?.ccpa?.webConsentPayload
+            uspstring = postResponse.uspstring?: getResponse?.ccpa?.uspstring
         )
     }
 
@@ -255,7 +256,7 @@ class Coordinator(
         getResponse: ChoiceAllResponse?,
         postResponse: USNatChoiceResponse
     ) {
-        state.usNat = state.usNat?.copy(
+        state.usNat = (state.usNat?: USNatConsent()).copy(
             uuid = postResponse.uuid,
             applies = state.usNat?.applies?: false,
             dateCreated = postResponse.dateCreated,
@@ -263,12 +264,12 @@ class Coordinator(
             consentStrings = postResponse.consentStrings,
             webConsentPayload = postResponse.webConsentPayload?: getResponse?.usnat?.webConsentPayload,
             consentStatus = postResponse.consentStatus,
-            gppData = postResponse.gppData
+            gppData = postResponse.gppData,
+            userConsents = state.usNat?.userConsents?.copy(
+                categories = postResponse.userConsents.categories,
+                vendors = postResponse.userConsents.vendors
+            )?: USNatConsent.USNatUserConsents()
         )
-        state.usNat?.userConsents = state.usNat?.userConsents?.copy(
-            categories = postResponse.userConsents.categories,
-            vendors = postResponse.userConsents.vendors
-        )?: USNatConsent.USNatUserConsents()
     }
 
     override suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
