@@ -4,31 +4,37 @@ data class State (
     var gdpr: GDPRConsent?,
     var ccpa: CCPAConsent?,
     var usNat: USNatConsent?,
-    val gdprMetaData: GDPRMetaData?,
-    val ccpaMetaData: CCPAMetaData?,
-    val usNatMetaData: UsNatMetaData?
+    var gdprMetaData: GDPRMetaData?,
+    var ccpaMetaData: CCPAMetaData?,
+    var usNatMetaData: UsNatMetaData?
 ) {
     data class GDPRMetaData (
         val additionsChangeDate: String,
         val legalBasisChangeDate: String?,
-        val sampleRate: Float = 1f,
-        val wasSampled: Boolean?,
-        val wasSampledAt: Float?,
+        override val sampleRate: Float = 1f,
+        override val wasSampled: Boolean?,
+        override val wasSampledAt: Float?,
         val vendorListId: String?
-    )
+    ): SPSampleable
 
     data class CCPAMetaData (
-        val sampleRate: Float = 1f,
-        val wasSampled: Boolean?,
-        val wasSampledAt: Float?
-    )
+        override val sampleRate: Float = 1f,
+        override val wasSampled: Boolean?,
+        override val wasSampledAt: Float?
+    ): SPSampleable
 
     data class UsNatMetaData (
         val additionsChangeDate: String,
-        val sampleRate:Float = 1f,
-        val wasSampled: Boolean?,
-        val wasSampledAt: Float?,
+        override val sampleRate:Float = 1f,
+        override val wasSampled: Boolean?,
+        override val wasSampledAt: Float?,
         val vendorListId: String?,
         val applicableSections: List<Int> = emptyList()
-    )
+    ): SPSampleable
+
+    interface SPSampleable {
+        val sampleRate: Float
+        val wasSampled: Boolean?
+        val wasSampledAt: Float?
+    }
 }
