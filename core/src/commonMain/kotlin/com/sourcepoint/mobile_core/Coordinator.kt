@@ -9,6 +9,7 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPCampaigns
+import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -16,6 +17,7 @@ import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
+import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
@@ -42,7 +44,15 @@ class Coordinator(
     var authId: String? = null
     var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
     var includeData: IncludeData = IncludeData()
+    var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
     lateinit var campaigns: SPCampaigns
+
+    val shouldCallMessages: Boolean get() =
+                (campaigns.gdpr != null && state.gdpr?.consentStatus?.consentedAll != true) ||
+                campaigns.ccpa != null ||
+                (campaigns.ios14 != null && state.ios14?.status != SPIDFAStatus.Accepted) ||
+                campaigns.usnat != null
+
 
     constructor(accountId: Int, propertyId: Int, propertyName: String) : this(
         accountId,
@@ -71,6 +81,81 @@ class Coordinator(
         repository.cachedMetaData = metaDataResponse.toString()
         return message
     }
+
+    //region messages
+    private fun messagesParamsFromState(): MessagesRequest =
+        MessagesRequest(
+            body = MessagesRequest.Body(
+                propertyHref = propertyName,
+                accountId = accountId,
+                campaigns = MessagesRequest.Body.Campaigns(
+                    gdpr = if (campaigns.gdpr != null)
+                        MessagesRequest.Body.Campaigns.GDPR(
+                            targetingParams = campaigns.gdpr!!.targetingParams,
+                            hasLocalData = state.hasGDPRLocalData,
+                            consentStatus = state.gdpr?.consentStatus
+                        ) else null,
+                    ios14 = if (campaigns.ios14 != null)
+                        MessagesRequest.Body.Campaigns.IOS14(
+                            targetingParams = campaigns.ios14!!.targetingParams,
+                            idfaStatus = idfaStatus
+                        ) else null,
+                    ccpa = if (campaigns.ccpa != null)
+                        MessagesRequest.Body.Campaigns.CCPA(
+                            targetingParams = campaigns.ccpa!!.targetingParams,
+                            hasLocalData = state.hasCCPALocalData,
+                            status = state.ccpa?.status
+                        ) else null,
+                    usnat = if (campaigns.usnat != null)
+                        MessagesRequest.Body.Campaigns.USNat(
+                            targetingParams = campaigns.usnat!!.targetingParams,
+                            hasLocalData = state.hasUSNatLocalData,
+                            consentStatus = state.usNat?.consentStatus
+                        ) else null
+                ),
+                consentLanguage = language,
+                campaignEnv = campaigns.environment,
+                idfaStatus = idfaStatus,
+                includeData = includeData
+            ),
+            metadata = MessagesRequest.MetaData(
+                gdpr = MessagesRequest.MetaData.Campaign(state.gdpr?.applies ?: false),
+                usnat = MessagesRequest.MetaData.Campaign(state.ccpa?.applies ?: false),
+                ccpa = MessagesRequest.MetaData.Campaign(state.usNat?.applies ?: false)
+            ),
+            nonKeyedLocalState = state.nonKeyedLocalState,
+            localState = state.localState
+        )
+    
+    private fun handleMessagesResponse(response: MessagesResponse): List<MessageToDisplay> {
+        state.localState = response.localState
+        state.nonKeyedLocalState = response.nonKeyedLocalState
+
+        response.campaigns.forEach {
+            when (it.type) {
+                SPCampaignType.Gdpr -> state.gdpr = it.toConsent(state.gdpr) as GDPRConsent
+                SPCampaignType.Ccpa -> state.ccpa = it.toConsent(state.ccpa) as CCPAConsent
+                SPCampaignType.UsNat -> state.usNat = it.toConsent(state.usNat) as USNatConsent
+                SPCampaignType.IOS14 -> {
+                    state.ios14 = state.ios14?.copy(
+                        messageId = it.messageMetaData?.messageId,
+                        partitionUUID = it.messageMetaData?.messagePartitionUUID
+                    )
+                }
+                SPCampaignType.unknown -> return@forEach
+            }
+        }
+        return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
+    }
+
+    suspend fun messages(): List<MessageToDisplay> =
+        if (shouldCallMessages) {
+            val response = spClient.getMessages(request = messagesParamsFromState())
+            handleMessagesResponse(response)
+        } else {
+            emptyList()
+        }
+    //endregion
 
     //region pvData
     private fun sample(samplingRate: Float): Boolean =
