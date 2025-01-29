@@ -32,6 +32,8 @@ data class MessagesResponse(
         val message: Message? = null
         val messageMetaData: MessageMetaData? = null
         val childPmId: String? = null
+
+        abstract fun toConsent(default: ConsentClass?): ConsentClass?
     }
 
     @Serializable
@@ -114,7 +116,27 @@ data class MessagesResponse(
             dateCreated = dateCreated,
             tcData = tcData ?: emptyMap()
         ) else null
-    ): Campaign<GDPRConsent?>()
+    ): Campaign<GDPRConsent?>() {
+        override fun toConsent(default: GDPRConsent?): GDPRConsent? =
+            if (derivedConsents != null) {
+                default?.copy(
+                    grants = derivedConsents.grants,
+                    euconsent = derivedConsents.euconsent,
+                    tcData = derivedConsents.tcData,
+                    childPmId = derivedConsents.childPmId,
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    consentStatus = derivedConsents.consentStatus,
+                    webConsentPayload = derivedConsents.webConsentPayload,
+                    legIntCategories = derivedConsents.legIntCategories,
+                    legIntVendors = derivedConsents.legIntVendors,
+                    vendors = derivedConsents.vendors,
+                    categories = derivedConsents.categories
+                )
+            } else {
+                default?.copy()
+            }
+    }
 
     @Serializable
     @SerialName("usnat")
@@ -140,7 +162,25 @@ data class MessagesResponse(
             webConsentPayload = webConsentPayload,
             gppData = gppData ?: emptyMap()
         ) else null
-    ): Campaign<USNatConsent?>()
+    ): Campaign<USNatConsent?>() {
+        override fun toConsent(default: USNatConsent?): USNatConsent? =
+            if (derivedConsents != null){
+                default?.copy(
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    consentStrings = derivedConsents.consentStrings,
+                    webConsentPayload = derivedConsents.webConsentPayload,
+                    userConsents = default.userConsents.copy(
+                        categories = derivedConsents.userConsents.categories,
+                        vendors = derivedConsents.userConsents.vendors
+                    ),
+                    consentStatus = derivedConsents.consentStatus,
+                    gppData = derivedConsents.gppData
+                )
+            } else {
+                default?.copy()
+            }
+    }
 
     @Serializable
     @SerialName("CCPA")
@@ -167,14 +207,36 @@ data class MessagesResponse(
             webConsentPayload = webConsentPayload,
             gppData = gppData ?: emptyMap()
         ) else null
-    ): Campaign<CCPAConsent?>()
+    ): Campaign<CCPAConsent?>() {
+        override fun toConsent(default: CCPAConsent?): CCPAConsent? =
+            if (derivedConsents != null){
+                default?.copy(
+                    status = derivedConsents.status,
+                    rejectedVendors = derivedConsents.rejectedVendors,
+                    rejectedCategories = derivedConsents.rejectedCategories,
+                    signedLspa = derivedConsents.signedLspa,
+                    childPmId = derivedConsents.childPmId,
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    consentStatus = derivedConsents.consentStatus,
+                    webConsentPayload = derivedConsents.webConsentPayload,
+                    gppData = derivedConsents.gppData
+                )
+            } else {
+                default?.copy()
+            }
+    }
 
     @Serializable
     @SerialName("ios14")
     data class Ios14(
         override val type: SPCampaignType = SPCampaignType.IOS14,
         override val derivedConsents: Nothing? = null
-    ): Campaign<Nothing>()
+    ): Campaign<Nothing>() {
+        override fun toConsent(default: Nothing?): Nothing? {
+            return null
+        }
+    }
 
     @Serializable
     data class MessageMetaData(
