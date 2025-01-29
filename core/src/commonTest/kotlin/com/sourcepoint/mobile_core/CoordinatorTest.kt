@@ -4,6 +4,7 @@ import com.russhwolf.settings.MapSettings
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.consents.AttCampaign
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.State
@@ -36,9 +37,12 @@ class CoordinatorTest {
             gdpr = GDPRConsent(),
             ccpa = CCPAConsent(),
             usNat = USNatConsent(),
+            ios14 = AttCampaign(),
             gdprMetaData = null,
             ccpaMetaData = null,
-            usNatMetaData = null
+            usNatMetaData = null,
+            localState = null,
+            nonKeyedLocalState = null
         )
     }
 
