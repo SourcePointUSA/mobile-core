@@ -13,6 +13,7 @@ data class State (
     var localState: SPJson?,
     var nonKeyedLocalState: SPJson?
 ) {
+    var storedAuthId: String? = null
     var localVersion: Int? = null
     val hasGDPRLocalData: Boolean get() = gdpr?.uuid != null
     val hasCCPALocalData: Boolean get() = ccpa?.uuid != null
@@ -33,26 +34,26 @@ data class State (
     }
 
     data class GDPRMetaData (
-        val additionsChangeDate: String,
-        val legalBasisChangeDate: String?,
+        val additionsChangeDate: String = SPDate.now().toString(),
+        val legalBasisChangeDate: String? = null,
         override var sampleRate: Float = 1f,
-        override var wasSampled: Boolean?,
-        override var wasSampledAt: Float?,
-        val vendorListId: String?
+        override var wasSampled: Boolean? = null,
+        override var wasSampledAt: Float? = null,
+        val vendorListId: String? = null
     ): SPSampleable
 
     data class CCPAMetaData (
         override var sampleRate: Float = 1f,
-        override var wasSampled: Boolean?,
-        override var wasSampledAt: Float?
+        override var wasSampled: Boolean? = null,
+        override var wasSampledAt: Float? = null
     ): SPSampleable
 
     data class UsNatMetaData (
-        val additionsChangeDate: String,
+        val additionsChangeDate: String = SPDate.now().toString(),
         override var sampleRate:Float = 1f,
-        override var wasSampled: Boolean?,
-        override var wasSampledAt: Float?,
-        val vendorListId: String?,
+        override var wasSampled: Boolean? = null,
+        override var wasSampledAt: Float? = null,
+        val vendorListId: String? = null,
         val applicableSections: List<Int> = emptyList()
     ): SPSampleable
 

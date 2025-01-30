@@ -90,17 +90,38 @@ class Coordinator(
         spClient = SourcepointClient(accountId, propertyId, propertyName)
     )
 
-    suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): String {
-        val metaDataResponse = spClient.getMetaData(campaigns)
-        val message = """
-            The return of /meta-data is:
-            $metaDataResponse
-            
-            The cached version of /meta-data is:
-            ${repository.cachedMetaData}
-        """
-        repository.cachedMetaData = metaDataResponse.toString()
-        return message
+    //region loadMessages
+    private fun resetStateIfAuthIdChanged() {
+        if (state.storedAuthId == null) {
+            state.storedAuthId = authId
+        }
+
+        if (authId != null && state.storedAuthId != authId) {
+            state.storedAuthId = authId
+            if (campaigns.gdpr != null) {
+                state.gdpr = GDPRConsent()
+                state.gdprMetaData = State.GDPRMetaData()
+            }
+            if (campaigns.ccpa != null) {
+                state.ccpa = CCPAConsent()
+                state.ccpaMetaData = State.CCPAMetaData()
+            }
+        }
+    }
+
+    suspend fun loadMessages(authId: String?, pubData: JsonObject): List<MessageToDisplay> {
+        this.authId = authId
+        resetStateIfAuthIdChanged()
+
+        metaData()
+        consentStatus()
+        state.updateGDPRStatus()
+        state.updateUSNatStatus()
+        val messages = messages()
+        pvData(pubData, messages)
+        return messages
+    }
+    //endregion
 
     //region metaData
     private fun metaDataParamsFromState(): MetaDataRequest.Campaigns =
