@@ -19,31 +19,39 @@ data class State (
     val hasUSNatLocalData: Boolean get() = usNat?.uuid != null
 
     interface SPSampleable {
-        val sampleRate: Float
-        val wasSampled: Boolean?
-        val wasSampledAt: Float?
+        var sampleRate: Float
+        var wasSampled: Boolean?
+        var wasSampledAt: Float?
+
+        fun updateSampleFields(newSampleRate: Float) {
+            sampleRate = newSampleRate
+            if (sampleRate != wasSampledAt) {
+                wasSampledAt = sampleRate
+                wasSampled = null
+            }
+        }
     }
 
     data class GDPRMetaData (
         val additionsChangeDate: String,
         val legalBasisChangeDate: String?,
-        override val sampleRate: Float = 1f,
-        override val wasSampled: Boolean?,
-        override val wasSampledAt: Float?,
+        override var sampleRate: Float = 1f,
+        override var wasSampled: Boolean?,
+        override var wasSampledAt: Float?,
         val vendorListId: String?
     ): SPSampleable
 
     data class CCPAMetaData (
-        override val sampleRate: Float = 1f,
-        override val wasSampled: Boolean?,
-        override val wasSampledAt: Float?
+        override var sampleRate: Float = 1f,
+        override var wasSampled: Boolean?,
+        override var wasSampledAt: Float?
     ): SPSampleable
 
     data class UsNatMetaData (
         val additionsChangeDate: String,
-        override val sampleRate:Float = 1f,
-        override val wasSampled: Boolean?,
-        override val wasSampledAt: Float?,
+        override var sampleRate:Float = 1f,
+        override var wasSampled: Boolean?,
+        override var wasSampledAt: Float?,
         val vendorListId: String?,
         val applicableSections: List<Int> = emptyList()
     ): SPSampleable

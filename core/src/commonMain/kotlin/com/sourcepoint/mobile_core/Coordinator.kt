@@ -27,6 +27,7 @@ import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
+import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import com.sourcepoint.mobile_core.storage.Repository
@@ -100,7 +101,62 @@ class Coordinator(
         """
         repository.cachedMetaData = metaDataResponse.toString()
         return message
+
+    //region metaData
+    private fun metaDataParamsFromState(): MetaDataRequest.Campaigns =
+        MetaDataRequest.Campaigns(
+            gdpr = if (campaigns.gdpr != null) MetaDataRequest.Campaigns.Campaign(campaigns.gdpr!!.groupPmId) else null,
+            ccpa = if (campaigns.ccpa != null) MetaDataRequest.Campaigns.Campaign(campaigns.ccpa!!.groupPmId) else null,
+            usnat = if (campaigns.usnat != null) MetaDataRequest.Campaigns.Campaign(campaigns.usnat!!.groupPmId) else null
+        )
+
+    private fun handleMetaDataResponse(response: MetaDataResponse) {
+        if (response.gdpr != null) {
+            val gdprMetaData = response.gdpr
+            if (state.gdprMetaData?.vendorListId != null && state.gdprMetaData?.vendorListId != gdprMetaData.vendorListId) {
+                state.gdpr = GDPRConsent()
+            }
+            state.gdpr = state.gdpr?.copy(applies = gdprMetaData.applies)
+            state.gdprMetaData = state.gdprMetaData?.copy(
+                additionsChangeDate = gdprMetaData.additionsChangeDate,
+                legalBasisChangeDate = gdprMetaData.legalBasisChangeDate,
+                vendorListId = gdprMetaData.vendorListId
+            )
+            state.gdprMetaData?.updateSampleFields(gdprMetaData.sampleRate)
+            if (campaigns.gdpr?.groupPmId != gdprMetaData.childPmId) {
+                //storage.gdprChildPmId = gdprMetaData.childPmId    storage needs
+            }
+        }
+        if (response.ccpa != null) {
+            val ccpaMetaData = response.ccpa
+            state.ccpa = state.ccpa?.copy(applies = ccpaMetaData.applies)
+            state.ccpaMetaData?.updateSampleFields(ccpaMetaData.sampleRate)
+        }
+        if (response.usnat != null) {
+            val usnatMetaData = response.usnat
+            val previousApplicableSections = state.usNatMetaData?.applicableSections ?: emptyList()
+            if (state.usNatMetaData?.vendorListId != null && state.usNatMetaData?.vendorListId != usnatMetaData.vendorListId) {
+                state.usNat = USNatConsent()
+            }
+            state.usNat = state.usNat?.copy(applies = usnatMetaData.applies)
+            state.usNatMetaData = state.usNatMetaData?.copy(
+                vendorListId = usnatMetaData.vendorListId,
+                additionsChangeDate = usnatMetaData.additionsChangeDate,
+                applicableSections = usnatMetaData.applicableSections
+            )
+            state.usNatMetaData?.updateSampleFields(usnatMetaData.sampleRate)
+            if (previousApplicableSections.isNotEmpty() && previousApplicableSections != state.usNatMetaData?.applicableSections) {
+                needsNewUSNatData = true
+            }
+        }
     }
+
+    suspend fun metaData() {
+        val response = spClient.getMetaData(metaDataParamsFromState())
+        handleMetaDataResponse(response)
+    }
+    //endregion
+
     //region consentStatus
     private fun consentStatusParamsFromState(): ConsentStatusRequest.MetaData =
         ConsentStatusRequest.MetaData(
@@ -190,6 +246,7 @@ class Coordinator(
         }
     }
     //endregion
+
     //region messages
     private fun messagesParamsFromState(): MessagesRequest =
         MessagesRequest(
