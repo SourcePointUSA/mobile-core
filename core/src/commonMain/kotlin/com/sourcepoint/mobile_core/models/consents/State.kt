@@ -13,6 +13,7 @@ data class State (
     var localState: SPJson?,
     var nonKeyedLocalState: SPJson?
 ) {
+    var localVersion: Int? = null
     val hasGDPRLocalData: Boolean get() = gdpr?.uuid != null
     val hasCCPALocalData: Boolean get() = ccpa?.uuid != null
     val hasUSNatLocalData: Boolean get() = usNat?.uuid != null
@@ -76,5 +77,8 @@ data class State (
                 usNat = usNat!!.copy(consentStatus = usNat!!.consentStatus.copy(consentedAll = false))
             }
         }
+    }
+    companion object {
+        const val version = 4
     }
 }

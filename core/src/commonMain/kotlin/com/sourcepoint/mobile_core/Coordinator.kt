@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -23,6 +24,7 @@ import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
+import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
@@ -47,7 +49,25 @@ class Coordinator(
     var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
     lateinit var campaigns: SPCampaigns
 
-    val shouldCallMessages: Boolean get() =
+    var migratingUser: Boolean = false //This needs storage so must be init from native
+    var needsNewUSNatData = false
+
+    private val needsNewConsentData: Boolean get() =
+                migratingUser || needsNewUSNatData || transitionCCPAOptedOut ||
+                (state.localVersion != State.version &&
+                        (state.gdpr?.uuid != null || state.ccpa?.uuid != null || state.usNat?.uuid != null))
+
+    private val authTransitionCCPAUSNat: Boolean get() = (authId != null && campaigns.usnat?.transitionCCPAAuth == true)
+
+    private val transitionCCPAOptedOut: Boolean get() =
+                campaigns.usnat != null &&
+                state.ccpa?.uuid != null &&
+                state.usNat?.uuid == null &&
+                (state.ccpa?.status == CCPAConsent.CCPAConsentStatus.RejectedAll || state.ccpa?.status == CCPAConsent.CCPAConsentStatus.RejectedSome)
+
+    val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
+
+    private val shouldCallMessages: Boolean get() =
                 (campaigns.gdpr != null && state.gdpr?.consentStatus?.consentedAll != true) ||
                 campaigns.ccpa != null ||
                 (campaigns.ios14 != null && state.ios14?.status != SPIDFAStatus.Accepted) ||
@@ -81,7 +101,95 @@ class Coordinator(
         repository.cachedMetaData = metaDataResponse.toString()
         return message
     }
+    //region consentStatus
+    private fun consentStatusParamsFromState(): ConsentStatusRequest.MetaData =
+        ConsentStatusRequest.MetaData(
+            gdpr = if (state.gdpr != null)
+                ConsentStatusRequest.MetaData.Campaign(
+                    applies = state.gdpr!!.applies,
+                    dateCreated = state.gdpr!!.dateCreated,
+                    uuid = state.gdpr!!.uuid,
+                    hasLocalData = state.hasGDPRLocalData,
+                    idfaStatus = idfaStatus
+                ) else null,
+            usnat = if (state.usNat != null)
+                ConsentStatusRequest.MetaData.USNatCampaign(
+                    applies = state.usNat!!.applies,
+                    dateCreated = state.usNat!!.dateCreated,
+                    uuid = state.usNat!!.uuid,
+                    hasLocalData = state.hasUSNatLocalData,
+                    idfaStatus = idfaStatus,
+                    transitionCCPAAuth = authTransitionCCPAUSNat,
+                    optedOut = transitionCCPAOptedOut
+                ) else null,
+            ccpa = if (state.ccpa != null)
+                ConsentStatusRequest.MetaData.Campaign(
+                    applies = state.ccpa!!.applies,
+                    dateCreated = state.ccpa!!.dateCreated,
+                    uuid = state.ccpa!!.uuid,
+                    hasLocalData = state.hasCCPALocalData,
+                    idfaStatus = idfaStatus
+                ) else null
+        )
 
+    private fun handleConsentStatusResponse(response: ConsentStatusResponse) {
+        state.localState = response.localState
+        if (response.consentStatusData.gdpr != null) {
+            val respGDPR = response.consentStatusData.gdpr
+            state.gdpr = state.gdpr?.copy(
+                uuid = respGDPR.uuid,
+                grants = respGDPR.grants,
+                dateCreated = respGDPR.dateCreated,
+                expirationDate = respGDPR.expirationDate,
+                euconsent = respGDPR.euconsent,
+                tcData = respGDPR.tcData,
+                consentStatus = respGDPR.consentStatus,
+                webConsentPayload = respGDPR.webConsentPayload,
+                gcmStatus = respGDPR.gcmStatus,
+                legIntCategories = respGDPR.legIntCategories,
+                legIntVendors = respGDPR.legIntVendors,
+                categories = respGDPR.categories,
+                vendors = respGDPR.vendors,
+                specialFeatures = respGDPR.specialFeatures
+            )
+        }
+        if (response.consentStatusData.ccpa != null) {
+            val respCCPA = response.consentStatusData.ccpa
+            state.ccpa = state.ccpa?.copy(
+                uuid = respCCPA.uuid,
+                dateCreated = respCCPA.dateCreated,
+                expirationDate = respCCPA.expirationDate,
+                status = respCCPA.status,
+                rejectedVendors = respCCPA.rejectedVendors,
+                rejectedCategories = respCCPA.rejectedCategories,
+                consentStatus = respCCPA.consentStatus,
+                webConsentPayload = respCCPA.webConsentPayload,
+                gppData = respCCPA.gppData
+            )
+        }
+        if (response.consentStatusData.usnat != null) {
+            val respUSNat = response.consentStatusData.usnat
+            state.usNat = state.usNat?.copy(
+                uuid = respUSNat.uuid,
+                dateCreated = respUSNat.dateCreated,
+                expirationDate = respUSNat.expirationDate,
+                consentStrings = respUSNat.consentStrings,
+                webConsentPayload = respUSNat.webConsentPayload,
+                userConsents = respUSNat.userConsents,
+                consentStatus = respUSNat.consentStatus,
+                gppData = respUSNat.gppData
+            )
+        }
+    }
+
+    suspend fun consentStatus() {
+        if (shouldCallConsentStatus) {
+            val response = spClient.getConsentStatus(authId = authId, metadata = consentStatusParamsFromState())
+            state.localVersion = State.version
+            handleConsentStatusResponse(response)
+        }
+    }
+    //endregion
     //region messages
     private fun messagesParamsFromState(): MessagesRequest =
         MessagesRequest(
