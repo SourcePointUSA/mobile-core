@@ -112,13 +112,22 @@ class Coordinator(
     suspend fun loadMessages(authId: String?, pubData: JsonObject): List<MessageToDisplay> {
         this.authId = authId
         resetStateIfAuthIdChanged()
-
-        metaData()
-        consentStatus()
-        state.updateGDPRStatus()
-        state.updateUSNatStatus()
-        val messages = messages()
-        pvData(pubData, messages)
+        var messages: List<MessageToDisplay> = emptyList()
+        metaData() {
+            runBlocking {
+                consentStatus() {
+                    state.updateGDPRStatus()
+                    state.updateUSNatStatus()
+                    messages = try {
+                        runBlocking { messages() }
+                    } catch (error: Throwable) {
+                        emptyList<MessageToDisplay>()
+                        throw error
+                    }
+                    runBlocking { pvData(pubData, messages) }
+                }
+            }
+        }
         return messages
     }
     //endregion
@@ -172,9 +181,14 @@ class Coordinator(
         }
     }
 
-    suspend fun metaData() {
-        val response = spClient.getMetaData(metaDataParamsFromState())
-        handleMetaDataResponse(response)
+    suspend fun metaData(next: () -> Unit) {
+        try {
+            val response = spClient.getMetaData(metaDataParamsFromState())
+            handleMetaDataResponse(response)
+            next()
+        } catch (error: Throwable) {
+            throw error
+        }
     }
     //endregion
 
@@ -259,12 +273,19 @@ class Coordinator(
         }
     }
 
-    suspend fun consentStatus() {
+    suspend fun consentStatus(next: () -> Unit) {
         if (shouldCallConsentStatus) {
-            val response = spClient.getConsentStatus(authId = authId, metadata = consentStatusParamsFromState())
+            try {
+                val response = spClient.getConsentStatus(authId = authId, metadata = consentStatusParamsFromState())
+                state.localVersion = State.version
+                handleConsentStatusResponse(response)
+            } catch (error: Throwable) {
+                throw error
+            }
+        } else {
             state.localVersion = State.version
-            handleConsentStatusResponse(response)
         }
+        next()
     }
     //endregion
 
@@ -336,8 +357,12 @@ class Coordinator(
 
     suspend fun messages(): List<MessageToDisplay> =
         if (shouldCallMessages) {
-            val response = spClient.getMessages(request = messagesParamsFromState())
-            handleMessagesResponse(response)
+            try {
+                val response = spClient.getMessages(request = messagesParamsFromState())
+                handleMessagesResponse(response)
+            } catch (error: Throwable) {
+                throw error
+            }
         } else {
             emptyList()
         }
