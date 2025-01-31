@@ -110,6 +110,9 @@ class Coordinator(
     }
 
     suspend fun loadMessages(authId: String?, pubData: JsonObject): List<MessageToDisplay> {
+        //TODO load state from storage
+        //TODO save state to storage
+
         this.authId = authId
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
@@ -154,7 +157,7 @@ class Coordinator(
             )
             state.gdprMetaData?.updateSampleFields(gdprMetaData.sampleRate)
             if (campaigns.gdpr?.groupPmId != gdprMetaData.childPmId) {
-                //storage.gdprChildPmId = gdprMetaData.childPmId    storage needs
+                //storage.gdprChildPmId = gdprMetaData.childPmId    //TODO storage needs
             }
         }
         if (response.ccpa != null) {
@@ -179,6 +182,7 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
+        //TODO save state to storage
     }
 
     suspend fun metaData(next: () -> Unit) {
@@ -271,6 +275,7 @@ class Coordinator(
                 gppData = respUSNat.gppData
             )
         }
+        //TODO save state to storage
     }
 
     suspend fun consentStatus(next: () -> Unit) {
@@ -340,9 +345,9 @@ class Coordinator(
 
         response.campaigns.forEach {
             when (it.type) {
-                SPCampaignType.Gdpr -> state.gdpr = it.toConsent(state.gdpr) as GDPRConsent
-                SPCampaignType.Ccpa -> state.ccpa = it.toConsent(state.ccpa) as CCPAConsent
-                SPCampaignType.UsNat -> state.usNat = it.toConsent(state.usNat) as USNatConsent
+                SPCampaignType.Gdpr -> state.gdpr = it.toConsent(default = state.gdpr) as GDPRConsent
+                SPCampaignType.Ccpa -> state.ccpa = it.toConsent(default = state.ccpa) as CCPAConsent
+                SPCampaignType.UsNat -> state.usNat = it.toConsent(default = state.usNat) as USNatConsent
                 SPCampaignType.IOS14 -> {
                     state.ios14 = state.ios14?.copy(
                         messageId = it.messageMetaData?.messageId,
@@ -352,6 +357,7 @@ class Coordinator(
                 SPCampaignType.unknown -> return@forEach
             }
         }
+        //TODO save state to storage
         return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
     }
 
@@ -444,6 +450,7 @@ class Coordinator(
                 }
             }
         }
+        //TODO save state to storage
     }
 
     private fun gdprPvDataBody(consent: GDPRConsent?, pubData: JsonObject, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
@@ -546,6 +553,7 @@ class Coordinator(
                 consentStrings = response.usnat.consentStrings
             )
         }
+        //TODO save state to storage
     }
 
     private suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? {
@@ -658,6 +666,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.gdpr?.tcData = postResponse.tcData ?: emptyMap()
         }
+        //TODO save state to storage
     }
 
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
@@ -690,6 +699,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa?.gppData = postResponse.gppData
         }
+        //TODO save state to storage
     }
 
     private suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
@@ -723,6 +733,7 @@ class Coordinator(
                 vendors = postResponse.userConsents.vendors
             ) ?: USNatConsent.USNatUserConsents()
         )
+        //TODO save state to storage
     }
 
     private suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
