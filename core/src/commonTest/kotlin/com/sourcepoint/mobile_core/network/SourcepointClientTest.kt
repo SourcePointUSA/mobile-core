@@ -95,7 +95,7 @@ class SourcepointClientTest {
             metadata = ConsentStatusRequest.MetaData(
                 gdpr = ConsentStatusRequest.MetaData.Campaign(
                     applies = true,
-                    uuid = "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
+                    uuid = "7acd0bf7-41fb-4d26-b12b-de5e2605ef81",
                 ),
                 usnat = ConsentStatusRequest.MetaData.USNatCampaign(
                     applies = true,
@@ -110,7 +110,7 @@ class SourcepointClientTest {
 
         assertNotEquals("", response.localState)
         assertEquals(
-            "654c39d4-b75d-4aac-925c-6322a7cc1622_28",
+            "7acd0bf7-41fb-4d26-b12b-de5e2605ef81",
             response.consentStatusData.gdpr?.uuid
         )
         assertEquals(
