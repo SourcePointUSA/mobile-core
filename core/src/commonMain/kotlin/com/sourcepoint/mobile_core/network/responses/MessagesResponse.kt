@@ -3,6 +3,7 @@ package com.sourcepoint.mobile_core.network.responses
 import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.AttCampaign
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
@@ -218,7 +219,8 @@ data class MessagesResponse(
                     childPmId = derivedConsents.childPmId,
                     dateCreated = derivedConsents.dateCreated,
                     expirationDate = derivedConsents.expirationDate,
-                    consentStatus = derivedConsents.consentStatus,
+                    rejectedAll = derivedConsents.rejectedAll,
+                    consentedAll = derivedConsents.consentedAll,
                     webConsentPayload = derivedConsents.webConsentPayload,
                     gppData = derivedConsents.gppData
                 )
@@ -232,8 +234,8 @@ data class MessagesResponse(
     data class Ios14(
         override val type: SPCampaignType = SPCampaignType.IOS14,
         override val derivedConsents: Nothing? = null
-    ): Campaign<Nothing>() {
-        override fun toConsent(default: Nothing?): Nothing? {
+    ): Campaign<AttCampaign>() {
+        override fun toConsent(default: AttCampaign?): AttCampaign? {
             return null
         }
     }
