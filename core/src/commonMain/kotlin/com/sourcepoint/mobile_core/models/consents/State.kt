@@ -1,18 +1,24 @@
 package com.sourcepoint.mobile_core.models.consents
 
 import com.sourcepoint.mobile_core.models.SPJson
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class State (
-    var gdpr: GDPRConsent?,
-    var ccpa: CCPAConsent?,
-    var usNat: USNatConsent?,
-    var ios14: AttCampaign?,
-    var gdprMetaData: GDPRMetaData?,
-    var ccpaMetaData: CCPAMetaData?,
-    var usNatMetaData: UsNatMetaData?,
-    var localState: SPJson?,
-    var nonKeyedLocalState: SPJson?
+    var gdpr: GDPRConsent? = null,
+    var ccpa: CCPAConsent? = null,
+    var usNat: USNatConsent? = null,
+    var ios14: AttCampaign? = null,
+    var gdprMetaData: GDPRMetaData? = null,
+    var ccpaMetaData: CCPAMetaData? = null,
+    var usNatMetaData: UsNatMetaData? = null,
+    var localState: SPJson? = null,
+    var nonKeyedLocalState: SPJson? = null
 ) {
+    companion object {
+        const val version = 4
+    }
+
     var storedAuthId: String? = null
     var localVersion: Int? = null
     val hasGDPRLocalData: Boolean get() = gdpr?.uuid != null
@@ -33,6 +39,7 @@ data class State (
         }
     }
 
+    @Serializable
     data class GDPRMetaData (
         val additionsChangeDate: String = SPDate.now().toString(),
         val legalBasisChangeDate: String? = null,
@@ -42,12 +49,14 @@ data class State (
         val vendorListId: String? = null
     ): SPSampleable
 
+    @Serializable
     data class CCPAMetaData (
         override var sampleRate: Float = 1f,
         override var wasSampled: Boolean? = null,
         override var wasSampledAt: Float? = null
     ): SPSampleable
 
+    @Serializable
     data class UsNatMetaData (
         val additionsChangeDate: String = SPDate.now().toString(),
         override var sampleRate:Float = 1f,
@@ -86,8 +95,5 @@ data class State (
                 usNat = usNat!!.copy(consentStatus = usNat!!.consentStatus.copy(consentedAll = false))
             }
         }
-    }
-    companion object {
-        const val version = 4
     }
 }

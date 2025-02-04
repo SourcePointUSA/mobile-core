@@ -9,15 +9,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 
-val formatter = LocalDateTime.Format {
-    date(LocalDate.Formats.ISO)
-    char('T')
-    time(LocalTime.Formats.ISO)
-    char('Z')
-}
 class SPDate {
     var date: LocalDateTime
     var originalDateString: String?
+    private val formatter = LocalDateTime.Format {
+        date(LocalDate.Formats.ISO)
+        char('T')
+        time(LocalTime.Formats.ISO)
+        char('Z')
+    }
 
     constructor(date: LocalDateTime) {
         this.date = date

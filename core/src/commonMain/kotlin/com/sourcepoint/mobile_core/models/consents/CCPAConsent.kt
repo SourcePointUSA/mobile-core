@@ -13,10 +13,11 @@ data class CCPAConsent(
     val signedLspa: Boolean? = null,
     val uspstring: String? = null,
     val childPmId: String? = null,
+    val rejectedAll: Boolean? = null,
+    val consentedAll: Boolean? = null,
     val rejectedVendors: List<String> = emptyList(),
     val rejectedCategories: List<String> = emptyList(),
     val status: CCPAConsentStatus? = null,
-    val consentStatus: ConsentStatus = ConsentStatus(),
     val webConsentPayload: String? = null,
     @SerialName("GPPData") var gppData: IABData = emptyMap(),
 ) {
