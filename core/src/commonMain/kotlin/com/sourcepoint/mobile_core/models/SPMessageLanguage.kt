@@ -3,7 +3,9 @@ package com.sourcepoint.mobile_core.models
 import kotlinx.serialization.SerialName
 
 enum class SPMessageLanguage(val shortCode: String) {
+   @SerialName("AR") ARABIC("AR"),
    @SerialName("EUS") BASQUE("EUS"),
+   @SerialName("BS") BOSNIAN("BS"),
    @SerialName("BG") BULGARIAN("BG"),
    @SerialName("CA") CATALAN("CA"),
    @SerialName("ZH") CHINESE("ZH"),
@@ -16,6 +18,7 @@ enum class SPMessageLanguage(val shortCode: String) {
    @SerialName("FI") FINNISH("FI"),
    @SerialName("FR") FRENCH("FR"),
    @SerialName("GD") GAELIC("GD"),
+   @SerialName("GL") GALICIAN("GL"),
    @SerialName("DE") GERMAN("DE"),
    @SerialName("EL") GREEK("EL"),
    @SerialName("HU") HUNGARIAN("HU"),
@@ -41,5 +44,6 @@ enum class SPMessageLanguage(val shortCode: String) {
    @SerialName("ID") INDONESIAN("ID"),
    @SerialName("KO") KOREAN("KO"),
    @SerialName("MK") MACEDONIAN("MK"),
-   @SerialName("MS") MALAY("MS");
+   @SerialName("MS") MALAY("MS"),
+   @SerialName("MT") MALTESE("MT");
 }
