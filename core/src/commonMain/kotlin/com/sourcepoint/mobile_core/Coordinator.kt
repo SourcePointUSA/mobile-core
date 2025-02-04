@@ -10,6 +10,8 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.AttCampaign
+import com.sourcepoint.mobile_core.models.consents.SPDate
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -50,11 +52,10 @@ class Coordinator(
     var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
     lateinit var campaigns: SPCampaigns
 
-    var migratingUser: Boolean = false //This needs storage so must be init from native
     var needsNewUSNatData = false
 
     private val needsNewConsentData: Boolean get() =
-                migratingUser || needsNewUSNatData || transitionCCPAOptedOut ||
+                needsNewUSNatData || transitionCCPAOptedOut ||
                 (state.localVersion != State.version &&
                         (state.gdpr?.uuid != null || state.ccpa?.uuid != null || state.usNat?.uuid != null))
 
@@ -90,6 +91,41 @@ class Coordinator(
         spClient = SourcepointClient(accountId, propertyId, propertyName)
     )
 
+    private fun setupState(localCampaigns: SPCampaigns): State {
+        val spState = repository.cachedSPState ?: State()
+        if (localCampaigns.gdpr != null && spState.gdpr == null) {
+            spState.gdpr = repository.cachedUserData?.gdpr?.consents ?: GDPRConsent()
+            spState.gdpr = spState.gdpr?.copy(applies = repository.cachedUserData?.gdpr?.consents?.applies ?: false)
+            spState.gdprMetaData = State.GDPRMetaData()
+        }
+        if (localCampaigns.ccpa != null && spState.ccpa == null) {
+            spState.ccpa = repository.cachedUserData?.ccpa?.consents ?: CCPAConsent()
+            spState.ccpa = spState.ccpa?.copy(applies = repository.cachedUserData?.ccpa?.consents?.applies ?: false)
+            spState.ccpaMetaData = State.CCPAMetaData()
+        }
+        if (localCampaigns.usnat != null && spState.usNat == null) {
+            spState.usNat = repository.cachedUserData?.usnat?.consents ?: USNatConsent()
+            spState.usNat = spState.usNat?.copy(applies = repository.cachedUserData?.usnat?.consents?.applies ?: false)
+            spState.usNatMetaData = State.UsNatMetaData()
+        }
+        if (localCampaigns.ios14 != null && spState.ios14 == null) {
+            spState.ios14 = AttCampaign()
+        }
+
+        // Expire user consent if later than expirationDate
+        if (spState.gdpr?.expirationDate != null && SPDate(spState.gdpr?.expirationDate).date < SPDate.now().date) {
+            spState.gdpr = GDPRConsent()
+        }
+        if (spState.ccpa?.expirationDate != null && SPDate(spState.ccpa?.expirationDate).date < SPDate.now().date) {
+            spState.ccpa = CCPAConsent()
+        }
+        if (spState.usNat?.expirationDate != null && SPDate(spState.usNat?.expirationDate).date < SPDate.now().date) {
+            spState.usNat = USNatConsent()
+        }
+
+        return spState
+    }
+
     //region loadMessages
     private fun resetStateIfAuthIdChanged() {
         if (state.storedAuthId == null) {
@@ -107,11 +143,12 @@ class Coordinator(
                 state.ccpaMetaData = State.CCPAMetaData()
             }
         }
+        repository.cachedSPState = state
     }
 
     suspend fun loadMessages(authId: String?, pubData: JsonObject): List<MessageToDisplay> {
-        //TODO load state from storage
-        //TODO save state to storage
+        state = setupState(campaigns)
+        repository.cachedSPState = state
 
         this.authId = authId
         resetStateIfAuthIdChanged()
@@ -157,7 +194,7 @@ class Coordinator(
             )
             state.gdprMetaData?.updateSampleFields(gdprMetaData.sampleRate)
             if (campaigns.gdpr?.groupPmId != gdprMetaData.childPmId) {
-                //storage.gdprChildPmId = gdprMetaData.childPmId    //TODO storage needs
+                repository.cachedGdprChildPmId = gdprMetaData.childPmId
             }
         }
         if (response.ccpa != null) {
@@ -182,7 +219,7 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     suspend fun metaData(next: () -> Unit) {
@@ -257,7 +294,8 @@ class Coordinator(
                 status = respCCPA.status,
                 rejectedVendors = respCCPA.rejectedVendors,
                 rejectedCategories = respCCPA.rejectedCategories,
-                consentStatus = respCCPA.consentStatus,
+                rejectedAll = respCCPA.rejectedAll,
+                consentedAll = respCCPA.consentedAll,
                 webConsentPayload = respCCPA.webConsentPayload,
                 gppData = respCCPA.gppData
             )
@@ -275,7 +313,7 @@ class Coordinator(
                 gppData = respUSNat.gppData
             )
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     suspend fun consentStatus(next: () -> Unit) {
@@ -357,7 +395,7 @@ class Coordinator(
                 SPCampaignType.unknown -> return@forEach
             }
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
         return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
     }
 
@@ -450,7 +488,7 @@ class Coordinator(
                 }
             }
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     private fun gdprPvDataBody(consent: GDPRConsent?, pubData: JsonObject, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
@@ -487,7 +525,12 @@ class Coordinator(
                     uuid = consent.uuid,
                     accountId = accountId,
                     propertyId = propertyId,
-                    consentStatus = consent.consentStatus,
+                    consentStatus = ConsentStatus(
+                        rejectedAll = consent.rejectedAll,
+                        consentedAll = consent.consentedAll,
+                        rejectedVendors = consent.rejectedVendors,
+                        rejectedCategories = consent.rejectedCategories
+                    ),
                     pubData = pubData,
                     messageId = messageMetaData.messageId,
                     sampleRate = state.ccpaMetaData?.sampleRate
@@ -553,7 +596,7 @@ class Coordinator(
                 consentStrings = response.usnat.consentStrings
             )
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     private suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? {
@@ -666,7 +709,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.gdpr?.tcData = postResponse.tcData ?: emptyMap()
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
@@ -699,7 +742,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa?.gppData = postResponse.gppData
         }
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     private suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
@@ -733,7 +776,7 @@ class Coordinator(
                 vendors = postResponse.userConsents.vendors
             ) ?: USNatConsent.USNatUserConsents()
         )
-        //TODO save state to storage
+        repository.cachedSPState = state
     }
 
     private suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
