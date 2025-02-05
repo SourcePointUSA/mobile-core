@@ -146,7 +146,7 @@ class Coordinator(
         repository.cachedSPState = state
     }
 
-    suspend fun loadMessages(authId: String?, pubData: JsonObject): List<MessageToDisplay> {
+    suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
         state = setupState(campaigns)
         repository.cachedSPState = state
 
@@ -449,7 +449,7 @@ class Coordinator(
         }
     }
 
-    suspend fun pvData(pubData: JsonObject, messages: List<MessageToDisplay>) {
+    suspend fun pvData(pubData: JsonObject?, messages: List<MessageToDisplay>) {
         coroutineScope {
             if (campaigns.gdpr != null && state.gdprMetaData != null) {
                 launch {
@@ -491,7 +491,7 @@ class Coordinator(
         repository.cachedSPState = state
     }
 
-    private fun gdprPvDataBody(consent: GDPRConsent?, pubData: JsonObject, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
+    private fun gdprPvDataBody(consent: GDPRConsent?, pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
         if (consent != null) {
             PvDataRequest(
                 ccpa = null,
@@ -515,7 +515,7 @@ class Coordinator(
             PvDataRequest(gdpr = null, ccpa = null, usnat = null)
         }
 
-    private fun ccpaPvDataBody(consent: CCPAConsent?, pubData: JsonObject, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
+    private fun ccpaPvDataBody(consent: CCPAConsent?, pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
         if (consent != null) {
             PvDataRequest(
                 gdpr = null,
@@ -540,7 +540,7 @@ class Coordinator(
             PvDataRequest(gdpr = null, ccpa = null, usnat = null)
         }
 
-    private fun usnatPvDataBody(consent: USNatConsent?, pubData: JsonObject, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
+    private fun usnatPvDataBody(consent: USNatConsent?, pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData): PvDataRequest =
         if (consent != null) {
             PvDataRequest(
                 gdpr = null,
