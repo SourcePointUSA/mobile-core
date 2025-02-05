@@ -235,9 +235,7 @@ data class MessagesResponse(
         override val type: SPCampaignType = SPCampaignType.IOS14,
         override val derivedConsents: Nothing? = null
     ): Campaign<AttCampaign>() {
-        override fun toConsent(default: AttCampaign?): AttCampaign? {
-            return null
-        }
+        override fun toConsent(default: AttCampaign?): AttCampaign? = null
     }
 
     @Serializable

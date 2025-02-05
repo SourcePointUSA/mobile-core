@@ -13,6 +13,7 @@ import com.sourcepoint.mobile_core.models.consents.State
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -38,10 +39,9 @@ class Repository(private val storage: Settings) {
     var cachedUspString: String?
         get() = storage[Keys.UspString.name, ""]
         set(value) { storage[Keys.UspString.name] = value }
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var cachedUserData: SPUserData?
-        get() = storage.decodeValueOrNull(SPUserData.serializer(), Keys.UserData.name)
-        set(value) { if (value != null) storage.encodeValue(SPUserData.serializer(), Keys.UserData.name, value) }
+        get() = try { Json.decodeFromString<SPUserData>(storage[Keys.UserData.name, ""]) } catch (error: Throwable) { null }
+        set(value) { storage[Keys.UserData.name] = Json.encodeToString(value) }
     var cachedLocalState: SPJson?
         get() = storage[Keys.LocalState.name, ""]
         set(value) { storage[Keys.LocalState.name] = value }
@@ -51,8 +51,7 @@ class Repository(private val storage: Settings) {
     var cachedCcpaChildPmId: String?
         get() = storage[Keys.CcpaChildPmId.name, ""]
         set(value) { storage[Keys.CcpaChildPmId.name] = value }
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var cachedSPState: State?
-        get() = storage.decodeValueOrNull(State.serializer(), Keys.SPState.name)
-        set(value) { if (value != null) storage.encodeValue(State.serializer(), Keys.SPState.name, value) }
+        get() = try { Json.decodeFromString<State>(storage[Keys.SPState.name, ""]) } catch (error: Throwable) { null }
+        set(value) { storage[Keys.SPState.name] = Json.encodeToString(value) }
 }
