@@ -82,6 +82,8 @@ class Coordinator(
                 status = response.ccpa.status,
                 gppData = response.ccpa.gppData,
                 uspstring = response.ccpa.uspstring,
+                consentedAll = response.ccpa.consentedAll,
+                rejectedAll = response.ccpa.rejectedAll
             )
         }
         if (response.usnat != null) {
@@ -232,7 +234,9 @@ class Coordinator(
             rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
             rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
             webConsentPayload = postResponse.webConsentPayload ?: getResponse?.ccpa?.webConsentPayload,
-            uspstring = postResponse.uspstring ?: getResponse?.ccpa?.uspstring
+            uspstring = postResponse.uspstring ?: getResponse?.ccpa?.uspstring,
+            consentedAll = postResponse.consentedAll ?: getResponse?.ccpa?.consentedAll,
+            rejectedAll = postResponse.rejectedAll ?: getResponse?.ccpa?.rejectedAll
         )
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa?.gppData = postResponse.gppData
