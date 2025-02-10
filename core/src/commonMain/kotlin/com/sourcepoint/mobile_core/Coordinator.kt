@@ -56,7 +56,7 @@ class Coordinator(
 
     private val needsNewConsentData: Boolean get() =
                 needsNewUSNatData || transitionCCPAOptedOut ||
-                (state.localVersion != State.version &&
+                (state.localVersion != State.VERSION &&
                         (state.gdpr?.uuid != null || state.ccpa?.uuid != null || state.usNat?.uuid != null))
 
     private val authTransitionCCPAUSNat: Boolean get() = (authId != null && campaigns.usnat?.transitionCCPAAuth == true)
@@ -320,13 +320,13 @@ class Coordinator(
         if (shouldCallConsentStatus) {
             try {
                 val response = spClient.getConsentStatus(authId = authId, metadata = consentStatusParamsFromState())
-                state.localVersion = State.version
+                state.localVersion = State.VERSION
                 handleConsentStatusResponse(response)
             } catch (error: Throwable) {
                 throw error
             }
         } else {
-            state.localVersion = State.version
+            state.localVersion = State.VERSION
         }
         next()
     }
@@ -376,7 +376,7 @@ class Coordinator(
             nonKeyedLocalState = state.nonKeyedLocalState,
             localState = state.localState
         )
-    
+
     private fun handleMessagesResponse(response: MessagesResponse): List<MessageToDisplay> {
         state.localState = response.localState
         state.nonKeyedLocalState = response.nonKeyedLocalState
@@ -820,4 +820,3 @@ class Coordinator(
     }
     //endregion
 }
-
