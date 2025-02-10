@@ -42,7 +42,7 @@ class Coordinator(
     private val accountId: Int,
     private val propertyId: Int,
     private val propertyName: String,
-    private val repository: Repository,
+    val repository: Repository,
     private val spClient: SourcepointClient
 ): ICoordinator {
     lateinit var state: State
@@ -146,7 +146,7 @@ class Coordinator(
         repository.cachedSPState = state
     }
 
-    suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
+    override suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
         state = setupState(campaigns)
         repository.cachedSPState = state
 
