@@ -25,7 +25,6 @@ val jsonWithNulls = Json {
 
 fun String?.encodeToJsonObject() = this?.let { decodeFromString<JsonObject>(it) }
 
-@OptIn(ExperimentalSerializationApi::class)
 fun Any?.toJsonPrimitive(): JsonPrimitive = when (this) {
     null -> JsonNull
     is Number -> JsonPrimitive(this)
