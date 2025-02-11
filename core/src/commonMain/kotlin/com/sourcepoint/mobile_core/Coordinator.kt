@@ -12,6 +12,7 @@ import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.AttCampaign
 import com.sourcepoint.mobile_core.models.consents.SPDate
+import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -75,6 +76,15 @@ class Coordinator(
                 (campaigns.ios14 != null && state.ios14?.status != SPIDFAStatus.Accepted) ||
                 campaigns.usnat != null
 
+    override val userData: SPUserData get() {
+        val data = SPUserData(
+            gdpr = campaigns.gdpr.let { SPUserData.SPConsent(consents = state.gdpr) },
+            ccpa = campaigns.ccpa.let { SPUserData.SPConsent(consents = state.ccpa) },
+            usnat = campaigns.usnat.let { SPUserData.SPConsent(consents = state.usNat) }
+        )
+        repository.cachedUserData = data
+        return data
+    }
 
     constructor(accountId: Int, propertyId: Int, propertyName: String) : this(
         accountId,
@@ -126,6 +136,13 @@ class Coordinator(
         return spState
     }
 
+    private fun storeLegislationConsent(userData: SPUserData) {
+        userData.gdpr?.consents?.tcData.let { repository.cachedTcData = it }
+        userData.ccpa?.consents?.uspstring.let { repository.cachedUspString = it }
+        userData.ccpa?.consents?.gppData.let { repository.cachedGppData = it }
+        userData.usnat?.consents?.gppData.let { repository.cachedGppData = it }
+    }
+
     //region loadMessages
     private fun resetStateIfAuthIdChanged() {
         if (state.storedAuthId == null) {
@@ -168,6 +185,7 @@ class Coordinator(
                 }
             }
         }
+        storeLegislationConsent(userData = userData)
         return messages
     }
     //endregion
