@@ -5,25 +5,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class State (
-    var gdpr: GDPRConsent? = null,
-    var ccpa: CCPAConsent? = null,
-    var usNat: USNatConsent? = null,
-    var ios14: AttCampaign? = null,
-    var gdprMetaData: GDPRMetaData? = null,
-    var ccpaMetaData: CCPAMetaData? = null,
-    var usNatMetaData: UsNatMetaData? = null,
+    var gdpr: GDPRState = GDPRState(),
+    var ccpa: CCPAState = CCPAState(),
+    var usNat: USNatState = USNatState(),
+    var ios14: AttCampaign = AttCampaign(),
+    var authId: String? = null,
+    var localVersion: Int = VERSION,
     var localState: SPJson? = null,
     var nonKeyedLocalState: SPJson? = null
 ) {
     companion object {
-        const val VERSION = 4
+        const val VERSION = 1
     }
 
-    var storedAuthId: String? = null
-    var localVersion: Int? = null
-    val hasGDPRLocalData: Boolean get() = gdpr?.uuid != null
-    val hasCCPALocalData: Boolean get() = ccpa?.uuid != null
-    val hasUSNatLocalData: Boolean get() = usNat?.uuid != null
+    val hasGDPRLocalData: Boolean get () = gdpr.consents.uuid != null
+    val hasCCPALocalData: Boolean get () = ccpa.consents.uuid != null
+    val hasUSNatLocalData: Boolean get () = usNat.consents.uuid != null
 
     interface SPSampleable {
         var sampleRate: Float
@@ -39,61 +36,116 @@ data class State (
         }
     }
 
-    @Serializable
-    data class GDPRMetaData (
-        val additionsChangeDate: String = SPDate.now().toString(),
-        val legalBasisChangeDate: String? = null,
-        override var sampleRate: Float = 1f,
-        override var wasSampled: Boolean? = null,
-        override var wasSampledAt: Float? = null,
-        val vendorListId: String? = null
-    ): SPSampleable
+    init {
+        expireStateBasedOnExpiryDates()
+    }
 
     @Serializable
-    data class CCPAMetaData (
-        override var sampleRate: Float = 1f,
-        override var wasSampled: Boolean? = null,
-        override var wasSampledAt: Float? = null
-    ): SPSampleable
+    data class GDPRState(
+        val metaData: GDPRMetaData = GDPRMetaData(),
+        val consents: GDPRConsent = GDPRConsent(),
+        val childPmId: String? = null
+    ) {
+        @Serializable
+        data class GDPRMetaData (
+            val additionsChangeDate: String = SPDate.now().toString(),
+            val legalBasisChangeDate: String? = null,
+            override var sampleRate: Float = 1f,
+            override var wasSampled: Boolean? = null,
+            override var wasSampledAt: Float? = null,
+            val vendorListId: String? = null
+        ): SPSampleable
+
+        fun resetStateIfVendorListChanges(newVendorListId: String): GDPRState =
+            if (metaData.vendorListId != null && metaData.vendorListId != newVendorListId) {
+                copy(consents = GDPRConsent())
+            } else {
+                this
+            }
+    }
 
     @Serializable
-    data class UsNatMetaData (
-        val additionsChangeDate: String = SPDate.now().toString(),
-        override var sampleRate:Float = 1f,
-        override var wasSampled: Boolean? = null,
-        override var wasSampledAt: Float? = null,
-        val vendorListId: String? = null,
-        val applicableSections: List<Int> = emptyList()
-    ): SPSampleable
+    data class CCPAState(
+        val metaData: CCPAMetaData = CCPAMetaData(),
+        val consents: CCPAConsent = CCPAConsent(),
+        val childPmId: String? = null
+    ) {
+        @Serializable
+        data class CCPAMetaData (
+            override var sampleRate: Float = 1f,
+            override var wasSampled: Boolean? = null,
+            override var wasSampledAt: Float? = null
+        ): SPSampleable
+    }
 
-    fun updateGDPRStatus() {
-        if (gdpr == null || gdprMetaData == null)
-            return
-        var shouldUpdateConsentedAll = false
-        if (SPDate(gdpr!!.dateCreated).date < SPDate(gdprMetaData!!.additionsChangeDate).date) {
-            gdpr = gdpr!!.copy(consentStatus = gdpr!!.consentStatus.copy(vendorListAdditions = true))
-            shouldUpdateConsentedAll = true
+    @Serializable
+    data class USNatState(
+        val metaData: UsNatMetaData = UsNatMetaData(),
+        val consents: USNatConsent = USNatConsent(),
+        val childPmId: String? = null
+    ) {
+        @Serializable
+        data class UsNatMetaData (
+            val additionsChangeDate: String = SPDate.now().toString(),
+            override var sampleRate:Float = 1f,
+            override var wasSampled: Boolean? = null,
+            override var wasSampledAt: Float? = null,
+            val vendorListId: String? = null,
+            val applicableSections: List<Int> = emptyList()
+        ): SPSampleable
+
+        fun resetStateIfVendorListChanges(newVendorListId: String): USNatState =
+            if (metaData.vendorListId != null && metaData.vendorListId != newVendorListId) {
+                copy(consents = USNatConsent())
+            } else {
+                this
+            }
+    }
+
+    private fun expireStateBasedOnExpiryDates() {
+        val now = SPDate.now().date
+        if(gdpr.consents.expirationDate != null && SPDate(gdpr.consents.expirationDate).date < now) {
+            gdpr = GDPRState()
         }
-        if (gdprMetaData!!.legalBasisChangeDate != null &&
-            SPDate(gdpr!!.dateCreated).date < SPDate(gdprMetaData!!.legalBasisChangeDate).date) {
-            gdpr = gdpr!!.copy(consentStatus = gdpr!!.consentStatus.copy(legalBasisChanges = true))
-            shouldUpdateConsentedAll = true
+        if(ccpa.consents.expirationDate != null && SPDate(ccpa.consents.expirationDate).date < now) {
+            ccpa = CCPAState()
         }
-        if (gdpr!!.consentStatus.consentedAll == true && shouldUpdateConsentedAll) {
-            gdpr = gdpr!!.copy(consentStatus = gdpr!!.consentStatus.copy(granularStatus = gdpr!!.consentStatus.granularStatus?.copy(previousOptInAll = true)))
-            gdpr = gdpr!!.copy(consentStatus = gdpr!!.consentStatus.copy(consentedAll = false))
+        if(usNat.consents.expirationDate != null && SPDate(usNat.consents.expirationDate).date < now) {
+            usNat = USNatState()
         }
     }
 
-    fun updateUSNatStatus() {
-        if (usNat == null || usNatMetaData == null)
-            return
-        if (SPDate(usNat!!.dateCreated).date < SPDate(usNatMetaData!!.additionsChangeDate).date) {
-            usNat = usNat!!.copy(consentStatus = usNat!!.consentStatus.copy(vendorListAdditions = true))
-            if (usNat!!.consentStatus.consentedAll == true) {
-                usNat = usNat!!.copy(consentStatus = usNat!!.consentStatus.copy(granularStatus = usNat!!.consentStatus.granularStatus?.copy(previousOptInAll = true)))
-                usNat = usNat!!.copy(consentStatus = usNat!!.consentStatus.copy(consentedAll = false))
+    fun updateGDPRStatusForVendorListChanges() {
+        var newConsentStatus = gdpr.consents.consentStatus.copy()
+        if (SPDate(gdpr.consents.dateCreated).date < SPDate(gdpr.metaData.additionsChangeDate).date) {
+            newConsentStatus = newConsentStatus.copy(vendorListAdditions = true)
+        }
+        if (SPDate(gdpr.consents.dateCreated).date < SPDate(gdpr.metaData.legalBasisChangeDate).date) {
+            newConsentStatus = newConsentStatus.copy(legalBasisChanges = true)
+        }
+        if (newConsentStatus.consentedAll == true &&
+            (newConsentStatus.vendorListAdditions == true || newConsentStatus.legalBasisChanges == true)
+            ) {
+            newConsentStatus = newConsentStatus.copy(
+                consentedAll = false,
+                granularStatus = newConsentStatus.granularStatus?.copy(previousOptInAll = true)
+            )
+        }
+
+        gdpr = gdpr.copy(consents = gdpr.consents.copy(consentStatus = newConsentStatus))
+    }
+
+    fun updateUSNatStatusForVendorListChanges() {
+        var newConsentStatus = usNat.consents.consentStatus
+        if (SPDate(usNat.consents.dateCreated).date < SPDate(usNat.metaData.additionsChangeDate).date) {
+            newConsentStatus = newConsentStatus.copy(vendorListAdditions = true)
+            if (usNat.consents.consentStatus.consentedAll == true) {
+                newConsentStatus = newConsentStatus.copy(
+                    consentedAll = false,
+                    granularStatus = newConsentStatus.granularStatus?.copy(previousOptInAll = true)
+                )
             }
         }
+        usNat.consents.consentStatus = newConsentStatus
     }
 }
