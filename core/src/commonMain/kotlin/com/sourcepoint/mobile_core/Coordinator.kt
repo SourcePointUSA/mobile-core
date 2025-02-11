@@ -179,83 +179,56 @@ class Coordinator(
         }
     }
 
-    private fun consentStatusParamsFromState(): ConsentStatusRequest.MetaData =
-        ConsentStatusRequest.MetaData(
-            gdpr = if (state.gdpr != null)
-                ConsentStatusRequest.MetaData.Campaign(
-                    applies = state.gdpr!!.applies,
-                    dateCreated = state.gdpr!!.dateCreated,
-                    uuid = state.gdpr!!.uuid,
-                    hasLocalData = state.hasGDPRLocalData,
-                    idfaStatus = idfaStatus
-                ) else null,
-            usnat = if (state.usNat != null)
-                ConsentStatusRequest.MetaData.USNatCampaign(
-                    applies = state.usNat!!.applies,
-                    dateCreated = state.usNat!!.dateCreated,
-                    uuid = state.usNat!!.uuid,
-                    hasLocalData = state.hasUSNatLocalData,
-                    idfaStatus = idfaStatus,
-                    transitionCCPAAuth = authTransitionCCPAUSNat,
-                    optedOut = transitionCCPAOptedOut
-                ) else null,
-            ccpa = if (state.ccpa != null)
-                ConsentStatusRequest.MetaData.Campaign(
-                    applies = state.ccpa!!.applies,
-                    dateCreated = state.ccpa!!.dateCreated,
-                    uuid = state.ccpa!!.uuid,
-                    hasLocalData = state.hasCCPALocalData,
-                    idfaStatus = idfaStatus
-                ) else null
-        )
-
     private fun handleConsentStatusResponse(response: ConsentStatusResponse) {
         state.localState = response.localState
-        if (response.consentStatusData.gdpr != null) {
-            val respGDPR = response.consentStatusData.gdpr
-            state.gdpr = state.gdpr?.consents?.copy(
-                uuid = respGDPR.uuid,
-                grants = respGDPR.grants,
-                dateCreated = respGDPR.dateCreated,
-                expirationDate = respGDPR.expirationDate,
-                euconsent = respGDPR.euconsent,
-                tcData = respGDPR.tcData,
-                consentStatus = respGDPR.consentStatus,
-                webConsentPayload = respGDPR.webConsentPayload,
-                gcmStatus = respGDPR.gcmStatus,
-                legIntCategories = respGDPR.legIntCategories,
-                legIntVendors = respGDPR.legIntVendors,
-                categories = respGDPR.categories,
-                vendors = respGDPR.vendors,
-                specialFeatures = respGDPR.specialFeatures
+        response.consentStatusData.gdpr?.let {
+            state.gdpr = state.gdpr.copy(
+                consents = state.gdpr.consents.copy(
+                    uuid = it.uuid,
+                    grants = it.grants,
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    euconsent = it.euconsent,
+                    tcData = it.tcData,
+                    consentStatus = it.consentStatus,
+                    webConsentPayload = it.webConsentPayload,
+                    gcmStatus = it.gcmStatus,
+                    legIntCategories = it.legIntCategories,
+                    legIntVendors = it.legIntVendors,
+                    categories = it.categories,
+                    vendors = it.vendors,
+                    specialFeatures = it.specialFeatures
+                )
             )
         }
-        if (response.consentStatusData.ccpa != null) {
-            val respCCPA = response.consentStatusData.ccpa
-            state.ccpa = state.ccpa?.consents?.copy(
-                uuid = respCCPA.uuid,
-                dateCreated = respCCPA.dateCreated,
-                expirationDate = respCCPA.expirationDate,
-                status = respCCPA.status,
-                rejectedVendors = respCCPA.rejectedVendors,
-                rejectedCategories = respCCPA.rejectedCategories,
-                rejectedAll = respCCPA.rejectedAll,
-                consentedAll = respCCPA.consentedAll,
-                webConsentPayload = respCCPA.webConsentPayload,
-                gppData = respCCPA.gppData
+        response.consentStatusData.ccpa?.let {
+            state.ccpa = state.ccpa.copy(
+                consents = state.ccpa.consents.copy(
+                    uuid = it.uuid,
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    status = it.status,
+                    rejectedVendors = it.rejectedVendors,
+                    rejectedCategories = it.rejectedCategories,
+                    rejectedAll = it.rejectedAll,
+                    consentedAll = it.consentedAll,
+                    webConsentPayload = it.webConsentPayload,
+                    gppData = it.gppData
+                )
             )
         }
-        if (response.consentStatusData.usnat != null) {
-            val respUSNat = response.consentStatusData.usnat
-            state.usNat = state.usNat?.consents?.copy(
-                uuid = respUSNat.uuid,
-                dateCreated = respUSNat.dateCreated,
-                expirationDate = respUSNat.expirationDate,
-                consentStrings = respUSNat.consentStrings,
-                webConsentPayload = respUSNat.webConsentPayload,
-                userConsents = respUSNat.userConsents,
-                consentStatus = respUSNat.consentStatus,
-                gppData = respUSNat.gppData
+        response.consentStatusData.usnat?.let {
+            state.usNat = state.usNat.copy(
+                consents = state.usNat.consents.copy(
+                    uuid = it.uuid,
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    consentStrings = it.consentStrings,
+                    webConsentPayload = it.webConsentPayload,
+                    userConsents = it.userConsents,
+                    consentStatus = it.consentStatus,
+                    gppData = it.gppData
+                )
             )
         }
         repository.cachedSPState = state
@@ -264,7 +237,40 @@ class Coordinator(
     suspend fun consentStatus(next: suspend () -> Unit) {
         if (shouldCallConsentStatus) {
             try {
-                val response = spClient.getConsentStatus(authId = authId, metadata = consentStatusParamsFromState())
+                val response = spClient.getConsentStatus(
+                    authId = authId,
+                    metadata = ConsentStatusRequest.MetaData(
+                        gdpr = campaigns.gdpr?.let {
+                            ConsentStatusRequest.MetaData.Campaign(
+                                applies = state.gdpr.consents.applies,
+                                dateCreated = state.gdpr.consents.dateCreated,
+                                uuid = state.gdpr.consents.uuid,
+                                hasLocalData = state.hasGDPRLocalData,
+                                idfaStatus = idfaStatus
+                            )
+                        },
+                        usnat = campaigns.usnat?.let {
+                            ConsentStatusRequest.MetaData.USNatCampaign(
+                                applies = state.usNat.consents.applies,
+                                dateCreated = state.usNat.consents.dateCreated,
+                                uuid = state.usNat.consents.uuid,
+                                hasLocalData = state.hasUSNatLocalData,
+                                idfaStatus = idfaStatus,
+                                transitionCCPAAuth = authTransitionCCPAUSNat,
+                                optedOut = transitionCCPAOptedOut
+                            )
+                        },
+                        ccpa = campaigns.ccpa?.let {
+                            ConsentStatusRequest.MetaData.Campaign(
+                                applies = state.ccpa.consents.applies,
+                                dateCreated = state.ccpa.consents.dateCreated,
+                                uuid = state.ccpa.consents.uuid,
+                                hasLocalData = state.hasCCPALocalData,
+                                idfaStatus = idfaStatus
+                            )
+                        }
+                    )
+                )
                 state.localVersion = State.VERSION
                 handleConsentStatusResponse(response)
             } catch (error: Throwable) {
