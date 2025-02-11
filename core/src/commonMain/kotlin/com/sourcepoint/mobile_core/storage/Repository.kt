@@ -18,11 +18,6 @@ class Repository(private val storage: Settings) {
     enum class Keys {
         TcData,
         GppData,
-        UspString,
-        UserData,
-        LocalState,
-        GdprChildPmId,
-        CcpaChildPmId,
         SPState
     }
 
