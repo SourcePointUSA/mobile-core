@@ -27,16 +27,16 @@ class Repository(private val storage: Settings) {
     }
 
     var cachedTcData: IABData?
-        get() = Json.decodeFromString<IABData>(storage[Keys.TcData.name, ":"])
+        get() = Json.decodeFromString<IABData>(storage[Keys.TcData.name, "{}"])
         set(value) { if (value != null) storage[Keys.TcData.name] = Json.encodeToString(MapSerializer(String.serializer(),JsonPrimitive.serializer()), value) }
     var cachedGppData: IABData?
-        get() = Json.decodeFromString<IABData>(storage[Keys.GppData.name, ":"])
+        get() = Json.decodeFromString<IABData>(storage[Keys.GppData.name, "{}"])
         set(value) { if (value != null) storage[Keys.GppData.name] = Json.encodeToString(MapSerializer(String.serializer(),JsonPrimitive.serializer()), value) }
     var cachedUspString: String?
         get() = storage[Keys.UspString.name, ""]
         set(value) { storage[Keys.UspString.name] = value }
     var cachedUserData: SPUserData?
-        get() = try { Json.decodeFromString<SPUserData>(storage[Keys.UserData.name, ""]) } catch (error: Throwable) { null }
+        get() = try { Json.decodeFromString<SPUserData>(storage[Keys.UserData.name, "{}"]) } catch (error: Throwable) { null }
         set(value) { storage[Keys.UserData.name] = Json.encodeToString(value) }
     var cachedLocalState: SPJson?
         get() = storage[Keys.LocalState.name, ""]
@@ -48,6 +48,6 @@ class Repository(private val storage: Settings) {
         get() = storage[Keys.CcpaChildPmId.name, ""]
         set(value) { storage[Keys.CcpaChildPmId.name] = value }
     var cachedSPState: State?
-        get() = try { Json.decodeFromString<State>(storage[Keys.SPState.name, ""]) } catch (error: Throwable) { null }
+        get() = try { Json.decodeFromString<State>(storage[Keys.SPState.name, "{}"]) } catch (error: Throwable) { null }
         set(value) { storage[Keys.SPState.name] = Json.encodeToString(value) }
 }
