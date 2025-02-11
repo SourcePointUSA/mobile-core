@@ -282,61 +282,17 @@ class Coordinator(
         next()
     }
 
-    private fun messagesParamsFromState(): MessagesRequest =
-        MessagesRequest(
-            body = MessagesRequest.Body(
-                propertyHref = propertyName,
-                accountId = accountId,
-                campaigns = MessagesRequest.Body.Campaigns(
-                    gdpr = if (campaigns.gdpr != null)
-                        MessagesRequest.Body.Campaigns.GDPR(
-                            targetingParams = campaigns.gdpr!!.targetingParams,
-                            hasLocalData = state.hasGDPRLocalData,
-                            consentStatus = state.gdpr?.consents?.consentStatus
-                        ) else null,
-                    ios14 = if (campaigns.ios14 != null)
-                        MessagesRequest.Body.Campaigns.IOS14(
-                            targetingParams = campaigns.ios14!!.targetingParams,
-                            idfaStatus = idfaStatus
-                        ) else null,
-                    ccpa = if (campaigns.ccpa != null)
-                        MessagesRequest.Body.Campaigns.CCPA(
-                            targetingParams = campaigns.ccpa!!.targetingParams,
-                            hasLocalData = state.hasCCPALocalData,
-                            status = state.ccpa?.consents?.status
-                        ) else null,
-                    usnat = if (campaigns.usnat != null)
-                        MessagesRequest.Body.Campaigns.USNat(
-                            targetingParams = campaigns.usnat!!.targetingParams,
-                            hasLocalData = state.hasUSNatLocalData,
-                            consentStatus = state.usNat?.consents?.consentStatus
-                        ) else null
-                ),
-                consentLanguage = language,
-                campaignEnv = campaigns.environment,
-                idfaStatus = idfaStatus,
-                includeData = includeData
-            ),
-            metadata = MessagesRequest.MetaData(
-                gdpr = MessagesRequest.MetaData.Campaign(state.gdpr?.consents?.applies ?: false),
-                usnat = MessagesRequest.MetaData.Campaign(state.ccpa?.consents?.applies ?: false),
-                ccpa = MessagesRequest.MetaData.Campaign(state.usNat?.consents?.applies ?: false)
-            ),
-            nonKeyedLocalState = state.nonKeyedLocalState,
-            localState = state.localState
-        )
-
     private fun handleMessagesResponse(response: MessagesResponse): List<MessageToDisplay> {
         state.localState = response.localState
         state.nonKeyedLocalState = response.nonKeyedLocalState
 
         response.campaigns.forEach {
             when (it.type) {
-                SPCampaignType.Gdpr -> state.gdpr = it.toConsent(default = state.gdpr) as GDPRConsent
-                SPCampaignType.Ccpa -> state.ccpa = it.toConsent(default = state.ccpa) as CCPAConsent
-                SPCampaignType.UsNat -> state.usNat = it.toConsent(default = state.usNat) as USNatConsent
+                SPCampaignType.Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr) as GDPRConsent)
+                SPCampaignType.Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa) as CCPAConsent)
+                SPCampaignType.UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat) as USNatConsent)
                 SPCampaignType.IOS14 -> {
-                    state.ios14 = state.ios14?.copy(
+                    state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
                         partitionUUID = it.messageMetaData?.messagePartitionUUID
                     )
@@ -351,7 +307,52 @@ class Coordinator(
     suspend fun messages(): List<MessageToDisplay> =
         if (shouldCallMessages) {
             try {
-                val response = spClient.getMessages(request = messagesParamsFromState())
+                val response = spClient.getMessages(MessagesRequest(
+                    body = MessagesRequest.Body(
+                        propertyHref = propertyName,
+                        accountId = accountId,
+                        campaigns = MessagesRequest.Body.Campaigns(
+                            gdpr = campaigns.gdpr?.let {
+                                MessagesRequest.Body.Campaigns.GDPR(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasGDPRLocalData,
+                                    consentStatus = state.gdpr.consents.consentStatus
+                                )
+                            },
+                            ios14 = campaigns.ios14?.let {
+                                MessagesRequest.Body.Campaigns.IOS14(
+                                    targetingParams = it.targetingParams,
+                                    idfaStatus = idfaStatus
+                                )
+                            },
+                            ccpa = campaigns.ccpa?.let {
+                                MessagesRequest.Body.Campaigns.CCPA(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasCCPALocalData,
+                                    status = state.ccpa.consents.status
+                                )
+                            },
+                            usnat = campaigns.usnat?.let {
+                                MessagesRequest.Body.Campaigns.USNat(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasUSNatLocalData,
+                                    consentStatus = state.usNat.consents.consentStatus
+                                )
+                            }
+                        ),
+                        consentLanguage = language,
+                        campaignEnv = campaigns.environment,
+                        idfaStatus = idfaStatus,
+                        includeData = includeData
+                    ),
+                    metadata = MessagesRequest.MetaData(
+                        gdpr = MessagesRequest.MetaData.Campaign(state.gdpr.consents.applies),
+                        usnat = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies),
+                        ccpa = MessagesRequest.MetaData.Campaign(state.usNat.consents.applies)
+                    ),
+                    nonKeyedLocalState = state.nonKeyedLocalState,
+                    localState = state.localState
+                ))
                 handleMessagesResponse(response)
             } catch (error: Throwable) {
                 throw error
