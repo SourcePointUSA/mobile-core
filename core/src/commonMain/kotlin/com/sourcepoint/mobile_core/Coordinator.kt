@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core
 
+import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
@@ -835,6 +836,51 @@ class Coordinator(
             throw error
         }
         return state
+    }
+    //endregion
+
+    //region customConsent
+    private fun handleCustomConsentResponse(response: GDPRConsent) {
+        state.gdpr = state.gdpr?.copy(grants = response.grants)
+        repository.cachedSPState = state
+    }
+
+    override suspend fun customConsentGDPR(
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ) {
+        val consentUUID = state.gdpr?.uuid
+        if (consentUUID.isNullOrEmpty()) {
+            throw InvalidCustomConsentUUIDError()
+        }
+        val response =  spClient.customConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = vendors,
+            categories = categories,
+            legIntCategories = legIntCategories
+        )
+        handleCustomConsentResponse(response)
+    }
+
+    override suspend fun deleteCustomConsentGDPR(
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ) {
+        val consentUUID = state.gdpr?.uuid
+        if (consentUUID.isNullOrEmpty()) {
+            throw InvalidCustomConsentUUIDError()
+        }
+        val response =  spClient.deleteCustomConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = vendors,
+            categories = categories,
+            legIntCategories = legIntCategories
+        )
+        handleCustomConsentResponse(response)
     }
     //endregion
 }

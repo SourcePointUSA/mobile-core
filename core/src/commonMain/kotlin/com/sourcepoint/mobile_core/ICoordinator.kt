@@ -22,4 +22,16 @@ interface ICoordinator {
         authId: String?,
         pubData: JsonObject?
     ): List<MessageToDisplay>
+
+    @Throws(Exception::class) suspend fun customConsentGDPR(
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    )
+
+    @Throws(Exception::class) suspend fun deleteCustomConsentGDPR(
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    )
 }
