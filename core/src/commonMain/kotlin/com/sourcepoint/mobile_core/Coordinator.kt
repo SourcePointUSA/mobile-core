@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core
 
+import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
@@ -10,6 +11,7 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -72,6 +74,13 @@ class Coordinator(
                 (campaigns.ios14 != null && state.ios14.status != SPIDFAStatus.Accepted) ||
                 campaigns.usnat != null
 
+    override val userData: SPUserData
+        get() = SPUserData(
+            gdpr = campaigns.gdpr?.let { SPUserData.SPConsent(consents = state.gdpr.consents) },
+            ccpa = campaigns.ccpa?.let { SPUserData.SPConsent(consents = state.ccpa.consents) },
+            usnat = campaigns.usnat?.let { SPUserData.SPConsent(consents = state.usNat.consents) }
+        )
+
     constructor(
         accountId: Int,
         propertyId: Int,
@@ -80,6 +89,7 @@ class Coordinator(
         repository: Repository,
         initialState: State?
     ) : this(
+
         accountId,
         propertyId,
         propertyName,
@@ -89,6 +99,13 @@ class Coordinator(
         state = initialState ?: repository.cachedSPState ?: State()
     ) {
         repository.cachedSPState = state
+    }
+
+    private fun storeLegislationConsent(userData: SPUserData) {
+        userData.gdpr?.consents?.tcData.let { repository.cachedTcData = it }
+        userData.ccpa?.consents?.uspstring.let { repository.cachedUspString = it }
+        userData.ccpa?.consents?.gppData.let { repository.cachedGppData = it }
+        userData.usnat?.consents?.gppData.let { repository.cachedGppData = it }
     }
 
     private fun resetStateIfAuthIdChanged() {
@@ -102,7 +119,7 @@ class Coordinator(
         repository.cachedSPState = state
     }
 
-    suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
+    override suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
         state = repository.cachedSPState ?: State()
         repository.cachedSPState = state
 
@@ -122,6 +139,7 @@ class Coordinator(
                     pvData(pubData, messages)
                 }
         }
+        storeLegislationConsent(userData = userData)
         return messages
     }
 
@@ -725,5 +743,47 @@ class Coordinator(
             throw error
         }
         return state
+    }
+    private fun handleCustomConsentResponse(response: GDPRConsent) {
+        state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(grants = response.grants))
+        repository.cachedSPState = state
+    }
+
+    override suspend fun customConsentGDPR(
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ) {
+        val consentUUID = state.gdpr.consents.uuid
+        if (consentUUID.isNullOrEmpty()) {
+            throw InvalidCustomConsentUUIDError()
+        }
+        val response =  spClient.customConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = vendors,
+            categories = categories,
+            legIntCategories = legIntCategories
+        )
+        handleCustomConsentResponse(response)
+    }
+
+    override suspend fun deleteCustomConsentGDPR(
+        vendors: List<String>,
+        categories: List<String>,
+        legIntCategories: List<String>
+    ) {
+        val consentUUID = state.gdpr.consents.uuid
+        if (consentUUID.isNullOrEmpty()) {
+            throw InvalidCustomConsentUUIDError()
+        }
+        val response =  spClient.deleteCustomConsentGDPR(
+            consentUUID = consentUUID,
+            propertyId = propertyId,
+            vendors = vendors,
+            categories = categories,
+            legIntCategories = legIntCategories
+        )
+        handleCustomConsentResponse(response)
     }
 }

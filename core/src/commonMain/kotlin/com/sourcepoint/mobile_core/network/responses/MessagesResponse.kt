@@ -10,6 +10,8 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageCategory
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageSubCategory
 import com.sourcepoint.mobile_core.utils.IntEnum
 import com.sourcepoint.mobile_core.utils.IntEnumSerializer
 import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
@@ -45,7 +47,17 @@ data class MessagesResponse(
         @SerialName("message_choice") val messageChoices: List<JsonObject>,
         @SerialName("site_id") val propertyId: Int
     ) {
-        fun encodeToJson() = encodeToString(serializer(), this)
+        fun encodeToJson(categoryId: MessageCategory, subCategoryId: MessageSubCategory) =
+            encodeToString(MessageWithCategorySubCategory.serializer(), MessageWithCategorySubCategory(
+                categoryId = categoryId,
+                subCategoryId = subCategoryId,
+                categories = this.categories,
+                language = this.language,
+                messageJson = this.messageJson,
+                messageChoices = this.messageChoices,
+                propertyId = this.propertyId
+                )
+            )
 
         @Serializable
         data class GDPRCategory(
@@ -86,7 +98,7 @@ data class MessagesResponse(
                     Unknown;
 
                     object Serializer: StringEnumWithDefaultSerializer<VendorType>(
-                        VendorType.entries, Unknown
+                        entries, Unknown
                     )
                 }
             }
@@ -280,3 +292,14 @@ data class MessagesResponse(
         }
     }
 }
+
+@Serializable
+data class MessageWithCategorySubCategory(
+    val categoryId: MessageCategory,
+    val subCategoryId: MessageSubCategory,
+    val categories: List<MessagesResponse.Message.GDPRCategory>?,
+    val language: SPMessageLanguage?,
+    @SerialName("message_json") val messageJson: JsonObject,
+    @SerialName("message_choice") val messageChoices: List<JsonObject>,
+    @SerialName("site_id") val propertyId: Int
+)

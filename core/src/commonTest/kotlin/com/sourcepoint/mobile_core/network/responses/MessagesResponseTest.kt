@@ -17,7 +17,9 @@ class MessagesResponseTest {
             propertyId = 0
         )
         assertEquals(
-            message.encodeToJson(),
+            message.encodeToJson(
+                categoryId = MessagesResponse.MessageMetaData.MessageCategory.Unknown,
+                subCategoryId = MessagesResponse.MessageMetaData.MessageSubCategory.Unknown),
             encodeToString(MessagesResponse.Message.serializer(), message)
         )
     }

@@ -12,7 +12,8 @@ data class State (
     var authId: String? = null,
     var localVersion: Int = VERSION,
     var localState: SPJson? = null,
-    var nonKeyedLocalState: SPJson? = null
+    var nonKeyedLocalState: SPJson? = null,
+    var storedAuthId: String? = null,
 ) {
     companion object {
         const val VERSION = 1

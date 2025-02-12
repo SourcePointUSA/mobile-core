@@ -39,3 +39,7 @@ open class SPUnableToParseBodyError(
 open class InvalidChoiceAllParamsError(): SPError (
     code = "sp_metric_invalid_choice_all_query_params"
 )
+
+open class InvalidCustomConsentUUIDError(): SPError (
+    code = "sp_metric_invalid_consent_UUID"
+)
