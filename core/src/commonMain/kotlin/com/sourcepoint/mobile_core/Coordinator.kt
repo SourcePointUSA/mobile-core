@@ -10,8 +10,6 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
-import com.sourcepoint.mobile_core.models.consents.AttCampaign
-import com.sourcepoint.mobile_core.models.consents.SPDate
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SourcepointClient
@@ -35,7 +33,6 @@ import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 
 class Coordinator(
@@ -47,10 +44,10 @@ class Coordinator(
     private val spClient: SourcepointClient,
     private var state: State
 ): ICoordinator {
-    var authId: String? = null
-    var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
-    var includeData: IncludeData = IncludeData()
-    var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
+    private var authId: String? = null
+    private var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
+    private var includeData: IncludeData = IncludeData()
+    private var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
 
     private var needsNewUSNatData = false
 
@@ -165,7 +162,7 @@ class Coordinator(
         repository.cachedSPState = state
     }
 
-    suspend fun metaData(next: suspend () -> Unit) {
+    private suspend fun metaData(next: suspend () -> Unit) {
         try {
             val response = spClient.getMetaData(MetaDataRequest.Campaigns(
                 gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
@@ -304,7 +301,7 @@ class Coordinator(
         return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
     }
 
-    suspend fun messages(): List<MessageToDisplay> =
+    private suspend fun messages(): List<MessageToDisplay> =
         if (shouldCallMessages) {
             try {
                 val response = spClient.getMessages(MessagesRequest(
@@ -397,7 +394,7 @@ class Coordinator(
         }
     }
 
-    suspend fun pvData(pubData: JsonObject?, messages: List<MessageToDisplay>) = coroutineScope {
+    private suspend fun pvData(pubData: JsonObject?, messages: List<MessageToDisplay>) = coroutineScope {
         val gdprPvData = campaigns.gdpr?.let {
             launch {
                 gdprPvData(pubData, messageMetaData = messages.first { it.type == SPCampaignType.Gdpr }.metaData)
@@ -495,34 +492,40 @@ class Coordinator(
     }
 
     private fun handleGetChoiceAll(response: ChoiceAllResponse) {
-        if (response.gdpr != null) {
-            state.gdpr = (state.gdpr ?: GDPRConsent()).copy(
-                dateCreated = response.gdpr.dateCreated,
-                expirationDate = response.gdpr.expirationDate,
-                tcData = response.gdpr.tcData ?: emptyMap(),
-                grants = response.gdpr.grants,
-                euconsent = response.gdpr.euconsent,
-                consentStatus = response.gdpr.consentStatus,
-                childPmId = response.gdpr.childPmId,
-                gcmStatus = response.gdpr.gcmStatus
+        response.gdpr?.let {
+            state.gdpr = state.gdpr.copy(
+                consents = state.gdpr.consents.copy(
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    tcData = it.tcData ?: emptyMap(),
+                    grants = it.grants,
+                    euconsent = it.euconsent,
+                    consentStatus = it.consentStatus,
+                    childPmId = it.childPmId,
+                    gcmStatus = it.gcmStatus
+                )
             )
         }
-        if (response.ccpa != null) {
-            state.ccpa = (state.ccpa ?: CCPAConsent()).copy(
-                dateCreated = response.ccpa.dateCreated,
-                expirationDate = response.ccpa.expirationDate,
-                status = response.ccpa.status,
-                gppData = response.ccpa.gppData,
-                uspstring = response.ccpa.uspstring,
+        response.ccpa?.let {
+            state.ccpa = state.ccpa.copy(
+                consents = state.ccpa.consents.copy(
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    status = it.status,
+                    gppData = it.gppData,
+                    uspstring = it.uspstring,
+                )
             )
         }
-        if (response.usnat != null) {
-            state.usNat = (state.usNat ?: USNatConsent()).copy(
-                dateCreated = response.usnat.dateCreated,
-                expirationDate = response.usnat.expirationDate,
-                consentStatus = response.usnat.consentStatus,
-                gppData = response.usnat.gppData,
-                consentStrings = response.usnat.consentStrings
+        response.usnat?.let {
+            state.usNat = state.usNat.copy(
+                consents = state.usNat.consents.copy(
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    consentStatus = it.consentStatus,
+                    gppData = it.gppData,
+                    consentStrings = it.consentStrings
+                )
             )
         }
         repository.cachedSPState = state
@@ -551,22 +554,21 @@ class Coordinator(
                 actionType = action.type,
                 request = GDPRChoiceRequest(
                     authId = authId,
-                    uuid = state.gdpr?.consents?.uuid,
+                    uuid = state.gdpr.consents.uuid,
                     messageId = action.messageId,
                     consentAllRef = postPayloadFromGetCall?.consentAllRef,
                     vendorListId = postPayloadFromGetCall?.vendorListId,
                     pubData = action.encodablePubData,
                     pmSaveAndExitVariables = action.pmPayload,
-                    sendPVData = state.gdprMetaData?.wasSampled ?: false,
+                    sendPVData = state.gdpr.metaData.wasSampled ?: false,
                     propertyId = propertyId,
-                    sampleRate = state.gdprMetaData?.sampleRate,
+                    sampleRate = state.gdpr.metaData.sampleRate,
                     idfaStatus = idfaStatus,
                     granularStatus = postPayloadFromGetCall?.granularStatus,
                     includeData = includeData
                 )
             )
-        }
-        catch (error: Throwable) {
+        } catch (error: Throwable) {
             throw error
         }
 
@@ -576,18 +578,17 @@ class Coordinator(
                 actionType = action.type,
                 request = CCPAChoiceRequest(
                     authId = authId,
-                    uuid = state.ccpa?.consents?.uuid,
+                    uuid = state.ccpa.consents.uuid,
                     messageId = action.messageId,
                     pubData = action.encodablePubData,
                     pmSaveAndExitVariables = action.pmPayload,
-                    sendPVData = state.ccpaMetaData?.wasSampled ?: false,
+                    sendPVData = state.ccpa.metaData.wasSampled ?: false,
                     propertyId = propertyId,
-                    sampleRate = state.ccpaMetaData?.sampleRate,
+                    sampleRate = state.ccpa.metaData.sampleRate,
                     includeData = includeData
                 )
             )
-        }
-        catch (error: Throwable) {
+        } catch (error: Throwable) {
             throw error
         }
 
@@ -597,21 +598,20 @@ class Coordinator(
                 actionType = action.type,
                 request = USNatChoiceRequest(
                     authId = authId,
-                    uuid = state.usNat?.consents?.uuid,
+                    uuid = state.usNat.consents.uuid,
                     messageId = action.messageId,
-                    vendorListId = state.usNatMetaData?.vendorListId,
+                    vendorListId = state.usNat.metaData.vendorListId,
                     pubData = action.encodablePubData,
                     pmSaveAndExitVariables = action.pmPayload,
-                    sendPVData = state.usNatMetaData?.wasSampled ?: false,
+                    sendPVData = state.usNat.metaData.wasSampled ?: false,
                     propertyId = propertyId,
-                    sampleRate = state.usNatMetaData?.sampleRate,
+                    sampleRate = state.usNat.metaData.sampleRate,
                     idfaStatus = idfaStatus,
-                    granularStatus = state.usNat?.consents?.consentStatus?.granularStatus,
+                    granularStatus = state.usNat.consents.consentStatus.granularStatus,
                     includeData = includeData
                 )
             )
-        }
-        catch (error: Throwable) {
+        } catch (error: Throwable) {
             throw error
         }
 
@@ -620,37 +620,35 @@ class Coordinator(
         getResponse: ChoiceAllResponse?,
         postResponse: GDPRChoiceResponse
     ) {
-        state.gdpr = (state.gdpr ?: GDPRConsent()).copy(
-            uuid = postResponse.uuid,
-            dateCreated = postResponse.dateCreated,
-            expirationDate = postResponse.expirationDate,
-            consentStatus = postResponse.consentStatus ?: getResponse?.gdpr?.consentStatus ?: ConsentStatus(),
-            euconsent = postResponse.euconsent ?: getResponse?.gdpr?.euconsent,
-            grants = postResponse.grants ?: getResponse?.gdpr?.grants ?: emptyMap(),
-            webConsentPayload = postResponse.webConsentPayload ?: getResponse?.gdpr?.webConsentPayload,
-            gcmStatus = postResponse.gcmStatus ?: getResponse?.gdpr?.gcmStatus,
-            legIntCategories = postResponse.acceptedLegIntCategories ?: getResponse?.gdpr?.acceptedLegIntCategories ?: emptyList(),
-            legIntVendors = postResponse.acceptedLegIntVendors ?: getResponse?.gdpr?.acceptedLegIntVendors ?: emptyList(),
-            vendors = postResponse.acceptedVendors ?: getResponse?.gdpr?.acceptedVendors ?: emptyList(),
-            categories = postResponse.acceptedCategories ?: getResponse?.gdpr?.acceptedCategories ?: emptyList(),
-            specialFeatures = postResponse.acceptedSpecialFeatures ?: getResponse?.gdpr?.acceptedSpecialFeatures ?: emptyList()
+        state.gdpr = state.gdpr.copy(
+            consents = state.gdpr.consents.copy(
+                uuid = postResponse.uuid,
+                dateCreated = postResponse.dateCreated,
+                expirationDate = postResponse.expirationDate,
+                consentStatus = postResponse.consentStatus ?: getResponse?.gdpr?.consentStatus ?: ConsentStatus(),
+                euconsent = postResponse.euconsent ?: getResponse?.gdpr?.euconsent,
+                grants = postResponse.grants ?: getResponse?.gdpr?.grants ?: emptyMap(),
+                webConsentPayload = postResponse.webConsentPayload ?: getResponse?.gdpr?.webConsentPayload,
+                gcmStatus = postResponse.gcmStatus ?: getResponse?.gdpr?.gcmStatus,
+                legIntCategories = postResponse.acceptedLegIntCategories ?: getResponse?.gdpr?.acceptedLegIntCategories ?: emptyList(),
+                legIntVendors = postResponse.acceptedLegIntVendors ?: getResponse?.gdpr?.acceptedLegIntVendors ?: emptyList(),
+                vendors = postResponse.acceptedVendors ?: getResponse?.gdpr?.acceptedVendors ?: emptyList(),
+                categories = postResponse.acceptedCategories ?: getResponse?.gdpr?.acceptedCategories ?: emptyList(),
+                specialFeatures = postResponse.acceptedSpecialFeatures ?: getResponse?.gdpr?.acceptedSpecialFeatures ?: emptyList()
+            )
         )
         if (action.type == SPActionType.SaveAndExit) {
-            state.gdpr?.consents?.tcData = postResponse.tcData ?: emptyMap()
+            state.gdpr.consents.tcData = postResponse.tcData ?: emptyMap()
         }
         repository.cachedSPState = state
     }
 
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
         try {
-            val response = postChoiceGDPR(
-                action = action,
-                postPayloadFromGetCall = getResponse?.gdpr?.postPayload
-            )
+            val response = postChoiceGDPR(action = action, postPayloadFromGetCall = getResponse?.gdpr?.postPayload)
             handleGPDRPostChoice(action, getResponse, response)
             response
-        }
-        catch (error: Throwable) {
+        } catch (error: Throwable) {
             throw error
         }
 
@@ -659,90 +657,71 @@ class Coordinator(
         getResponse: ChoiceAllResponse?,
         postResponse: CCPAChoiceResponse
     ) {
-        state.ccpa = (state.ccpa ?: CCPAConsent()).copy(
-            uuid = postResponse.uuid,
-            dateCreated = postResponse.dateCreated,
-            status = postResponse.status ?: getResponse?.ccpa?.status ?: CCPAConsent.CCPAConsentStatus.RejectedAll,
-            rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
-            rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
-            webConsentPayload = postResponse.webConsentPayload ?: getResponse?.ccpa?.webConsentPayload,
-            uspstring = postResponse.uspstring ?: getResponse?.ccpa?.uspstring
+        state.ccpa = state.ccpa.copy(
+            consents = state.ccpa.consents.copy(
+                uuid = postResponse.uuid,
+                dateCreated = postResponse.dateCreated,
+                status = postResponse.status ?: getResponse?.ccpa?.status ?: CCPAConsent.CCPAConsentStatus.RejectedAll,
+                rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
+                rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
+                webConsentPayload = postResponse.webConsentPayload ?: getResponse?.ccpa?.webConsentPayload,
+                uspstring = postResponse.uspstring ?: getResponse?.ccpa?.uspstring
+            )
         )
         if (action.type == SPActionType.SaveAndExit) {
-            state.ccpa?.consents?.gppData = postResponse.gppData
+            state.ccpa.consents.gppData = postResponse.gppData
         }
         repository.cachedSPState = state
     }
 
     private suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
         try {
-            val response = postChoiceCCPA(
-                action = action
-            )
+            val response = postChoiceCCPA(action = action)
             handleCCPAPostChoice(action, getResponse, response)
             response
-        }
-        catch (error: Throwable) {
+        } catch (error: Throwable) {
             throw error
         }
 
-    private fun handleUSNatPostChoice(
-        action: SPAction,
-        getResponse: ChoiceAllResponse?,
-        postResponse: USNatChoiceResponse
-    ) {
-        state.usNat = (state.usNat ?: USNatConsent()).copy(
-            uuid = postResponse.uuid,
-            applies = state.usNat?.consents?.applies ?: false,
-            dateCreated = postResponse.dateCreated,
-            expirationDate = postResponse.expirationDate,
-            consentStrings = postResponse.consentStrings,
-            webConsentPayload = postResponse.webConsentPayload ?: getResponse?.usnat?.webConsentPayload,
-            consentStatus = postResponse.consentStatus,
-            gppData = postResponse.gppData,
-            userConsents = state.usNat?.consents?.userConsents?.copy(
-                categories = postResponse.userConsents.categories,
-                vendors = postResponse.userConsents.vendors
-            ) ?: USNatConsent.USNatUserConsents()
+    private fun handleUSNatPostChoice(getResponse: ChoiceAllResponse?, postResponse: USNatChoiceResponse) {
+        state.usNat = state.usNat.copy(
+            consents = state.usNat.consents.copy(
+                uuid = postResponse.uuid,
+                applies = state.usNat.consents.applies,
+                dateCreated = postResponse.dateCreated,
+                expirationDate = postResponse.expirationDate,
+                consentStrings = postResponse.consentStrings,
+                webConsentPayload = postResponse.webConsentPayload ?: getResponse?.usnat?.webConsentPayload,
+                consentStatus = postResponse.consentStatus,
+                gppData = postResponse.gppData,
+                userConsents = state.usNat.consents.userConsents.copy(
+                    categories = postResponse.userConsents.categories,
+                    vendors = postResponse.userConsents.vendors
+                )
+            )
         )
         repository.cachedSPState = state
     }
 
     private suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
         try {
-            val response = postChoiceUSNat(
-                action = action
-            )
-            handleUSNatPostChoice(action, getResponse, response)
+            val response = postChoiceUSNat(action = action)
+            handleUSNatPostChoice(getResponse, response)
             response
-        }
-        catch (error: Throwable) {
+        } catch (error: Throwable) {
             throw error
         }
 
     override suspend fun reportAction(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): State {
         try {
-            val getResponse = getChoiceAll(
-                action = action,
-                campaigns = campaigns
-            )
+            val getResponse = getChoiceAll(action = action, campaigns = campaigns)
             when (action.campaignType) {
-                SPCampaignType.Gdpr -> reportGDPRAction(
-                    action = action,
-                    getResponse = getResponse
-                )
-                SPCampaignType.Ccpa -> reportCCPAAction(
-                    action = action,
-                    getResponse = getResponse
-                )
-                SPCampaignType.UsNat -> reportUSNatAction(
-                    action = action,
-                    getResponse = getResponse
-                )
+                SPCampaignType.Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
+                SPCampaignType.Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
+                SPCampaignType.UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
                 SPCampaignType.IOS14, SPCampaignType.unknown -> throw IllegalStateException()
             }
-        }
-        catch (error: Exception) {
+        } catch (error: Exception) {
             throw error
         }
         return state
