@@ -13,14 +13,14 @@ data class State (
     var ccpaMetaData: CCPAMetaData? = null,
     var usNatMetaData: UsNatMetaData? = null,
     var localState: SPJson? = null,
-    var nonKeyedLocalState: SPJson? = null
+    var nonKeyedLocalState: SPJson? = null,
+    var storedAuthId: String? = null,
+    var localVersion: Int? = null
 ) {
     companion object {
         const val version = 4
     }
 
-    var storedAuthId: String? = null
-    var localVersion: Int? = null
     val hasGDPRLocalData: Boolean get() = gdpr?.uuid != null
     val hasCCPALocalData: Boolean get() = ccpa?.uuid != null
     val hasUSNatLocalData: Boolean get() = usNat?.uuid != null
