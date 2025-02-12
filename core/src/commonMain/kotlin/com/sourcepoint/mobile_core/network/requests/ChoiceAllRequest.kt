@@ -16,10 +16,10 @@ data class ChoiceAllRequest (
     private val includeCustomVendorsRes: Boolean = false
 ): DefaultRequest() {
     @Serializable
-    data class ChoiceAllCampaigns (
-        val gdpr: Campaign?,
-        val ccpa: Campaign?,
-        val usnat: Campaign?
+    data class ChoiceAllCampaigns(
+        val gdpr: Campaign? = null,
+        val ccpa: Campaign? = null,
+        val usnat: Campaign? = null
     ) {
         @Serializable
         data class Campaign (val applies: Boolean)
