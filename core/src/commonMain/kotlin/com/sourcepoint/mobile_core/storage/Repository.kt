@@ -50,4 +50,15 @@ class Repository(private val storage: Settings) {
     var cachedSPState: State?
         get() = try { Json.decodeFromString<State>(storage[Keys.SPState.name, "{}"]) } catch (error: Throwable) { null }
         set(value) { storage[Keys.SPState.name] = Json.encodeToString(value) }
+
+    fun clear() {
+        storage.remove(Keys.TcData.name)
+        storage.remove(Keys.GppData.name)
+        storage.remove(Keys.UspString.name)
+        storage.remove(Keys.UserData.name)
+        storage.remove(Keys.LocalState.name)
+        storage.remove(Keys.GdprChildPmId.name)
+        storage.remove(Keys.CcpaChildPmId.name)
+        storage.remove(Keys.SPState.name)
+    }
 }
