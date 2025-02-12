@@ -18,7 +18,6 @@ import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
-import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
@@ -114,7 +113,6 @@ interface SPClient {
     ): GDPRConsent
 
     suspend fun errorMetrics(error: SPError)
-
 }
 
 class SourcepointClient(
