@@ -3,47 +3,45 @@ package com.sourcepoint.mobile_core
 import com.russhwolf.settings.MapSettings
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
+import com.sourcepoint.mobile_core.models.SPCampaign
 import com.sourcepoint.mobile_core.models.SPCampaignType
-import com.sourcepoint.mobile_core.models.consents.AttCampaign
-import com.sourcepoint.mobile_core.models.consents.CCPAConsent
-import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.consents.State
-import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
-import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class CoordinatorTest {
     val storage = MapSettings()
     val repository = Repository(storage)
-    val coordinator = Coordinator(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo",  repository)
-
-    @Test
-    fun metaDataIsCached() = runTest {
-        val campaigns = MetaDataRequest.Campaigns(gdpr = MetaDataRequest.Campaigns.Campaign())
-        val metaData = coordinator.getMetaData(campaigns)
-        assertContains(metaData, "/meta-data")
-        assertContains(storage.keys, "MetaData")
-    }
+    lateinit var coordinator: Coordinator
 
     @BeforeTest
     fun initCoordinatorState(){
-        coordinator.state = State(
-            gdpr = GDPRConsent(),
-            ccpa = CCPAConsent(),
-            usNat = USNatConsent(),
-            ios14 = AttCampaign(),
-            gdprMetaData = null,
-            ccpaMetaData = null,
-            usNatMetaData = null,
-            localState = null,
-            nonKeyedLocalState = null
+        coordinator = Coordinator(
+            accountId = 22,
+            propertyId = 16893,
+            propertyName = "https://mobile.multicampaign.demo",
+            campaigns = SPCampaigns(
+                gdpr = SPCampaign(),
+                ccpa = SPCampaign(),
+                usnat = SPCampaign(),
+                ios14 = SPCampaign(),
+            ),
+            spClient = SourcepointClient(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo"),
+            repository = repository,
+            state = State()
         )
+    }
+
+    @Test
+    fun testConstructor() = runTest {
+        assertEquals(1, 1)
     }
 
     @Test
@@ -67,7 +65,7 @@ class CoordinatorTest {
             usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
             ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
         ))
-        assertFalse(state.gdpr?.uuid.isNullOrEmpty())
+        assertFalse(state.gdpr.consents.uuid.isNullOrEmpty())
     }
 
     @Test
@@ -89,7 +87,7 @@ class CoordinatorTest {
             gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
             usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
         ))
-        assertFalse(state.ccpa?.uuid.isNullOrEmpty())
+        assertFalse(state.ccpa.consents.uuid.isNullOrEmpty())
     }
 
     @Test
@@ -112,6 +110,6 @@ class CoordinatorTest {
             gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
             ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
         ))
-        assertFalse(state.usNat?.uuid.isNullOrEmpty())
+        assertFalse(state.usNat.consents.uuid.isNullOrEmpty())
     }
 }

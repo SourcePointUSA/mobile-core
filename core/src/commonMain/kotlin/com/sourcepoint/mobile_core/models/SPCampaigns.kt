@@ -1,9 +1,9 @@
 package com.sourcepoint.mobile_core.models
 
 data class SPCampaigns (
-    val environment: SPCampaignEnv,
-    val gdpr: SPCampaign?,
-    val ccpa: SPCampaign?,
-    val usnat: SPCampaign?,
-    val ios14: SPCampaign?
+    val environment: SPCampaignEnv = SPCampaignEnv.PUBLIC,
+    val gdpr: SPCampaign? = null,
+    val ccpa: SPCampaign? = null,
+    val usnat: SPCampaign? = null,
+    val ios14: SPCampaign? = null
 )
