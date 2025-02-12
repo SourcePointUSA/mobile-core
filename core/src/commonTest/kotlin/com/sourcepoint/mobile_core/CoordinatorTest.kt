@@ -40,11 +40,6 @@ class CoordinatorTest {
     }
 
     @Test
-    fun testConstructor() = runTest {
-        assertEquals(1, 1)
-    }
-
-    @Test
     fun reportActionReturnsGDPRConsent() = runTest {
         val saveAndExitAction = SPAction(
             type = SPActionType.AcceptAll,
