@@ -89,7 +89,6 @@ class Coordinator(
         repository: Repository,
         initialState: State?
     ) : this(
-
         accountId,
         propertyId,
         propertyName,
@@ -101,6 +100,7 @@ class Coordinator(
         repository.cachedSPState = state
     }
 
+    // TODO: double check CCPA / USNAT GPPData can be overwriting
     private fun storeLegislationConsent(userData: SPUserData) {
         userData.gdpr?.consents?.tcData.let { repository.cachedTcData = it }
         userData.ccpa?.consents?.uspstring.let { repository.cachedUspString = it }
@@ -127,17 +127,17 @@ class Coordinator(
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
         metaData {
-                consentStatus {
-                    state.updateGDPRStatusForVendorListChanges()
-                    state.updateUSNatStatusForVendorListChanges()
-                    messages = try {
-                        messages()
-                    } catch (error: Throwable) {
-                        emptyList<MessageToDisplay>()
-                        throw error
-                    }
-                    pvData(pubData, messages)
+            consentStatus {
+                state.updateGDPRStatusForVendorListChanges()
+                state.updateUSNatStatusForVendorListChanges()
+                messages = try {
+                    messages()
+                } catch (error: Throwable) {
+                    emptyList<MessageToDisplay>()
+                    throw error
                 }
+                pvData(pubData, messages)
+            }
         }
         storeLegislationConsent(userData = userData)
         return messages
@@ -362,8 +362,8 @@ class Coordinator(
                     ),
                     metadata = MessagesRequest.MetaData(
                         gdpr = MessagesRequest.MetaData.Campaign(state.gdpr.consents.applies),
-                        usnat = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies),
-                        ccpa = MessagesRequest.MetaData.Campaign(state.usNat.consents.applies)
+                        usnat = MessagesRequest.MetaData.Campaign(state.usNat.consents.applies),
+                        ccpa = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies)
                     ),
                     nonKeyedLocalState = state.nonKeyedLocalState,
                     localState = state.localState
@@ -425,7 +425,7 @@ class Coordinator(
         }
         val usNatPvData = campaigns.usnat?.let {
             launch {
-                usnatPvData(pubData, messageMetaData = messages.first { it.type == SPCampaignType.Ccpa }.metaData)
+                usnatPvData(pubData, messageMetaData = messages.first { it.type == SPCampaignType.UsNat }.metaData)
             }
         }
         gdprPvData?.join()
@@ -461,7 +461,7 @@ class Coordinator(
 
     private suspend fun ccpaPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData) {
         val sampled = sampleAndPvData(
-            campaign = state.gdpr.metaData,
+            campaign = state.ccpa.metaData,
             request = PvDataRequest(
                 gdpr = null,
                 usnat = null,
@@ -487,7 +487,7 @@ class Coordinator(
 
     private suspend fun usnatPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData) {
         val sampled = sampleAndPvData(
-            campaign = state.gdpr.metaData,
+            campaign = state.usNat.metaData,
             request = PvDataRequest(
                 gdpr = null,
                 ccpa = null,
@@ -742,8 +742,10 @@ class Coordinator(
         } catch (error: Exception) {
             throw error
         }
+        repository.cachedSPState = state
         return state
     }
+
     private fun handleCustomConsentResponse(response: GDPRConsent) {
         state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(grants = response.grants))
         repository.cachedSPState = state
@@ -754,18 +756,16 @@ class Coordinator(
         categories: List<String>,
         legIntCategories: List<String>
     ) {
-        val consentUUID = state.gdpr.consents.uuid
-        if (consentUUID.isNullOrEmpty()) {
+        if (state.gdpr.consents.uuid.isNullOrEmpty()) {
             throw InvalidCustomConsentUUIDError()
         }
-        val response =  spClient.customConsentGDPR(
-            consentUUID = consentUUID,
+        handleCustomConsentResponse(spClient.customConsentGDPR(
+            consentUUID = state.gdpr.consents.uuid!!,
             propertyId = propertyId,
             vendors = vendors,
             categories = categories,
             legIntCategories = legIntCategories
-        )
-        handleCustomConsentResponse(response)
+        ))
     }
 
     override suspend fun deleteCustomConsentGDPR(
@@ -773,17 +773,15 @@ class Coordinator(
         categories: List<String>,
         legIntCategories: List<String>
     ) {
-        val consentUUID = state.gdpr.consents.uuid
-        if (consentUUID.isNullOrEmpty()) {
+        if (state.gdpr.consents.uuid.isNullOrEmpty()) {
             throw InvalidCustomConsentUUIDError()
         }
-        val response =  spClient.deleteCustomConsentGDPR(
-            consentUUID = consentUUID,
+        handleCustomConsentResponse(spClient.deleteCustomConsentGDPR(
+            consentUUID = state.gdpr.consents.uuid!!,
             propertyId = propertyId,
             vendors = vendors,
             categories = categories,
             legIntCategories = legIntCategories
-        )
-        handleCustomConsentResponse(response)
+        ))
     }
 }
