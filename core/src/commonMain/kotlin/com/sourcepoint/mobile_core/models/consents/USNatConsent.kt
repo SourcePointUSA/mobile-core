@@ -1,13 +1,17 @@
 package com.sourcepoint.mobile_core.models.consents
 
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class USNatConsent(
     val applies: Boolean = false,
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    val dateCreated: Instant = now(),
+    val expirationDate: Instant = dateCreated.inOneYear(),
     val uuid: String? = null,
     val webConsentPayload: String? = null,
     var consentStatus: ConsentStatus = ConsentStatus(),

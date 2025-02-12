@@ -1,5 +1,8 @@
 package com.sourcepoint.mobile_core.models.consents
 
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -8,8 +11,8 @@ import kotlinx.serialization.Serializable
 data class CCPAConsent(
     val applies: Boolean = false,
     val uuid: String? = null,
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    val dateCreated: Instant = now(),
+    val expirationDate: Instant = dateCreated.inOneYear(),
     val signedLspa: Boolean? = null,
     val uspstring: String? = null,
     val childPmId: String? = null,

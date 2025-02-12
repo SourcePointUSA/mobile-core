@@ -1,6 +1,8 @@
 package com.sourcepoint.mobile_core.models.consents
 
 import com.sourcepoint.mobile_core.models.SPJson
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -49,8 +51,8 @@ data class State (
     ) {
         @Serializable
         data class GDPRMetaData (
-            val additionsChangeDate: String = SPDate.now().toString(),
-            val legalBasisChangeDate: String? = null,
+            val additionsChangeDate: Instant = Instant.DISTANT_PAST,
+            val legalBasisChangeDate: Instant = Instant.DISTANT_PAST,
             override var sampleRate: Float = 1f,
             override var wasSampled: Boolean? = null,
             override var wasSampledAt: Float? = null,
@@ -87,7 +89,7 @@ data class State (
     ) {
         @Serializable
         data class UsNatMetaData (
-            val additionsChangeDate: String = SPDate.now().toString(),
+            val additionsChangeDate: Instant = Instant.DISTANT_PAST,
             override var sampleRate:Float = 1f,
             override var wasSampled: Boolean? = null,
             override var wasSampledAt: Float? = null,
@@ -104,24 +106,18 @@ data class State (
     }
 
     private fun expireStateBasedOnExpiryDates() {
-        val now = SPDate.now().date
-        if(gdpr.consents.expirationDate != null && SPDate(gdpr.consents.expirationDate).date < now) {
-            gdpr = GDPRState()
-        }
-        if(ccpa.consents.expirationDate != null && SPDate(ccpa.consents.expirationDate).date < now) {
-            ccpa = CCPAState()
-        }
-        if(usNat.consents.expirationDate != null && SPDate(usNat.consents.expirationDate).date < now) {
-            usNat = USNatState()
-        }
+        val now = Clock.System.now()
+        gdpr.consents.expirationDate?.let { if(it < now) gdpr = GDPRState() }
+        ccpa.consents.expirationDate?.let { if(it < now) ccpa = CCPAState() }
+        usNat.consents.expirationDate?.let { if(it < now) usNat = USNatState() }
     }
 
     fun updateGDPRStatusForVendorListChanges() {
         var newConsentStatus = gdpr.consents.consentStatus.copy()
-        if (SPDate(gdpr.consents.dateCreated).date < SPDate(gdpr.metaData.additionsChangeDate).date) {
+        if (gdpr.consents.dateCreated < gdpr.metaData.additionsChangeDate) {
             newConsentStatus = newConsentStatus.copy(vendorListAdditions = true)
         }
-        if (SPDate(gdpr.consents.dateCreated).date < SPDate(gdpr.metaData.legalBasisChangeDate).date) {
+        if (gdpr.consents.dateCreated < gdpr.metaData.legalBasisChangeDate) {
             newConsentStatus = newConsentStatus.copy(legalBasisChanges = true)
         }
         if (newConsentStatus.consentedAll == true &&
@@ -138,7 +134,7 @@ data class State (
 
     fun updateUSNatStatusForVendorListChanges() {
         var newConsentStatus = usNat.consents.consentStatus
-        if (SPDate(usNat.consents.dateCreated).date < SPDate(usNat.metaData.additionsChangeDate).date) {
+        if (usNat.consents.dateCreated < usNat.metaData.additionsChangeDate) {
             newConsentStatus = newConsentStatus.copy(vendorListAdditions = true)
             if (usNat.consents.consentStatus.consentedAll == true) {
                 newConsentStatus = newConsentStatus.copy(
