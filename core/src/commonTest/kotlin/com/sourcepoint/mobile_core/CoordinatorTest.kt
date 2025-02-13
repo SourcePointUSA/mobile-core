@@ -13,16 +13,15 @@ import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class CoordinatorTest {
-    val storage = MapSettings()
-    val repository = Repository(storage)
-    lateinit var coordinator: Coordinator
+    private val storage = MapSettings()
+    private val repository = Repository(storage)
+    private lateinit var coordinator: Coordinator
 
     @BeforeTest
-    fun initCoordinatorState(){
+    fun initCoordinatorState() {
         coordinator = Coordinator(
             accountId = 22,
             propertyId = 16893,
@@ -41,70 +40,48 @@ class CoordinatorTest {
 
     @Test
     fun reportActionReturnsGDPRConsent() = runTest {
-        val saveAndExitAction = SPAction(
-            type = SPActionType.AcceptAll,
-            campaignType = SPCampaignType.Gdpr,
-            messageId = null,
-            pmPayload = "{" +
-                    "\"vendors\":[], " +
-                    "\"categories\":[], " +
-                    "\"specialFeatures\":[], " +
-                    "\"lan\":\"EN\", " +
-                    "\"privacyManagerId\":\"488393\", " +
-                    "\"vendors\":[]" +
-                    "}",
-            encodablePubData = null
+        val consents = coordinator.reportAction(
+            action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr),
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)
+            )
         )
-        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(
-            gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
-            usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
-            ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
-        ))
-        assertFalse(state.gdpr.consents.uuid.isNullOrEmpty())
+        assertFalse(consents.gdpr?.consents?.uuid.isNullOrEmpty())
     }
 
     @Test
     fun reportActionReturnsCCPAConsent() = runTest {
-        val saveAndExitAction = SPAction(
-            type = SPActionType.RejectAll,
-            campaignType = SPCampaignType.Ccpa,
-            messageId = null,
-            pmPayload = "{" +
-                    "\"rejectedCategories\":[], " +
-                    "\"rejectedVendors\":[], " +
-                    "\"lan\":\"EN\", " +
-                    "\"privacyManagerId\":\"509688\" " +
-                    "}",
-            encodablePubData = null
+        val consents = coordinator.reportAction(
+            action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa),
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)
+            )
         )
-        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(
-            ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
-            gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
-            usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
-        ))
-        assertFalse(state.ccpa.consents.uuid.isNullOrEmpty())
+        assertFalse(consents.ccpa?.consents?.uuid.isNullOrEmpty())
     }
 
     @Test
     fun reportActionReturnsUSNatConsent() = runTest {
-        val saveAndExitAction = SPAction(
-            type = SPActionType.SaveAndExit,
-            campaignType = SPCampaignType.UsNat,
-            messageId = null,
-            pmPayload = "{" +
-                    "\"shownCategories\":[\"6568ae4503cf5cf81eb79fa5\"], " +
-                    "\"categories\":[\"6568ae4503cf5cf81eb79fa5\"], " +
-                    "\"lan\":\"EN\", " +
-                    "\"privacyManagerId\":\"943890\", " +
-                    "\"vendors\":[]" +
-                    "}",
-            encodablePubData = null
+        val consents = coordinator.reportAction(
+            action = SPAction(
+                type = SPActionType.SaveAndExit,
+                campaignType = SPCampaignType.UsNat,
+                messageId = null,
+                pmPayload = """
+                {
+                    "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
+                    "categories": ["6568ae4503cf5cf81eb79fa5"],
+                    "lan": "EN",
+                    "privacyManagerId": "943890",
+                    "vendors": []
+                }
+                """,
+                encodablePubData = null
+            ),
+            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)
+            )
         )
-        val state = coordinator.reportAction(saveAndExitAction, ChoiceAllRequest.ChoiceAllCampaigns(
-            usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true),
-            gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false),
-            ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
-        ))
-        assertFalse(state.usNat.consents.uuid.isNullOrEmpty())
+        assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())
     }
 }

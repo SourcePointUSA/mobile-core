@@ -19,7 +19,7 @@ enum class SPActionType(val type: Int) {
 data class SPAction(
     val type:SPActionType,
     val campaignType: SPCampaignType,
-    val messageId: String?,
-    val pmPayload: SPJson?,
-    val encodablePubData: JsonObject?
+    val messageId: String? = null,
+    val pmPayload: SPJson? = null,
+    val encodablePubData: JsonObject? = null
 )

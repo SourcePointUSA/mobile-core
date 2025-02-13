@@ -17,7 +17,7 @@ interface ICoordinator {
     @Throws(Exception::class) suspend fun reportAction(
         action: SPAction,
         campaigns: ChoiceAllRequest.ChoiceAllCampaigns
-    ): State
+    ): SPUserData
     @Throws(Exception::class) suspend fun loadMessages(
         authId: String?,
         pubData: JsonObject?

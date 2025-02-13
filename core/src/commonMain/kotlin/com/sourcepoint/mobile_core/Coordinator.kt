@@ -729,7 +729,7 @@ class Coordinator(
             throw error
         }
 
-    override suspend fun reportAction(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): State {
+    override suspend fun reportAction(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): SPUserData {
         try {
             val getResponse = getChoiceAll(action = action, campaigns = campaigns)
             when (action.campaignType) {
@@ -742,7 +742,7 @@ class Coordinator(
             throw error
         }
         repository.state = state
-        return state
+        return userData
     }
 
     private fun handleCustomConsentResponse(response: GDPRConsent) {
