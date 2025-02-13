@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core.network.responses
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,8 +14,8 @@ data class MetaDataResponse (
     data class MetaDataResponseGDPR (
         val applies: Boolean,
         val sampleRate: Float,
-        val additionsChangeDate: String,
-        val legalBasisChangeDate: String,
+        val additionsChangeDate: Instant,
+        val legalBasisChangeDate: Instant,
         val childPmId: String?,
         @SerialName("_id") val vendorListId: String
     )
@@ -23,7 +24,7 @@ data class MetaDataResponse (
     data class MetaDataResponseUSNat (
         val applies: Boolean,
         val sampleRate: Float,
-        val additionsChangeDate: String,
+        val additionsChangeDate: Instant,
         val applicableSections: List<Int>,
         @SerialName("_id") val vendorListId: String
     )

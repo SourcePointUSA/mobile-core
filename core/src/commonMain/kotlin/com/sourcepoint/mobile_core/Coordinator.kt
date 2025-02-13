@@ -33,6 +33,8 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import com.sourcepoint.mobile_core.storage.Repository
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
@@ -512,8 +514,8 @@ class Coordinator(
         response.gdpr?.let {
             state.gdpr = state.gdpr.copy(
                 consents = state.gdpr.consents.copy(
-                    dateCreated = it.dateCreated,
-                    expirationDate = it.expirationDate,
+                    dateCreated = it.dateCreated ?: now(),
+                    expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
                     tcData = it.tcData ?: emptyMap(),
                     grants = it.grants,
                     euconsent = it.euconsent,
@@ -526,8 +528,8 @@ class Coordinator(
         response.ccpa?.let {
             state.ccpa = state.ccpa.copy(
                 consents = state.ccpa.consents.copy(
-                    dateCreated = it.dateCreated,
-                    expirationDate = it.expirationDate,
+                    dateCreated = it.dateCreated ?: now(),
+                    expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
                     status = it.status,
                     gppData = it.gppData,
                     uspstring = it.uspstring,
@@ -537,8 +539,8 @@ class Coordinator(
         response.usnat?.let {
             state.usNat = state.usNat.copy(
                 consents = state.usNat.consents.copy(
-                    dateCreated = it.dateCreated,
-                    expirationDate = it.expirationDate,
+                    dateCreated = it.dateCreated ?: now(),
+                    expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
                     consentStatus = it.consentStatus,
                     gppData = it.gppData,
                     consentStrings = it.consentStrings
@@ -640,8 +642,8 @@ class Coordinator(
         state.gdpr = state.gdpr.copy(
             consents = state.gdpr.consents.copy(
                 uuid = postResponse.uuid,
-                dateCreated = postResponse.dateCreated,
-                expirationDate = postResponse.expirationDate,
+                dateCreated = postResponse.dateCreated ?: now(),
+                expirationDate = postResponse.expirationDate ?: postResponse.dateCreated?.inOneYear() ?: now().inOneYear(),
                 consentStatus = postResponse.consentStatus ?: getResponse?.gdpr?.consentStatus ?: ConsentStatus(),
                 euconsent = postResponse.euconsent ?: getResponse?.gdpr?.euconsent,
                 grants = postResponse.grants ?: getResponse?.gdpr?.grants ?: emptyMap(),
@@ -677,7 +679,7 @@ class Coordinator(
         state.ccpa = state.ccpa.copy(
             consents = state.ccpa.consents.copy(
                 uuid = postResponse.uuid,
-                dateCreated = postResponse.dateCreated,
+                dateCreated = postResponse.dateCreated ?: now(),
                 status = postResponse.status ?: getResponse?.ccpa?.status ?: CCPAConsent.CCPAConsentStatus.RejectedAll,
                 rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
                 rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
@@ -705,8 +707,8 @@ class Coordinator(
             consents = state.usNat.consents.copy(
                 uuid = postResponse.uuid,
                 applies = state.usNat.consents.applies,
-                dateCreated = postResponse.dateCreated,
-                expirationDate = postResponse.expirationDate,
+                dateCreated = postResponse.dateCreated ?: now(),
+                expirationDate = postResponse.expirationDate ?: postResponse.dateCreated?.inOneYear() ?: now().inOneYear(),
                 consentStrings = postResponse.consentStrings,
                 webConsentPayload = postResponse.webConsentPayload ?: getResponse?.usnat?.webConsentPayload,
                 consentStatus = postResponse.consentStatus,

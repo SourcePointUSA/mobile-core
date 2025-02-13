@@ -15,6 +15,9 @@ import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMet
 import com.sourcepoint.mobile_core.utils.IntEnum
 import com.sourcepoint.mobile_core.utils.IntEnumSerializer
 import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -47,17 +50,18 @@ data class MessagesResponse(
         @SerialName("message_choice") val messageChoices: List<JsonObject>,
         @SerialName("site_id") val propertyId: Int
     ) {
-        fun encodeToJson(categoryId: MessageCategory, subCategoryId: MessageSubCategory) =
-            encodeToString(MessageWithCategorySubCategory.serializer(), MessageWithCategorySubCategory(
+        fun encodeToJson(categoryId: MessageCategory, subCategoryId: MessageSubCategory) = encodeToString(
+            serializer = MessageWithCategorySubCategory.serializer(),
+            value = MessageWithCategorySubCategory(
                 categoryId = categoryId,
                 subCategoryId = subCategoryId,
-                categories = this.categories,
-                language = this.language,
-                messageJson = this.messageJson,
-                messageChoices = this.messageChoices,
-                propertyId = this.propertyId
-                )
+                categories = categories,
+                language = language,
+                messageJson = messageJson,
+                messageChoices = messageChoices,
+                propertyId = propertyId
             )
+        )
 
         @Serializable
         data class GDPRCategory(
@@ -112,8 +116,8 @@ data class MessagesResponse(
         private val euconsent: String?,
         private val grants: SPGDPRVendorGrants?,
         private val consentStatus: ConsentStatus?,
-        private val dateCreated: String?,
-        private val expirationDate: String?,
+        private val dateCreated: Instant?,
+        private val expirationDate: Instant?,
         private val webConsentPayload: String?,
         @SerialName("TCData") val tcData: IABData? = emptyMap(),
         override val derivedConsents: GDPRConsent? = if (
@@ -125,8 +129,8 @@ data class MessagesResponse(
             grants = grants,
             consentStatus = consentStatus,
             webConsentPayload = webConsentPayload,
-            expirationDate = expirationDate,
-            dateCreated = dateCreated,
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
             tcData = tcData ?: emptyMap()
         ) else null
     ): Campaign<GDPRConsent?>() {
@@ -158,8 +162,8 @@ data class MessagesResponse(
         private val consentStatus: ConsentStatus?,
         private val consentStrings: ConsentStrings?,
         private val userConsents: USNatConsent.USNatUserConsents?,
-        private val dateCreated: String?,
-        private val expirationDate: String?,
+        private val dateCreated: Instant?,
+        private val expirationDate: Instant?,
         private val webConsentPayload: String?,
         @SerialName("GPPData") val gppData: IABData? = emptyMap(),
         override val derivedConsents: USNatConsent? = if (
@@ -167,8 +171,8 @@ data class MessagesResponse(
             userConsents != null &&
             consentStatus != null
         ) USNatConsent(
-            dateCreated = dateCreated,
-            expirationDate = expirationDate,
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
             consentStatus = consentStatus,
             consentStrings = consentStrings,
             userConsents = userConsents,
@@ -203,8 +207,8 @@ data class MessagesResponse(
         val signedLspa: Boolean?,
         val rejectedVendors: List<String>? = emptyList(),
         val rejectedCategories: List<String>? = emptyList(),
-        val dateCreated: String?,
-        val expirationDate: String?,
+        val dateCreated: Instant?,
+        val expirationDate: Instant?,
         val webConsentPayload: String?,
         @SerialName("GPPData") val gppData: IABData? = emptyMap(),
         override val derivedConsents: CCPAConsent? = if (
@@ -212,8 +216,8 @@ data class MessagesResponse(
             rejectedCategories != null &&
             signedLspa != null
         ) CCPAConsent(
-            dateCreated = dateCreated,
-            expirationDate = expirationDate,
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
             signedLspa = signedLspa,
             rejectedCategories = rejectedCategories,
             rejectedVendors = rejectedVendors,
