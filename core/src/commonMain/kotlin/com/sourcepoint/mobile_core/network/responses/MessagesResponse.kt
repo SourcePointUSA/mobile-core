@@ -1,10 +1,10 @@
 package com.sourcepoint.mobile_core.network.responses
 
 import com.sourcepoint.mobile_core.models.SPCampaignType
-import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.AttCampaign
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
+import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData

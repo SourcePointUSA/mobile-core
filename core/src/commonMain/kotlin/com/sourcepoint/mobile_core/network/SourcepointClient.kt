@@ -18,8 +18,8 @@ import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
-import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams

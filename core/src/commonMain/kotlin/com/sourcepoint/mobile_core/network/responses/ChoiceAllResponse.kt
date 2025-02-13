@@ -6,7 +6,6 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
-import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

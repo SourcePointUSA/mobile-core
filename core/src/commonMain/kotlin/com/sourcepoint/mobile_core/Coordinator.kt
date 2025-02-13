@@ -1,16 +1,16 @@
 package com.sourcepoint.mobile_core
 
 import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
+import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
+import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
-import com.sourcepoint.mobile_core.models.MessageToDisplay
-import com.sourcepoint.mobile_core.models.SPCampaigns
-import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent

@@ -147,7 +147,7 @@ publishing {
     val ossrhPassword = fromProjectOrEnv("OSSRH_PASSWORD")
 
     publications {
-        withType<MavenPublication>().configureEach() {
+        withType<MavenPublication>().configureEach {
             pom {
                 name = "SP Core Module"
                 description = "The internal Network & Data layers used by our mobile SDKs"

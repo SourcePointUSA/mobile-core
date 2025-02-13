@@ -2,7 +2,6 @@ package com.sourcepoint.mobile_core.models.consents
 
 import com.sourcepoint.mobile_core.utils.inOneYear
 import com.sourcepoint.mobile_core.utils.now
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
