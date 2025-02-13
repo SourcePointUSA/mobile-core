@@ -3,9 +3,7 @@ package com.sourcepoint.mobile_core.network
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.Json.Default.decodeFromString
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 
 @OptIn(ExperimentalSerializationApi::class)
 val json = Json {
@@ -23,12 +21,4 @@ val jsonWithNulls = Json {
     explicitNulls = true
 }
 
-fun String?.encodeToJsonObject() = this?.let { decodeFromString<JsonObject>(it) }
-
-fun Any?.toJsonPrimitive(): JsonPrimitive = when (this) {
-    null -> JsonNull
-    is Number -> JsonPrimitive(this)
-    is String -> JsonPrimitive(this)
-    is Boolean -> JsonPrimitive(this)
-    else -> JsonPrimitive(this.toString())
-}
+fun String.encodeToJsonObject() = decodeFromString<JsonObject>(this)

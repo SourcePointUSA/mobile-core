@@ -20,6 +20,6 @@ data class SPAction(
     val type:SPActionType,
     val campaignType: SPCampaignType,
     val messageId: String? = null,
-    val pmPayload: SPJson? = null,
-    val encodablePubData: JsonObject? = null
+    val pmPayload: JsonObject = JsonObject(emptyMap()),
+    val encodablePubData: JsonObject = JsonObject(emptyMap())
 )

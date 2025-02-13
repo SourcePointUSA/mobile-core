@@ -8,6 +8,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SourcepointClient
+import com.sourcepoint.mobile_core.network.encodeToJsonObject
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
@@ -66,7 +67,6 @@ class CoordinatorTest {
             action = SPAction(
                 type = SPActionType.SaveAndExit,
                 campaignType = SPCampaignType.UsNat,
-                messageId = null,
                 pmPayload = """
                 {
                     "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
@@ -75,8 +75,7 @@ class CoordinatorTest {
                     "privacyManagerId": "943890",
                     "vendors": []
                 }
-                """,
-                encodablePubData = null
+                """.encodeToJsonObject(),
             ),
             campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
                 usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)

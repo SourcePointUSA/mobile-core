@@ -1,6 +1,5 @@
 package com.sourcepoint.mobile_core.models.consents
 
-import com.sourcepoint.mobile_core.models.SPJson
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
@@ -13,9 +12,8 @@ data class State (
     var ios14: AttCampaign = AttCampaign(),
     var authId: String? = null,
     var localVersion: Int = VERSION,
-    var localState: SPJson? = null,
-    var nonKeyedLocalState: SPJson? = null,
-    var storedAuthId: String? = null,
+    var localState: String = "",
+    var nonKeyedLocalState: String = "",
 ) {
     companion object {
         const val VERSION = 1
@@ -107,9 +105,9 @@ data class State (
 
     private fun expireStateBasedOnExpiryDates() {
         val now = Clock.System.now()
-        gdpr.consents.expirationDate?.let { if(it < now) gdpr = GDPRState() }
-        ccpa.consents.expirationDate?.let { if(it < now) ccpa = CCPAState() }
-        usNat.consents.expirationDate?.let { if(it < now) usNat = USNatState() }
+        gdpr.consents.expirationDate.let { if(it < now) gdpr = GDPRState() }
+        ccpa.consents.expirationDate.let { if(it < now) ccpa = CCPAState() }
+        usNat.consents.expirationDate.let { if(it < now) usNat = USNatState() }
     }
 
     fun updateGDPRStatusForVendorListChanges() {
