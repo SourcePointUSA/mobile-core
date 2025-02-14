@@ -9,10 +9,8 @@ import kotlinx.serialization.json.JsonObject
 interface ICoordinator {
     val userData: SPUserData
 
-    @Throws(Exception::class) suspend fun reportAction(
-        action: SPAction,
-        campaigns: ChoiceAllRequest.ChoiceAllCampaigns
-    ): SPUserData
+    @Throws(Exception::class) suspend fun reportAction(action: SPAction): SPUserData
+
     @Throws(Exception::class) suspend fun loadMessages(
         authId: String?,
         pubData: JsonObject?

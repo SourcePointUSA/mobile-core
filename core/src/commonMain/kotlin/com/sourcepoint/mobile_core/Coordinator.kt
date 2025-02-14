@@ -731,9 +731,16 @@ class Coordinator(
             throw error
         }
 
-    override suspend fun reportAction(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): SPUserData {
+    override suspend fun reportAction(action: SPAction): SPUserData {
         try {
-            val getResponse = getChoiceAll(action = action, campaigns = campaigns)
+            val getResponse = getChoiceAll(
+                action = action,
+                campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
+                    gdpr = if (action.campaignType == SPCampaignType.Gdpr) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.gdpr.consents.applies) else null,
+                    ccpa = if (action.campaignType == SPCampaignType.Ccpa) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.ccpa.consents.applies) else null,
+                    usnat = if (action.campaignType == SPCampaignType.UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null
+                )
+            )
             when (action.campaignType) {
                 SPCampaignType.Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
                 SPCampaignType.Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)

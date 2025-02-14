@@ -9,7 +9,6 @@ import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.encodeToJsonObject
-import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -43,9 +42,6 @@ class CoordinatorTest {
     fun reportActionReturnsGDPRConsent() = runTest {
         val consents = coordinator.reportAction(
             action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr),
-            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
-                gdpr = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)
-            )
         )
         assertFalse(consents.gdpr?.consents?.uuid.isNullOrEmpty())
     }
@@ -54,9 +50,6 @@ class CoordinatorTest {
     fun reportActionReturnsCCPAConsent() = runTest {
         val consents = coordinator.reportAction(
             action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa),
-            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
-                ccpa = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)
-            )
         )
         assertFalse(consents.ccpa?.consents?.uuid.isNullOrEmpty())
     }
@@ -76,9 +69,6 @@ class CoordinatorTest {
                     "vendors": []
                 }
                 """.encodeToJsonObject(),
-            ),
-            campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
-                usnat = ChoiceAllRequest.ChoiceAllCampaigns.Campaign(true)
             )
         )
         assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())
