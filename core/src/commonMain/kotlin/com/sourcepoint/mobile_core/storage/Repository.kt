@@ -72,7 +72,7 @@ fun Settings.removeKeysStartingWith(prefix: String) {
     keys.filter { it.startsWith(prefix) }.forEach { remove(it) }
 }
 
-inline fun Settings.setJsonPrimitive(key: String, value: JsonPrimitive) {
+fun Settings.setJsonPrimitive(key: String, value: JsonPrimitive) {
     when {
         value.isString -> set(key, value.content)
         value.booleanOrNull != null -> set(key, value.boolean)
