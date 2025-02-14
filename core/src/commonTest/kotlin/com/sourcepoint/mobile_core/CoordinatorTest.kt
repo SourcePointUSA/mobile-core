@@ -14,6 +14,7 @@ import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class CoordinatorTest {
@@ -81,5 +82,11 @@ class CoordinatorTest {
             )
         )
         assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())
+    }
+
+    @Test
+    fun callingLoadMessagesFor3CampaignsReturns3Messages() = runTest {
+        val messages = coordinator.loadMessages(authId = null, pubData = null)
+        assertEquals(3, messages.size)
     }
 }
