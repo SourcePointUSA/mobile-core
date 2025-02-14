@@ -5,6 +5,18 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.descriptors.*
 
+/**
+ * `SPPropertyName` is the exact name of your property as created in SourcePoint's dashboard.
+ * **Important**: notice that it can only contain:
+ * - letters,
+ * - numbers,
+ * - `.` (dots)
+ * - `:` (semicolons)
+ * - `-` (dashes)
+ * - `/` (slashes)
+ *
+ * The `create` function will validate upon that and throw an error otherwise.
+ */
 @Serializable(with = SPPropertyName.Serializer::class)
 open class SPPropertyName private constructor(val rawValue: String) {
     override fun toString(): String = rawValue.removePrefix("https://")
