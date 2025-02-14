@@ -6,6 +6,7 @@ import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaign
 import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPCampaigns
+import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.encodeToJsonObject
@@ -19,20 +20,28 @@ class CoordinatorTest {
     private val storage = MapSettings()
     private val repository = Repository(storage)
     private lateinit var coordinator: Coordinator
+    private val accountId = 22
+    private val propertyId = 16893
+    private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
+    private val campaigns = SPCampaigns(
+        gdpr = SPCampaign(),
+        ccpa = SPCampaign(),
+        usnat = SPCampaign(),
+        ios14 = SPCampaign(),
+    )
 
     @BeforeTest
     fun initCoordinatorState() {
         coordinator = Coordinator(
-            accountId = 22,
-            propertyId = 16893,
-            propertyName = "https://mobile.multicampaign.demo",
-            campaigns = SPCampaigns(
-                gdpr = SPCampaign(),
-                ccpa = SPCampaign(),
-                usnat = SPCampaign(),
-                ios14 = SPCampaign(),
+            accountId = accountId,
+            propertyId = propertyId,
+            propertyName = propertyName,
+            campaigns = campaigns,
+            spClient = SourcepointClient(
+                accountId = accountId,
+                propertyId = propertyId,
+                propertyName = propertyName
             ),
-            spClient = SourcepointClient(accountId = 22, propertyId = 16893, propertyName = "https://mobile.multicampaign.demo"),
             repository = repository,
             state = State()
         )

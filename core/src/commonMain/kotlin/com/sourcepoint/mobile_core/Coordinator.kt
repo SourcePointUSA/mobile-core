@@ -8,6 +8,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
@@ -42,7 +43,7 @@ import kotlinx.serialization.json.JsonObject
 class Coordinator(
     private val accountId: Int,
     private val propertyId: Int,
-    private val propertyName: String,
+    private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
     private val repository: Repository,
     private val spClient: SourcepointClient,
@@ -86,7 +87,7 @@ class Coordinator(
     constructor(
         accountId: Int,
         propertyId: Int,
-        propertyName: String,
+        propertyName: SPPropertyName,
         campaigns: SPCampaigns,
         repository: Repository,
         initialState: State?
