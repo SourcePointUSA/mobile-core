@@ -41,13 +41,8 @@ class Repository(private val storage: Settings) {
         set(value) { storage[USPSTRING_KEY] = value }
 
     var state: State
-        get() = Json.decodeFromString<State?>(storage.getString(
-            SP_STATE_KEY,
-            defaultValue = "" // TODO: check what happens when storage is first initialised and values are null
-        )) ?: State()
-        set(value) {
-            storage[SP_STATE_KEY] = Json.encodeToString(value)
-        }
+        get() = Json.decodeFromString<State?>(storage.getString(SP_STATE_KEY, defaultValue = "{}")) ?: State()
+        set(value) { storage[SP_STATE_KEY] = Json.encodeToString(value) }
 
     fun clear() {
         storage.removeKeysStartingWith(prefix = TCF_PREFIX)

@@ -43,3 +43,8 @@ open class InvalidChoiceAllParamsError : SPError (
 open class InvalidCustomConsentUUIDError : SPError (
     code = "sp_metric_invalid_consent_UUID"
 )
+
+open class InvalidPropertyNameError(propertyName: String): SPError(
+    code = "sp_metric_invalid_property_name",
+    description = "PropertyName can only include letters, numbers, '.', ':', '-' and '/'. $propertyName passed is invalid"
+)

@@ -6,6 +6,7 @@ import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
+import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
@@ -40,7 +41,7 @@ import kotlin.test.assertTrue
 class SourcepointClientTest {
     private val accountId = 22
     private val propertyId = 16893
-    private val propertyName = "https://mobile.multicampaign.demo"
+    private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
     private val api = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
