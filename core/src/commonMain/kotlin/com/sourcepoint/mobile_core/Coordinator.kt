@@ -305,9 +305,9 @@ class Coordinator(
 
         response.campaigns.forEach {
             when (it.type) {
-                SPCampaignType.Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr) as GDPRConsent)
-                SPCampaignType.Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa) as CCPAConsent)
-                SPCampaignType.UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat) as USNatConsent)
+                SPCampaignType.Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent)
+                SPCampaignType.Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent)
+                SPCampaignType.UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat.consents) as USNatConsent)
                 SPCampaignType.IOS14 -> {
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
