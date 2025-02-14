@@ -51,5 +51,3 @@ open class SPPropertyName private constructor(val rawValue: String) {
             create(decoder.decodeString())
     }
 }
-
-class InvalidPropertyNameError(message: String) : IllegalArgumentException(message)
