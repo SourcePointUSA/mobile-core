@@ -89,8 +89,8 @@ class Coordinator(
         propertyId: Int,
         propertyName: SPPropertyName,
         campaigns: SPCampaigns,
-        repository: Repository,
-        initialState: State?
+        repository: Repository = Repository(),
+        initialState: State? = null
     ) : this(
         accountId,
         propertyId,
