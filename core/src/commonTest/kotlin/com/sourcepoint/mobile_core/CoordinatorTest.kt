@@ -78,7 +78,7 @@ class CoordinatorTest {
                     "privacyManagerId": "943890",
                     "vendors": []
                 }
-                """.encodeToJsonObject(),
+                """.encodeToJsonObject()!!,
             )
         )
         assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())

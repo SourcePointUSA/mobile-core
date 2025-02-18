@@ -346,7 +346,7 @@ class SourcepointClientTest {
                     "privacyManagerId":"488393",
                     "categories": [{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],
                     "specialFeatures":[]
-                }""".encodeToJsonObject(),
+                }""".encodeToJsonObject()!!,
                 sampleRate = 1f,
                 idfaStatus = SPIDFAStatus.Accepted
             )
@@ -384,7 +384,7 @@ class SourcepointClientTest {
             request = CCPAChoiceRequest(
                 uuid = "uuid_36",
                 pmSaveAndExitVariables =
-                    """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".encodeToJsonObject(),
+                    """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".encodeToJsonObject()!!,
                 sendPVData = true,
                 propertyId = propertyId,
                 sampleRate = 1.0f
@@ -421,7 +421,7 @@ class SourcepointClientTest {
                 uuid = "uuid_36",
                 vendorListId = "65a01016e17a3c7a831ec515",
                 pmSaveAndExitVariables =
-                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".encodeToJsonObject(),
+                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".encodeToJsonObject()!!,
                 sendPVData = true,
                 propertyId = propertyId,
                 sampleRate = 1f

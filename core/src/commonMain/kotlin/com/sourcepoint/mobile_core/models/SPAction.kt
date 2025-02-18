@@ -25,13 +25,13 @@ data class SPAction(
     val encodablePubData: JsonObject = JsonObject(emptyMap())
 ) {
     constructor(
-        type:SPActionType,
+        actionType: SPActionType,
         campaignType: SPCampaignType,
         messageId: String? = null,
         pmPayload: String? = null,
         encodablePubData: String? = null
     ):  this(
-        type = type,
+        type = actionType,
         campaignType = campaignType,
         messageId = messageId,
         pmPayload = pmPayload?.encodeToJsonObject() ?: JsonObject(emptyMap()),
