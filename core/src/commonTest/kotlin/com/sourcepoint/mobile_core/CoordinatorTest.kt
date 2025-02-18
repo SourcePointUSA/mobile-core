@@ -68,7 +68,7 @@ class CoordinatorTest {
     fun reportActionReturnsUSNatConsent() = runTest {
         val consents = coordinator.reportAction(
             action = SPAction(
-                type = SPActionType.SaveAndExit,
+                actionType = SPActionType.SaveAndExit,
                 campaignType = SPCampaignType.UsNat,
                 pmPayload = """
                 {
@@ -78,7 +78,7 @@ class CoordinatorTest {
                     "privacyManagerId": "943890",
                     "vendors": []
                 }
-                """.encodeToJsonObject()!!,
+                """,
             )
         )
         assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())
