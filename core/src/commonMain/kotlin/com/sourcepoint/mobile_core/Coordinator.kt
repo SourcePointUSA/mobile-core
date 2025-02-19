@@ -417,17 +417,17 @@ class Coordinator(
     private suspend fun pvData(pubData: JsonObject?, messages: List<MessageToDisplay>) = coroutineScope {
         val gdprPvData = campaigns.gdpr?.let {
             launch {
-                gdprPvData(pubData, messageMetaData = messages.first { it.type == SPCampaignType.Gdpr }.metaData)
+                gdprPvData(pubData, messageMetaData = messages.firstOrNull { it.type == SPCampaignType.Gdpr }?.metaData)
             }
         }
         val ccpaPvData = campaigns.ccpa?.let {
             launch {
-                ccpaPvData(pubData, messageMetaData = messages.first { it.type == SPCampaignType.Ccpa }.metaData)
+                ccpaPvData(pubData, messageMetaData = messages.firstOrNull { it.type == SPCampaignType.Ccpa }?.metaData)
             }
         }
         val usNatPvData = campaigns.usnat?.let {
             launch {
-                usnatPvData(pubData, messageMetaData = messages.first { it.type == SPCampaignType.UsNat }.metaData)
+                usnatPvData(pubData, messageMetaData = messages.firstOrNull { it.type == SPCampaignType.UsNat }?.metaData)
             }
         }
         gdprPvData?.join()
@@ -436,7 +436,7 @@ class Coordinator(
         repository.state = state
     }
 
-    private suspend fun gdprPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData) {
+    private suspend fun gdprPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
         val sampled = sampleAndPvData(
             campaign = state.gdpr.metaData,
             request = PvDataRequest(
@@ -451,17 +451,17 @@ class Coordinator(
                     pubData = pubData,
                     sampleRate = state.gdpr.metaData.sampleRate,
                     euconsent = state.gdpr.consents.euconsent,
-                    msgId = messageMetaData.messageId,
-                    categoryId = messageMetaData.categoryId.rawValue,
-                    subCategoryId = messageMetaData.subCategoryId.rawValue,
-                    prtnUUID = messageMetaData.messagePartitionUUID
+                    msgId = messageMetaData?.messageId,
+                    categoryId = messageMetaData?.categoryId?.rawValue,
+                    subCategoryId = messageMetaData?.subCategoryId?.rawValue,
+                    prtnUUID = messageMetaData?.messagePartitionUUID
                 )
             )
         )
         state.gdpr = state.gdpr.copy(metaData = state.gdpr.metaData.copy(wasSampled = sampled))
     }
 
-    private suspend fun ccpaPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData) {
+    private suspend fun ccpaPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
         val sampled = sampleAndPvData(
             campaign = state.ccpa.metaData,
             request = PvDataRequest(
@@ -479,7 +479,7 @@ class Coordinator(
                         rejectedCategories = state.ccpa.consents.rejectedCategories
                     ),
                     pubData = pubData,
-                    messageId = messageMetaData.messageId,
+                    messageId = messageMetaData?.messageId,
                     sampleRate = state.ccpa.metaData.sampleRate
                 )
             )
@@ -487,7 +487,7 @@ class Coordinator(
         state.ccpa = state.ccpa.copy(metaData = state.ccpa.metaData.copy(wasSampled = sampled))
     }
 
-    private suspend fun usnatPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData) {
+    private suspend fun usnatPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
         val sampled = sampleAndPvData(
             campaign = state.usNat.metaData,
             request = PvDataRequest(
@@ -501,10 +501,10 @@ class Coordinator(
                     consentStatus = state.usNat.consents.consentStatus,
                     pubData = pubData,
                     sampleRate = state.usNat.metaData.sampleRate,
-                    msgId = messageMetaData.messageId,
-                    categoryId = messageMetaData.categoryId.rawValue,
-                    subCategoryId = messageMetaData.subCategoryId.rawValue,
-                    prtnUUID = messageMetaData.messagePartitionUUID
+                    msgId = messageMetaData?.messageId,
+                    categoryId = messageMetaData?.categoryId?.rawValue,
+                    subCategoryId = messageMetaData?.subCategoryId?.rawValue,
+                    prtnUUID = messageMetaData?.messagePartitionUUID
                 )
             )
         )

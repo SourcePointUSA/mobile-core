@@ -85,8 +85,11 @@ class CoordinatorTest {
     }
 
     @Test
-    fun callingLoadMessagesFor3CampaignsReturns3Messages() = runTest {
-        val messages = coordinator.loadMessages(authId = null, pubData = null)
-        assertEquals(3, messages.size)
+    fun noMessagesShouldAppearAfterAcceptingAll() = runTest {
+        assertEquals(3, coordinator.loadMessages(authId = null, pubData = null).size)
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Ccpa))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.UsNat))
+        assertEquals(0, coordinator.loadMessages(authId = null, pubData = null).size)
     }
 }
