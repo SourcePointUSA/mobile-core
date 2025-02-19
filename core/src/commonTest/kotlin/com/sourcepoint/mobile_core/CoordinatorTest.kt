@@ -87,9 +87,9 @@ class CoordinatorTest {
     @Test
     fun noMessagesShouldAppearAfterAcceptingAll() = runTest {
         assertEquals(3, coordinator.loadMessages(authId = null, pubData = null).size)
-        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr))
-        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Ccpa))
-        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.UsNat))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr, pmPayload = "{}"))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Ccpa, pmPayload = "{}"))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.UsNat, pmPayload = "{}"))
         assertEquals(0, coordinator.loadMessages(authId = null, pubData = null).size)
     }
 }
