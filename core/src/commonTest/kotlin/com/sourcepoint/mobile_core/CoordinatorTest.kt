@@ -51,7 +51,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsGDPRConsent() = runTest {
         val consents = coordinator.reportAction(
-            action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr),
+            action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr, pmPayload = "{}"),
         )
         assertFalse(consents.gdpr?.consents?.uuid.isNullOrEmpty())
     }
@@ -59,7 +59,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsCCPAConsent() = runTest {
         val consents = coordinator.reportAction(
-            action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa),
+            action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa, pmPayload = "{}"),
         )
         assertFalse(consents.ccpa?.consents?.uuid.isNullOrEmpty())
     }
@@ -68,7 +68,7 @@ class CoordinatorTest {
     fun reportActionReturnsUSNatConsent() = runTest {
         val consents = coordinator.reportAction(
             action = SPAction(
-                actionType = SPActionType.SaveAndExit,
+                type = SPActionType.SaveAndExit,
                 campaignType = SPCampaignType.UsNat,
                 pmPayload = """
                 {
