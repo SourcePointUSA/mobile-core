@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
@@ -46,7 +47,7 @@ class Coordinator(
     private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
     private val repository: Repository,
-    private val spClient: SourcepointClient,
+    private val spClient: SPClient,
     private var state: State
 ): ICoordinator {
     private var authId: String? = null
@@ -69,7 +70,7 @@ class Coordinator(
                 state.usNat.consents.uuid == null &&
                 (state.ccpa.consents.status == CCPAConsent.CCPAConsentStatus.RejectedAll || state.ccpa.consents.status == CCPAConsent.CCPAConsentStatus.RejectedSome)
 
-    private val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
+    val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
 
     private val shouldCallMessages: Boolean get() =
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
@@ -90,14 +91,15 @@ class Coordinator(
         propertyName: SPPropertyName,
         campaigns: SPCampaigns,
         repository: Repository = Repository(),
-        initialState: State? = null
+        initialState: State? = null,
+        spClient: SPClient? = null
     ) : this(
         accountId,
         propertyId,
         propertyName,
         campaigns,
         repository,
-        spClient = SourcepointClient(accountId, propertyId, propertyName),
+        spClient = spClient ?: SourcepointClient(accountId, propertyId, propertyName),
         state = initialState ?: repository.state
     ) {
         repository.state = state
