@@ -100,6 +100,8 @@ class Coordinator(
         state = initialState ?: repository.state
     ) {
         repository.state = state
+    init {
+        persistState()
     }
 
     // TODO: double check CCPA / USNAT GPPData can be overwriting
@@ -110,6 +112,10 @@ class Coordinator(
         userData.usnat?.consents?.gppData.let { repository.gppData = it ?: emptyMap() }
     }
 
+    private fun persistState() {
+        repository.state = state
+    }
+
     private fun resetStateIfAuthIdChanged() {
         if (state.authId == null) {
             state.authId = authId
@@ -118,7 +124,7 @@ class Coordinator(
         if (authId != null && state.authId != authId) {
             state = State(authId = authId)
         }
-        repository.state = state
+        persistState()
     }
 
     override suspend fun loadMessages(
@@ -180,7 +186,7 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun metaData(next: suspend () -> Unit) {
@@ -249,7 +255,7 @@ class Coordinator(
                 )
             )
         }
-        repository.state = state
+        persistState()
     }
 
     suspend fun consentStatus(next: suspend () -> Unit) {
@@ -318,7 +324,7 @@ class Coordinator(
                 SPCampaignType.unknown -> return@forEach
             }
         }
-        repository.state = state
+        persistState()
         return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
     }
 
@@ -434,7 +440,7 @@ class Coordinator(
         gdprPvData?.join()
         ccpaPvData?.join()
         usNatPvData?.join()
-        repository.state = state
+        persistState()
     }
 
     private suspend fun gdprPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
@@ -549,7 +555,7 @@ class Coordinator(
                 )
             )
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? {
@@ -661,7 +667,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.gdpr.consents.tcData = postResponse.tcData ?: emptyMap()
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
@@ -692,7 +698,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa.consents.gppData = postResponse.gppData
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
@@ -721,7 +727,7 @@ class Coordinator(
                 )
             )
         )
-        repository.state = state
+        persistState()
     }
 
     private suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
@@ -752,13 +758,13 @@ class Coordinator(
         } catch (error: Exception) {
             throw error
         }
-        repository.state = state
+        persistState()
         return userData
     }
 
     private fun handleCustomConsentResponse(response: GDPRConsent) {
         state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(grants = response.grants))
-        repository.state = state
+        persistState()
     }
 
     override suspend fun customConsentGDPR(
