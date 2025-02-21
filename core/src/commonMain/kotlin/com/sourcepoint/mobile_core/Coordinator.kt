@@ -50,9 +50,8 @@ class Coordinator(
     private var state: State
 ): ICoordinator {
     private var authId: String? = null
-    private var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
-    private var includeData: IncludeData = IncludeData()
-    private var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
+    private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
+    private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
 
@@ -122,9 +121,11 @@ class Coordinator(
         repository.state = state
     }
 
-    override suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
-        state = repository.state
-
+    override suspend fun loadMessages(
+        authId: String?,
+        pubData: JsonObject?,
+        language: SPMessageLanguage
+    ): List<MessageToDisplay> {
         this.authId = authId
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
@@ -133,7 +134,7 @@ class Coordinator(
                 state.updateGDPRStatusForVendorListChanges()
                 state.updateUSNatStatusForVendorListChanges()
                 messages = try {
-                    messages()
+                    messages(language)
                 } catch (error: Throwable) {
                     emptyList<MessageToDisplay>()
                     throw error
@@ -321,7 +322,7 @@ class Coordinator(
         return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
     }
 
-    private suspend fun messages(): List<MessageToDisplay> =
+    private suspend fun messages(language: SPMessageLanguage): List<MessageToDisplay> =
         if (shouldCallMessages) {
             try {
                 val response = spClient.getMessages(MessagesRequest(
