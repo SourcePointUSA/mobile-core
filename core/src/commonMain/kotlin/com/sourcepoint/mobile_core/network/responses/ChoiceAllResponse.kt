@@ -12,9 +12,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ChoiceAllResponse (
-    val gdpr: GDPR?,
-    val ccpa: CCPA?,
-    val usnat: USNAT?
+    val gdpr: GDPR? = null,
+    val ccpa: CCPA? = null,
+    val usnat: USNAT? = null
 ) {
     @Serializable
     data class GDPR (
