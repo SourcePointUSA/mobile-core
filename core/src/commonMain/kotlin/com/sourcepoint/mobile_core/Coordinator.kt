@@ -15,7 +15,7 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
-import com.sourcepoint.mobile_core.network.SourcepointClient
+import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
@@ -46,8 +46,8 @@ class Coordinator(
     private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
     private val repository: Repository,
-    private val spClient: SourcepointClient,
-    private var state: State
+    private val spClient: SPClient,
+    internal var state: State
 ): ICoordinator {
     private var authId: String? = null
     private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
