@@ -56,8 +56,8 @@ class Repository(private val storage: Settings) {
         get() = storage[USPSTRING_KEY]
         set(value) { storage[USPSTRING_KEY] = value }
 
-    var state: State
-        get() = Json.decodeFromString<State?>(storage.getString(SP_STATE_KEY, defaultValue = "{}")) ?: State()
+    var state: State?
+        get() = Json.decodeFromString<State?>(storage.getString(SP_STATE_KEY, defaultValue = ""))
         set(value) { storage[SP_STATE_KEY] = Json.encodeToString(value) }
 
     fun clear() {

@@ -83,23 +83,24 @@ class Coordinator(
             usnat = campaigns.usnat?.let { SPUserData.SPConsent(consents = state.usNat.consents) }
         )
 
+    @Suppress("Unused")
     constructor(
         accountId: Int,
         propertyId: Int,
         propertyName: SPPropertyName,
         campaigns: SPCampaigns,
-        repository: Repository = Repository(),
-        initialState: State? = null
-    ) : this(
-        accountId,
-        propertyId,
-        propertyName,
-        campaigns,
-        repository,
-        spClient = SourcepointClient(accountId, propertyId, propertyName),
-        state = initialState ?: repository.state
-    ) {
-        repository.state = state
+        repository: Repository,
+        spClient: SPClient
+    ): this(
+        accountId = accountId,
+        propertyId = propertyId,
+        propertyName = propertyName,
+        campaigns = campaigns,
+        repository = repository,
+        spClient = spClient,
+        state = repository.state ?: State(accountId = accountId, propertyId = propertyId)
+    )
+
     init {
         persistState()
     }
@@ -122,7 +123,7 @@ class Coordinator(
         }
 
         if (authId != null && state.authId != authId) {
-            state = State(authId = authId)
+            state = State(authId = authId, propertyId = propertyId, accountId = accountId)
         }
         persistState()
     }
