@@ -72,15 +72,19 @@ class CoordinatorTest {
     }
 
     @Test
+    fun shouldNotResetStateIfAuthIdChangesFromNull() = runTest {
+        val state = State(accountId = accountId, propertyId = propertyId, authId = null)
+        val coordinator = getCoordinator(spClient = SPClientMock(), state = state)
+        coordinator.loadMessages(authId = "foo", pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertSame(coordinator.state, state)
+    }
+
+    @Test
     fun shouldResetStateIfAuthIdChangeFromSomethingToSomethingElse() = runTest {
-        val coordinator = getCoordinator(spClient = SPClientMock())
-        val stateBeforeLoadMessages = coordinator.state
-
-        coordinator.loadMessages(authId = "my auth id", pubData = null, language = SPMessageLanguage.ENGLISH)
-        assertSame(coordinator.state, stateBeforeLoadMessages)
-
-        coordinator.loadMessages(authId = "different auth id", pubData = null, language = SPMessageLanguage.ENGLISH)
-        assertNotSame(coordinator.state, stateBeforeLoadMessages)
+        val state = State(accountId = accountId, propertyId = propertyId, authId = "foo")
+        val coordinator = getCoordinator(spClient = SPClientMock(), state = state)
+        coordinator.loadMessages(authId = "bar", pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertNotSame(coordinator.state, state)
     }
 
     @Test
