@@ -1,6 +1,7 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
+import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaign
@@ -18,6 +19,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 
 class CoordinatorTest {
     private val storage = MapSettings()
@@ -66,6 +69,18 @@ class CoordinatorTest {
             getCoordinator(state = state).state,
             getCoordinator(state = state, accountId = 123).state
         )
+    }
+
+    @Test
+    fun shouldResetStateIfAuthIdChangeFromSomethingToSomethingElse() = runTest {
+        val coordinator = getCoordinator(spClient = SPClientMock())
+        val stateBeforeLoadMessages = coordinator.state
+
+        coordinator.loadMessages(authId = "my auth id", pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertSame(coordinator.state, stateBeforeLoadMessages)
+
+        coordinator.loadMessages(authId = "different auth id", pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertNotSame(coordinator.state, stateBeforeLoadMessages)
     }
 
     @Test
