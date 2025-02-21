@@ -16,6 +16,7 @@ import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SPClient
+import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
@@ -45,9 +46,13 @@ class Coordinator(
     private val propertyId: Int,
     private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
-    private val repository: Repository,
-    private val spClient: SPClient,
-    internal var state: State
+    private val repository: Repository = Repository(),
+    private val spClient: SPClient = SourcepointClient(
+        accountId = accountId,
+        propertyId = propertyId,
+        propertyName = propertyName,
+    ),
+    internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
     private var authId: String? = null
     private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
@@ -88,17 +93,13 @@ class Coordinator(
         accountId: Int,
         propertyId: Int,
         propertyName: SPPropertyName,
-        campaigns: SPCampaigns,
-        repository: Repository,
-        spClient: SPClient
+        campaigns: SPCampaigns
     ): this(
         accountId = accountId,
         propertyId = propertyId,
         propertyName = propertyName,
         campaigns = campaigns,
-        repository = repository,
-        spClient = spClient,
-        state = repository.state ?: State(accountId = accountId, propertyId = propertyId)
+        repository = Repository()
     )
 
     init {
@@ -153,6 +154,7 @@ class Coordinator(
                     emptyList<MessageToDisplay>()
                     throw error
                 }
+                // TODO: maybe we should use `launch` here and not wait for pvData to return
                 pvData(pubData, messages)
             }
         }
