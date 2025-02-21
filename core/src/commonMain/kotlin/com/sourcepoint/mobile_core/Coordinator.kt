@@ -102,6 +102,7 @@ class Coordinator(
     )
 
     init {
+        resetStateIfPropertyDetailsChanged()
         persistState()
     }
 
@@ -111,6 +112,12 @@ class Coordinator(
         userData.ccpa?.consents?.uspstring.let { repository.uspString = it }
         userData.ccpa?.consents?.gppData.let { repository.gppData = it ?: emptyMap() }
         userData.usnat?.consents?.gppData.let { repository.gppData = it ?: emptyMap() }
+    }
+
+    private fun resetStateIfPropertyDetailsChanged() {
+        if (propertyId != state.propertyId || accountId != state.accountId) {
+            state = State(propertyId = propertyId, accountId = accountId)
+        }
     }
 
     private fun persistState() {
