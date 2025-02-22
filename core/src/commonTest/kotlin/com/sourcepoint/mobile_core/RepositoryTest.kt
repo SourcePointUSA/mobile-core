@@ -6,9 +6,10 @@ import com.sourcepoint.mobile_core.asserters.assertIsEmpty
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.storage.Repository
+import com.sourcepoint.mobile_core.storage.get
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
-import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class RepositoryTest {
@@ -34,11 +35,11 @@ class RepositoryTest {
     fun settingTCDataResetsItFirst() {
         val storage = MapSettings()
         val repository = Repository(storage)
-        repository.tcData = mapOf("IABTCF_foo" to JsonPrimitive(""))
-        assertContains(storage.keys, "IABTCF_foo")
+        repository.tcData = mapOf("IABTCF_foo" to JsonPrimitive("foo"))
+        assertEquals(storage["IABTCF_foo"], JsonPrimitive("foo"))
 
-        repository.tcData = mapOf("IABTCF_bar" to JsonPrimitive(""))
-        assertContains(storage.keys, "IABTCF_bar")
+        repository.tcData = mapOf("IABTCF_bar" to JsonPrimitive("bar"))
+        assertEquals(storage["IABTCF_bar"], JsonPrimitive("bar"))
         assertDoesNotContain(storage.keys, "IABTCF_foo")
     }
 
@@ -46,11 +47,12 @@ class RepositoryTest {
     fun settingGPPDataResetsItFirst() {
         val storage = MapSettings()
         val repository = Repository(storage)
-        repository.gppData = mapOf("IABGPP_foo" to JsonPrimitive(""))
-        assertContains(storage.keys, "IABGPP_foo")
+        repository.gppData = mapOf("IABGPP_foo" to JsonPrimitive("foo"))
+        assertEquals(storage["IABGPP_foo"], JsonPrimitive("foo"))
+        assertEquals(repository.gppData, mapOf("IABGPP_foo" to JsonPrimitive("foo")))
 
-        repository.gppData = mapOf("IABGPP_bar" to JsonPrimitive(""))
-        assertContains(storage.keys, "IABGPP_bar")
+        repository.gppData = mapOf("IABGPP_bar" to JsonPrimitive("bar"))
+        assertEquals(storage["IABGPP_bar"], JsonPrimitive("bar"))
         assertDoesNotContain(storage.keys, "IABGPP_foo")
     }
 
