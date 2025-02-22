@@ -1,6 +1,7 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
+import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
@@ -17,7 +18,6 @@ import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertSame
@@ -92,7 +92,7 @@ class CoordinatorTest {
         val consents = getCoordinator().reportAction(
             action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr),
         )
-        assertFalse(consents.gdpr?.consents?.uuid.isNullOrEmpty())
+        assertNotEmpty(consents.gdpr?.consents?.uuid)
     }
 
     @Test
@@ -100,7 +100,7 @@ class CoordinatorTest {
         val consents = getCoordinator().reportAction(
             action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa),
         )
-        assertFalse(consents.ccpa?.consents?.uuid.isNullOrEmpty())
+        assertNotEmpty(consents.ccpa?.consents?.uuid)
     }
 
     @Test
@@ -120,7 +120,7 @@ class CoordinatorTest {
                 """.encodeToJsonObject(),
             )
         )
-        assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())
+        assertNotEmpty(consents.usnat?.consents?.uuid)
     }
 
     @Test
