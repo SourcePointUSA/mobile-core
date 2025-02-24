@@ -771,6 +771,7 @@ class Coordinator(
         } catch (error: Exception) {
             throw error
         }
+        storeLegislationConsent(userData = userData)
         persistState()
         return userData
     }
