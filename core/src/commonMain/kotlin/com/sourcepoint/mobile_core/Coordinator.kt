@@ -698,6 +698,8 @@ class Coordinator(
             consents = state.ccpa.consents.copy(
                 uuid = postResponse.uuid,
                 dateCreated = postResponse.dateCreated ?: now(),
+                rejectedAll = postResponse.rejectedAll ?: getResponse?.ccpa?.rejectedAll ?: false,
+                consentedAll = postResponse.consentedAll ?: getResponse?.ccpa?.consentedAll ?: false,
                 status = postResponse.status ?: getResponse?.ccpa?.status ?: CCPAConsent.CCPAConsentStatus.RejectedAll,
                 rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
                 rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
