@@ -11,17 +11,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GDPRChoiceResponse (
     val uuid: String,
-    val dateCreated: Instant?,
-    val expirationDate: Instant?,
+    val dateCreated: Instant? = null,
+    val expirationDate: Instant? = null,
     @SerialName("TCData") val tcData: IABData? = emptyMap(),
-    val euconsent: String?,
-    val consentStatus: ConsentStatus?,
-    val grants: SPGDPRVendorGrants?,
-    val webConsentPayload: String?,
-    val gcmStatus: GDPRConsent.GCMStatus?,
-    @SerialName("legIntCategories") val acceptedLegIntCategories: List<String>?,
-    @SerialName("legIntVendors") val acceptedLegIntVendors: List<String>?,
-    @SerialName("vendors") val acceptedVendors: List<String>?,
-    @SerialName("categories") val acceptedCategories: List<String>?,
-    @SerialName("specialFeatures") val acceptedSpecialFeatures: List<String>?
+    val euconsent: String? = null,
+    val consentStatus: ConsentStatus? = null,
+    val grants: SPGDPRVendorGrants? = null,
+    val webConsentPayload: String? = null,
+    val gcmStatus: GDPRConsent.GCMStatus? = null,
+    @SerialName("legIntCategories") val acceptedLegIntCategories: List<String>? = emptyList(),
+    @SerialName("legIntVendors") val acceptedLegIntVendors: List<String>? = emptyList(),
+    @SerialName("vendors") val acceptedVendors: List<String>? = emptyList(),
+    @SerialName("categories") val acceptedCategories: List<String>? = emptyList(),
+    @SerialName("specialFeatures") val acceptedSpecialFeatures: List<String>? = emptyList()
 )

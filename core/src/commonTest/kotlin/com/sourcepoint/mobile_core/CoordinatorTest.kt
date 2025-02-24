@@ -1,6 +1,8 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
+import com.sourcepoint.mobile_core.asserters.assertNotEmpty
+import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaign
@@ -16,8 +18,9 @@ import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 
 class CoordinatorTest {
     private val storage = MapSettings()
@@ -69,11 +72,27 @@ class CoordinatorTest {
     }
 
     @Test
+    fun shouldNotResetStateIfAuthIdChangesFromNull() = runTest {
+        val state = State(accountId = accountId, propertyId = propertyId, authId = null)
+        val coordinator = getCoordinator(spClient = SPClientMock(), state = state)
+        coordinator.loadMessages(authId = "foo", pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertSame(coordinator.state, state)
+    }
+
+    @Test
+    fun shouldResetStateIfAuthIdChangeFromSomethingToSomethingElse() = runTest {
+        val state = State(accountId = accountId, propertyId = propertyId, authId = "foo")
+        val coordinator = getCoordinator(spClient = SPClientMock(), state = state)
+        coordinator.loadMessages(authId = "bar", pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertNotSame(coordinator.state, state)
+    }
+
+    @Test
     fun reportActionReturnsGDPRConsent() = runTest {
         val consents = getCoordinator().reportAction(
             action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr),
         )
-        assertFalse(consents.gdpr?.consents?.uuid.isNullOrEmpty())
+        assertNotEmpty(consents.gdpr?.consents?.uuid)
     }
 
     @Test
@@ -81,7 +100,7 @@ class CoordinatorTest {
         val consents = getCoordinator().reportAction(
             action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa),
         )
-        assertFalse(consents.ccpa?.consents?.uuid.isNullOrEmpty())
+        assertNotEmpty(consents.ccpa?.consents?.uuid)
     }
 
     @Test
@@ -101,7 +120,7 @@ class CoordinatorTest {
                 """.encodeToJsonObject(),
             )
         )
-        assertFalse(consents.usnat?.consents?.uuid.isNullOrEmpty())
+        assertNotEmpty(consents.usnat?.consents?.uuid)
     }
 
     @Test
