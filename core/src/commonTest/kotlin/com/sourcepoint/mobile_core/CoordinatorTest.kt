@@ -13,7 +13,6 @@ import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
-import com.sourcepoint.mobile_core.network.encodeToJsonObject
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -105,8 +104,9 @@ class CoordinatorTest {
 
     @Test
     fun reportActionReturnsUSNatConsent() = runTest {
-        val consents = getCoordinator().reportAction(
-            action = SPAction(
+        val coordinator = getCoordinator()
+        val consents = coordinator.reportAction(
+            action = SPAction.init(
                 type = SPActionType.SaveAndExit,
                 campaignType = SPCampaignType.UsNat,
                 pmPayload = """
@@ -117,7 +117,7 @@ class CoordinatorTest {
                     "privacyManagerId": "943890",
                     "vendors": []
                 }
-                """.encodeToJsonObject(),
+                """,
             )
         )
         assertNotEmpty(consents.usnat?.consents?.uuid)
