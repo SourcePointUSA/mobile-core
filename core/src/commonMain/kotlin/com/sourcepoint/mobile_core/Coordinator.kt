@@ -159,6 +159,7 @@ class Coordinator(
             }
         }
         storeLegislationConsent(userData = userData)
+        persistState()
         return messages
     }
 
