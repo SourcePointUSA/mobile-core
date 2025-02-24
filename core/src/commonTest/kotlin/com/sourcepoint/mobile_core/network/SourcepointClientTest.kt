@@ -153,7 +153,7 @@ class SourcepointClientTest {
         assertNotNull(consents)
         assertNotEmpty(consents.gppData)
         assertNotNull(consents.signedLspa)
-        assertNotEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
+        assertEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
         assertIsEmpty(consents.rejectedCategories)
         assertIsEmpty(consents.rejectedVendors)
         assertNotNull(consents.dateCreated)
