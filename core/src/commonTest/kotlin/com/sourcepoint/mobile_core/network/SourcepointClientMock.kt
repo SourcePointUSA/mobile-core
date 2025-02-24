@@ -25,6 +25,7 @@ import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 class SourcepointClientMock():SPClient {
     var consentStatusCalled = false
     var error: SPError? = null
+    var consentStatusCalledWith: ConsentStatusRequest.MetaData? = null
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse {
         return MetaDataResponse(gdpr = null, ccpa = null, usnat = null)
     }
@@ -41,6 +42,7 @@ class SourcepointClientMock():SPClient {
         if ( error!=null ) {
             throw error as SPError
         } else {
+            consentStatusCalledWith = metadata
             return ConsentStatusResponse(consentStatusData = ConsentStatusResponse.ConsentStatusData(gdpr = null, usnat = null, ccpa = null), localState = "")
         }
     }

@@ -9,7 +9,7 @@ data class ConsentStatusRequest(
     val propertyId: Int,
     val metadata: MetaData,
     val includeData: IncludeData = IncludeData(),
-    val authId: String?,
+    val authId: String? = null,
     val withSiteActions: Boolean = false,
     val hasCsp: Boolean = true
 ): DefaultRequest() {

@@ -22,8 +22,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class CoordinatorTest {
     private val storage = MapSettings()
@@ -45,12 +48,12 @@ class CoordinatorTest {
         propertyName = propertyName
     )
 
-    private fun initCoordinatorFor(client: SPClient = spClient) {
+    private fun initCoordinatorFor(forCampaigns: SPCampaigns = campaigns, client: SPClient = spClient) {
         coordinator = Coordinator(
             accountId = accountId,
             propertyId = propertyId,
             propertyName = propertyName,
-            campaigns = campaigns,
+            campaigns = forCampaigns,
             spClient = client,
             repository = repository,
             state = State()
@@ -164,6 +167,17 @@ class CoordinatorTest {
     }
 
     @Test
+    fun whenUserHasConsentStoredKeepsItUnchanged() = runTest {
+        coordinator.loadMessages(authId = null, pubData = null)
+        val userData = coordinator.userData
+        val actionResult = coordinator.reportAction(SPAction(SPActionType.RejectAll, SPCampaignType.Gdpr, pmPayload = "{}"))
+        assertNotEquals(userData, actionResult)
+        coordinator.loadMessages(authId = null, pubData = null)
+        val secondUserData = coordinator.userData
+        assertEquals(actionResult, secondUserData)
+    }
+
+    @Test
     fun whenUserHasConsentStoredAndExpirationDataGreaterCurrentDate() = runTest {
         //erases consent data and returns a message
         val messages = coordinator.loadMessages(authId = null, pubData = null)
@@ -196,5 +210,134 @@ class CoordinatorTest {
         assertNotEquals(0, thirdMessages.filter { it.type == SPCampaignType.Ccpa }.size)
         assertFalse(repository.state.gdpr.consents.consentStatus.consentedAll == true)
         assertEquals(null, repository.state.ccpa.consents.status)
+    }
+
+    //@Test //FIXME messages always return optedInUspString
+    fun propertyWithSupportLegacyUSPStringReceivesIABUSPrivacyString() = runTest {
+        val optedOutUspString = "1YYN"
+        val optedInUspString = "1YNN"
+        initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign(supportLegacyUSPString = true)))
+        coordinator.loadMessages(authId = null, pubData = null)
+        val newUserUspString = coordinator.userData.usnat?.consents?.gppData?.get("IABUSPrivacy_String")?.content
+        assertEquals(optedOutUspString, newUserUspString)
+        val saveAndExitAcceptAction = SPAction(
+            type = SPActionType.SaveAndExit,
+            campaignType = SPCampaignType.UsNat,
+            pmPayload = """
+                {
+                    "shownCategories": [
+                                        "65a6a785cc78fac48ab34e65",
+                                        "65a6a785cc78fac48ab34e6a",
+                                        "65a6a785cc78fac48ab34e6f",
+                                        "65a6a785cc78fac48ab34e74",
+                                        "65a6a785cc78fac48ab34e79",
+                                        "65a6a785cc78fac48ab34e7e",
+                                        "65a6a785cc78fac48ab34e83",
+                                        "65a6a785cc78fac48ab34e88",
+                                        "65a6a785cc78fac48ab34e8d",
+                                        "65a6a785cc78fac48ab34e92",
+                                        "65a6a785cc78fac48ab34e97",
+                                        "65a6a785cc78fac48ab34e9c"
+                                        ],
+                    "categories": [
+                                        "65a6a785cc78fac48ab34e65",
+                                        "65a6a785cc78fac48ab34e6a",
+                                        "65a6a785cc78fac48ab34e6f",
+                                        "65a6a785cc78fac48ab34e74",
+                                        "65a6a785cc78fac48ab34e79",
+                                        "65a6a785cc78fac48ab34e7e",
+                                        "65a6a785cc78fac48ab34e83",
+                                        "65a6a785cc78fac48ab34e88",
+                                        "65a6a785cc78fac48ab34e8d",
+                                        "65a6a785cc78fac48ab34e92",
+                                        "65a6a785cc78fac48ab34e97",
+                                        "65a6a785cc78fac48ab34e9c",
+                                        "648c9c48e17a3c7a82360c54"
+                                        ],
+                    "lan": "EN",
+                    "privacyManagerId": "995256",
+                    "vendors": []
+                }
+                """
+        )
+        val userData = coordinator.reportAction(saveAndExitAcceptAction)
+        val actionUspString = userData.usnat?.consents?.gppData?.get("IABUSPrivacy_String")?.content
+        assertEquals(optedInUspString, actionUspString)
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    @Test
+    fun propertyWithAuthIdPersistsConsent() = runTest {
+        initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign()))
+        val saveAndExitAction = SPAction(type = SPActionType.SaveAndExit, campaignType = SPCampaignType.UsNat, pmPayload = """
+                {
+                    "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
+                    "categories": ["6568ae4503cf5cf81eb79fa5"],
+                    "lan": "EN",
+                    "privacyManagerId": "943890",
+                    "vendors": []
+                }
+                """)
+        val randomUuid = Uuid.random().toString()
+        coordinator.loadMessages(authId = randomUuid, pubData = null)
+        val actionUserData = coordinator.reportAction(saveAndExitAction)
+        assertTrue(actionUserData.usnat?.consents?.uuid != null)
+        assertEquals(actionUserData.usnat?.consents?.uuid, coordinator.userData.usnat?.consents?.uuid)
+
+        initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign()))
+        assertTrue(coordinator.userData.usnat?.consents?.uuid == null)
+        val messages = coordinator.loadMessages(authId = randomUuid, pubData = null)
+        assertEquals(0, messages.size)
+        assertEquals(actionUserData.usnat?.consents?.uuid, coordinator.userData.usnat?.consents?.uuid)
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    //@Test //FIXME messages always return usnat campaign
+    fun propertyWithAuthIdAndTransitionCCPAAuthSetsFlagInConsentStatusMetadata() = runTest {
+        initCoordinatorFor(forCampaigns = SPCampaigns(ccpa = SPCampaign()))
+        val randomUuid = Uuid.random().toString()
+        coordinator.loadMessages(authId = randomUuid, pubData = null)
+        val actionResult = coordinator.reportAction(SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa, pmPayload = "{}"))
+        assertEquals(CCPAConsent.CCPAConsentStatus.RejectedAll, actionResult.ccpa?.consents?.status)
+
+        initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
+        val messages = coordinator.loadMessages(authId = randomUuid, pubData = null)
+        assertEquals(0, messages.size)
+        assertTrue(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny == true)
+        assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.consentedToAll == true)
+    }
+
+    @Test
+    fun handlesCCPAoptoutWhenThereNoAuthID() = runTest {
+        initCoordinatorFor(client = spClientMock, forCampaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
+        coordinator.loadMessages(authId = null, pubData = null)
+        assertNull(spClientMock.consentStatusCalledWith?.usnat?.transitionCCPAAuth)
+    }
+
+    @Test
+    fun usnatPropertyAdditionsChangeDateBiggerThanConsentDateCreatedShowMessage() = runTest {
+        initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign()))
+        val messages = coordinator.loadMessages(authId = null, pubData = null)
+        assertEquals(1, messages.size)
+        val saveAndExitAction = SPAction(type = SPActionType.SaveAndExit, campaignType = SPCampaignType.UsNat, pmPayload = """
+                {
+                    "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
+                    "categories": ["6568ae4503cf5cf81eb79fa5"],
+                    "lan": "EN",
+                    "privacyManagerId": "943890",
+                    "vendors": []
+                }
+                """)
+        coordinator.reportAction(saveAndExitAction)
+        val secondMessages = coordinator.loadMessages(authId = null, pubData = null)
+        assertEquals(0, secondMessages.size)
+
+        repository.state = repository.state.copy(
+            usNat = repository.state.usNat.copy(
+                consents = repository.state.usNat.consents.copy(
+                    dateCreated = repository.state.usNat.metaData.additionsChangeDate.minus(1.days)
+                )))
+        val thirdMessages = coordinator.loadMessages(authId = null, pubData = null)
+        assertEquals(1, thirdMessages.size)
     }
 }

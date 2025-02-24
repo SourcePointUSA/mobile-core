@@ -212,7 +212,7 @@ class SourcepointClient(
             withParams(
                 ConsentStatusRequest(
                     propertyId = propertyId,
-                    authId = authId,
+                    authId = authId?.let { "%22$it%22" },
                     metadata = metadata
                 )
             )}.build()
