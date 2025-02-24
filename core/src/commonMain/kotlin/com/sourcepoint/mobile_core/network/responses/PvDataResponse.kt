@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PvDataResponse (
-    val gdpr: Campaign?,
-    val ccpa: Campaign?,
-    val usnat: Campaign?
+    val gdpr: Campaign? = null,
+    val ccpa: Campaign? = null,
+    val usnat: Campaign? = null
 ) {
     @Serializable
     data class Campaign (

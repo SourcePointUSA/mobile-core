@@ -1,6 +1,8 @@
 package com.sourcepoint.mobile_core.models.consents
 
+import com.sourcepoint.mobile_core.network.encodeToJsonObject
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class SPUserData(
@@ -9,9 +11,15 @@ data class SPUserData(
     val usnat: SPConsent<USNatConsent>? = null
 ) {
     val webConsents: SPWebConsents get() = SPWebConsents(
-        gdpr = if (gdpr?.consents?.uuid != null) SPWebConsents.SPWebConsent(gdpr.consents.uuid, gdpr.consents.webConsentPayload) else null,
-        ccpa = if (ccpa?.consents?.uuid != null) SPWebConsents.SPWebConsent(ccpa.consents.uuid, ccpa.consents.webConsentPayload) else null,
-        usnat = if (usnat?.consents?.uuid != null) SPWebConsents.SPWebConsent(usnat.consents.uuid, usnat.consents.webConsentPayload) else null,
+        gdpr = gdpr?.consents?.uuid?.let {
+            SPWebConsents.SPWebConsent(it, gdpr.consents.webConsentPayload?.encodeToJsonObject())
+        },
+        ccpa = ccpa?.consents?.uuid?.let {
+            SPWebConsents.SPWebConsent(it, ccpa.consents.webConsentPayload?.encodeToJsonObject())
+        },
+        usnat = usnat?.consents?.uuid?.let {
+            SPWebConsents.SPWebConsent(it, usnat.consents.webConsentPayload?.encodeToJsonObject())
+        },
     )
 
     @Serializable
@@ -19,14 +27,13 @@ data class SPUserData(
         val consents: ConsentType?
     )
 
+    @Serializable
     data class SPWebConsents(
         val gdpr: SPWebConsent?,
         val ccpa: SPWebConsent?,
         val usnat: SPWebConsent?
     ) {
-        data class SPWebConsent(
-            val uuid: String,
-            val webConsentPayload: String?
-        )
+        @Serializable
+        data class SPWebConsent(val uuid: String, val webConsentPayload: JsonObject?)
     }
 }

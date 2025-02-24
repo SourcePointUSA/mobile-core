@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MetaDataResponse (
-    val gdpr: MetaDataResponseGDPR?,
-    val usnat: MetaDataResponseUSNat?,
-    val ccpa: MetaDataResponseCCPA?
+    val gdpr: MetaDataResponseGDPR? = null,
+    val usnat: MetaDataResponseUSNat? = null,
+    val ccpa: MetaDataResponseCCPA? = null
 ){
     @Serializable
     data class MetaDataResponseGDPR (
