@@ -28,4 +28,6 @@ interface ICoordinator {
         categories: List<String>,
         legIntCategories: List<String>
     )
+
+    fun clearLocalData()
 }

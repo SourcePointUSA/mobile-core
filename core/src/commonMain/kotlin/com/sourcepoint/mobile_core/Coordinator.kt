@@ -810,4 +810,8 @@ class Coordinator(
             legIntCategories = legIntCategories
         ))
     }
+
+    override fun clearLocalData() {
+        repository.clear()
+    }
 }
