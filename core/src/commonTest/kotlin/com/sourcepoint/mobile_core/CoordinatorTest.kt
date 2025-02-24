@@ -9,7 +9,6 @@ import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SourcepointClient
-import com.sourcepoint.mobile_core.network.encodeToJsonObject
 import com.sourcepoint.mobile_core.storage.Repository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
@@ -51,7 +50,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsGDPRConsent() = runTest {
         val consents = coordinator.reportAction(
-            action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr, pmPayload = "{}"),
+            action = SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr),
         )
         assertFalse(consents.gdpr?.consents?.uuid.isNullOrEmpty())
     }
@@ -59,7 +58,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsCCPAConsent() = runTest {
         val consents = coordinator.reportAction(
-            action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa, pmPayload = "{}"),
+            action = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.Ccpa),
         )
         assertFalse(consents.ccpa?.consents?.uuid.isNullOrEmpty())
     }
@@ -67,7 +66,7 @@ class CoordinatorTest {
     @Test
     fun reportActionReturnsUSNatConsent() = runTest {
         val consents = coordinator.reportAction(
-            action = SPAction(
+            action = SPAction.init(
                 type = SPActionType.SaveAndExit,
                 campaignType = SPCampaignType.UsNat,
                 pmPayload = """
@@ -87,9 +86,9 @@ class CoordinatorTest {
     @Test
     fun noMessagesShouldAppearAfterAcceptingAll() = runTest {
         assertEquals(3, coordinator.loadMessages(authId = null, pubData = null).size)
-        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr, pmPayload = "{}"))
-        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Ccpa, pmPayload = "{}"))
-        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.UsNat, pmPayload = "{}"))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Ccpa))
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.UsNat))
         assertEquals(0, coordinator.loadMessages(authId = null, pubData = null).size)
     }
 }
