@@ -159,6 +159,7 @@ class Coordinator(
             }
         }
         storeLegislationConsent(userData = userData)
+        persistState()
         return messages
     }
 
@@ -698,6 +699,8 @@ class Coordinator(
             consents = state.ccpa.consents.copy(
                 uuid = postResponse.uuid,
                 dateCreated = postResponse.dateCreated ?: now(),
+                rejectedAll = postResponse.rejectedAll ?: getResponse?.ccpa?.rejectedAll ?: false,
+                consentedAll = postResponse.consentedAll ?: getResponse?.ccpa?.consentedAll ?: false,
                 status = postResponse.status ?: getResponse?.ccpa?.status ?: CCPAConsent.CCPAConsentStatus.RejectedAll,
                 rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
                 rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
@@ -768,6 +771,7 @@ class Coordinator(
         } catch (error: Exception) {
             throw error
         }
+        storeLegislationConsent(userData = userData)
         persistState()
         return userData
     }
@@ -809,5 +813,9 @@ class Coordinator(
             categories = categories,
             legIntCategories = legIntCategories
         ))
+    }
+
+    override fun clearLocalData() {
+        repository.clear()
     }
 }

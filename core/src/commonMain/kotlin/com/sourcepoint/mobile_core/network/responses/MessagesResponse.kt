@@ -218,6 +218,7 @@ data class MessagesResponse(
         ) CCPAConsent(
             dateCreated = dateCreated ?: now(),
             expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
+            status = status,
             signedLspa = signedLspa,
             rejectedCategories = rejectedCategories,
             rejectedVendors = rejectedVendors,

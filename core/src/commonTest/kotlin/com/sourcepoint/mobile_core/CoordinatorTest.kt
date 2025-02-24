@@ -1,6 +1,8 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
+import com.sourcepoint.mobile_core.asserters.assertAllAccepted
+import com.sourcepoint.mobile_core.asserters.assertDefaultConsents
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.SPAction
@@ -124,12 +126,27 @@ class CoordinatorTest {
     }
 
     @Test
-    fun noMessagesShouldAppearAfterAcceptingAll() = runTest {
+    fun consentIsStoredAfterCallingLoadMessagesAndNoMessagesShouldAppearAfterAcceptingAll() = runTest {
         val coordinator = getCoordinator()
         assertEquals(3, coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH).size)
+        assertNotEmpty(repository.gppData)
+        assertNotEmpty(repository.tcData)
+        assertNotEmpty(repository.uspString)
+        assertDefaultConsents(coordinator.userData.gdpr?.consents)
+        assertDefaultConsents(coordinator.userData.ccpa?.consents)
+        assertDefaultConsents(coordinator.userData.usnat?.consents)
+
         coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr))
         coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Ccpa))
         coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.UsNat))
+        // TODO: assert somewhat correct values of legislation data after action
+        assertNotEmpty(repository.gppData)
+        assertNotEmpty(repository.tcData)
+        assertNotEmpty(repository.uspString)
+        assertAllAccepted(coordinator.userData.gdpr?.consents)
+        assertAllAccepted(coordinator.userData.ccpa?.consents)
+        assertAllAccepted(coordinator.userData.usnat?.consents)
+
         assertEquals(0, coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH).size)
     }
 }
