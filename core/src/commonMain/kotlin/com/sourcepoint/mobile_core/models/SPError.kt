@@ -36,6 +36,15 @@ open class SPUnableToParseBodyError(
     description = "The server responded with HTTP 200, but the body doesn't match the expected response type: $bodyName",
 )
 
-open class InvalidChoiceAllParamsError(): SPError (
+open class InvalidChoiceAllParamsError : SPError (
     code = "sp_metric_invalid_choice_all_query_params"
+)
+
+open class InvalidCustomConsentUUIDError : SPError (
+    code = "sp_metric_invalid_consent_UUID"
+)
+
+open class InvalidPropertyNameError(propertyName: String): SPError(
+    code = "sp_metric_invalid_property_name",
+    description = "PropertyName can only include letters, numbers, '.', ':', '-' and '/'. $propertyName passed is invalid"
 )

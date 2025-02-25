@@ -6,7 +6,7 @@ plugins {
     kotlin("native.cocoapods") version "2.0.21"
     kotlin("plugin.serialization") version "2.0.21"
     id("com.github.ben-manes.versions") version "0.51.0"
-    id("com.android.library") version "8.7.1"
+    id("com.android.library") version "8.7.3"
     id("com.github.gmazzo.buildconfig") version "5.5.0"
     id("maven-publish")
     id("signing")
@@ -135,6 +135,10 @@ tasks.withType<KotlinNativeSimulatorTest>().configureEach {
     device.set(deviceName)
 }
 
+tasks.withType<Test> {
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+}
+
 fun fromProjectOrEnv(key: String): String? = findProperty(key) as String? ?: System.getenv(key)
 
 publishing {
@@ -147,7 +151,7 @@ publishing {
     val ossrhPassword = fromProjectOrEnv("OSSRH_PASSWORD")
 
     publications {
-        withType<MavenPublication>().configureEach() {
+        withType<MavenPublication>().configureEach {
             pom {
                 name = "SP Core Module"
                 description = "The internal Network & Data layers used by our mobile SDKs"
