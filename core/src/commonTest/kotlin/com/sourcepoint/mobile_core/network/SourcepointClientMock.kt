@@ -26,8 +26,9 @@ class SourcepointClientMock():SPClient {
     var consentStatusCalled = false
     var error: SPError? = null
     var consentStatusCalledWith: ConsentStatusRequest.MetaData? = null
+    var metaDataResponse = MetaDataResponse(gdpr = null, usnat = null, ccpa = null)
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse {
-        return MetaDataResponse(gdpr = null, ccpa = null, usnat = null)
+        return metaDataResponse
     }
 
     override suspend fun postPvData(request: PvDataRequest): PvDataResponse {

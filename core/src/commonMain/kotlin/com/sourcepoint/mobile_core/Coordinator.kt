@@ -264,7 +264,6 @@ class Coordinator(
                                 applies = state.gdpr.consents.applies,
                                 dateCreated = state.gdpr.consents.dateCreated,
                                 uuid = state.gdpr.consents.uuid,
-                                hasLocalData = state.hasGDPRLocalData,
                                 idfaStatus = idfaStatus
                             )
                         },
@@ -273,7 +272,6 @@ class Coordinator(
                                 applies = state.usNat.consents.applies,
                                 dateCreated = state.usNat.consents.dateCreated,
                                 uuid = state.usNat.consents.uuid,
-                                hasLocalData = state.hasUSNatLocalData,
                                 idfaStatus = idfaStatus,
                                 transitionCCPAAuth = authTransitionCCPAUSNat,
                                 optedOut = transitionCCPAOptedOut
@@ -284,7 +282,6 @@ class Coordinator(
                                 applies = state.ccpa.consents.applies,
                                 dateCreated = state.ccpa.consents.dateCreated,
                                 uuid = state.ccpa.consents.uuid,
-                                hasLocalData = state.hasCCPALocalData,
                                 idfaStatus = idfaStatus
                             )
                         }

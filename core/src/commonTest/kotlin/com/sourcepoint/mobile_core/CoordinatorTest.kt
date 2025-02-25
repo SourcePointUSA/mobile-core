@@ -14,6 +14,7 @@ import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.SourcepointClientMock
+import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import com.sourcepoint.mobile_core.utils.now
 import kotlinx.coroutines.test.runTest
@@ -212,57 +213,18 @@ class CoordinatorTest {
         assertEquals(null, repository.state.ccpa.consents.status)
     }
 
-    //@Test //FIXME messages always return optedInUspString
+    @Test
     fun propertyWithSupportLegacyUSPStringReceivesIABUSPrivacyString() = runTest {
         val optedOutUspString = "1YYN"
         val optedInUspString = "1YNN"
         initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign(supportLegacyUSPString = true)))
         coordinator.loadMessages(authId = null, pubData = null)
         val newUserUspString = coordinator.userData.usnat?.consents?.gppData?.get("IABUSPrivacy_String")?.content
-        assertEquals(optedOutUspString, newUserUspString)
-        val saveAndExitAcceptAction = SPAction(
-            type = SPActionType.SaveAndExit,
-            campaignType = SPCampaignType.UsNat,
-            pmPayload = """
-                {
-                    "shownCategories": [
-                                        "65a6a785cc78fac48ab34e65",
-                                        "65a6a785cc78fac48ab34e6a",
-                                        "65a6a785cc78fac48ab34e6f",
-                                        "65a6a785cc78fac48ab34e74",
-                                        "65a6a785cc78fac48ab34e79",
-                                        "65a6a785cc78fac48ab34e7e",
-                                        "65a6a785cc78fac48ab34e83",
-                                        "65a6a785cc78fac48ab34e88",
-                                        "65a6a785cc78fac48ab34e8d",
-                                        "65a6a785cc78fac48ab34e92",
-                                        "65a6a785cc78fac48ab34e97",
-                                        "65a6a785cc78fac48ab34e9c"
-                                        ],
-                    "categories": [
-                                        "65a6a785cc78fac48ab34e65",
-                                        "65a6a785cc78fac48ab34e6a",
-                                        "65a6a785cc78fac48ab34e6f",
-                                        "65a6a785cc78fac48ab34e74",
-                                        "65a6a785cc78fac48ab34e79",
-                                        "65a6a785cc78fac48ab34e7e",
-                                        "65a6a785cc78fac48ab34e83",
-                                        "65a6a785cc78fac48ab34e88",
-                                        "65a6a785cc78fac48ab34e8d",
-                                        "65a6a785cc78fac48ab34e92",
-                                        "65a6a785cc78fac48ab34e97",
-                                        "65a6a785cc78fac48ab34e9c",
-                                        "648c9c48e17a3c7a82360c54"
-                                        ],
-                    "lan": "EN",
-                    "privacyManagerId": "995256",
-                    "vendors": []
-                }
-                """
-        )
-        val userData = coordinator.reportAction(saveAndExitAcceptAction)
+        assertEquals(optedInUspString, newUserUspString)
+        val rejectedAction = SPAction(type = SPActionType.RejectAll, campaignType = SPCampaignType.UsNat, pmPayload = "{}")
+        val userData = coordinator.reportAction(rejectedAction)
         val actionUspString = userData.usnat?.consents?.gppData?.get("IABUSPrivacy_String")?.content
-        assertEquals(optedInUspString, actionUspString)
+        assertEquals(optedOutUspString, actionUspString)
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -292,7 +254,7 @@ class CoordinatorTest {
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    //@Test //FIXME messages always return usnat campaign
+    @Test
     fun propertyWithAuthIdAndTransitionCCPAAuthSetsFlagInConsentStatusMetadata() = runTest {
         initCoordinatorFor(forCampaigns = SPCampaigns(ccpa = SPCampaign()))
         val randomUuid = Uuid.random().toString()
@@ -339,5 +301,53 @@ class CoordinatorTest {
                 )))
         val thirdMessages = coordinator.loadMessages(authId = null, pubData = null)
         assertEquals(1, thirdMessages.size)
+    }
+
+    @Test
+    fun whenUsnatApplicableSectionsChangeShouldCallConsentStatus() = runTest {
+        val firstApplicableSection = 1
+        val differentApplicableSection = 2
+        spClientMock.metaDataResponse = MetaDataResponse(
+            gdpr = null,
+            usnat = MetaDataResponse.MetaDataResponseUSNat(
+                applies = true,
+                sampleRate = 1f,
+                additionsChangeDate = now(),
+                applicableSections = listOf(firstApplicableSection),
+                vendorListId = ""
+            ),
+            ccpa = null
+        )
+        initCoordinatorFor(forCampaigns = SPCampaigns(usnat = SPCampaign()), client = spClientMock)
+        coordinator.loadMessages(authId = null, pubData = null)
+        assertFalse(spClientMock.consentStatusCalled)
+
+        spClientMock.metaDataResponse = MetaDataResponse(
+            gdpr = null,
+            usnat = MetaDataResponse.MetaDataResponseUSNat(
+                applies = true,
+                sampleRate = 1f,
+                additionsChangeDate = now(),
+                applicableSections = listOf(differentApplicableSection),
+                vendorListId = ""
+            ),
+            ccpa = null
+        )
+        coordinator.loadMessages(authId = null, pubData = null)
+        assertTrue(spClientMock.consentStatusCalled)
+    }
+
+    @Test
+    fun flushingConsentWhenGdprVendorListIdChanges() = runTest {
+        val messages = coordinator.loadMessages(authId = null, pubData = null)
+        assertEquals(1, messages.filter { it.type == SPCampaignType.Gdpr }.size)
+        coordinator.reportAction(SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.Gdpr, pmPayload = "{}"))
+        repository.state = repository.state.copy(
+            gdpr = repository.state.gdpr.copy(
+                metaData = repository.state.gdpr.metaData.copy(
+                    vendorListId = "foo"
+                )))
+        val secondMessages = coordinator.loadMessages(authId = null, pubData = null)
+        assertEquals(1, secondMessages.filter { it.type == SPCampaignType.Gdpr }.size)
     }
 }

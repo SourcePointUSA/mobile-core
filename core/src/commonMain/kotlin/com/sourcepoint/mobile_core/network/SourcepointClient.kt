@@ -212,10 +212,11 @@ class SourcepointClient(
             withParams(
                 ConsentStatusRequest(
                     propertyId = propertyId,
-                    authId = authId?.let { "%22$it%22" },
+                    authId = authId,
                     metadata = metadata
                 )
-            )}.build()
+            )
+        }.build()
         ).bodyOr(::reportErrorAndThrow)
 
     override suspend fun postChoiceGDPRAction(
