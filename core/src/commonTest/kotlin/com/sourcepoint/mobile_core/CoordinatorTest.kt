@@ -8,6 +8,7 @@ import com.sourcepoint.mobile_core.asserters.assertDefaultConsents
 import com.sourcepoint.mobile_core.asserters.assertDoesNotContain
 import com.sourcepoint.mobile_core.asserters.assertDoesNotContainAllOf
 import com.sourcepoint.mobile_core.asserters.assertFalse
+import com.sourcepoint.mobile_core.asserters.assertIsEmpty
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.mocks.SPClientMock
@@ -27,6 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 
 class CoordinatorTest {
@@ -135,6 +137,17 @@ class CoordinatorTest {
             )
         )
         assertNotEmpty(consents.usnat?.consents?.uuid)
+    }
+
+    @Test
+    fun clearLocalDataResetsRepositoryAndInMemoryState() {
+        val coordinator = getCoordinator()
+        val previousState = coordinator.state
+        coordinator.clearLocalData()
+        assertIsEmpty(repository.gppData)
+        assertIsEmpty(repository.tcData)
+        assertNull(repository.uspString)
+        assertNotSame(previousState, coordinator.state)
     }
 
     @Test
