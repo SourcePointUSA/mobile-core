@@ -12,8 +12,8 @@ data class ConsentStatusResponse (
 ) {
     @Serializable
     data class ConsentStatusData (
-        val gdpr: GDPRConsent?,
-        val usnat: USNatConsent?,
-        val ccpa: CCPAConsent?
+        val gdpr: GDPRConsent? = null,
+        val usnat: USNatConsent? = null,
+        val ccpa: CCPAConsent? = null
     )
 }

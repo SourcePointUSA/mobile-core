@@ -46,14 +46,17 @@ class Coordinator(
     private val propertyId: Int,
     private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
-    private val repository: Repository,
-    private val spClient: SPClient,
-    private var state: State
+    private val repository: Repository = Repository(),
+    private val spClient: SPClient = SourcepointClient(
+        accountId = accountId,
+        propertyId = propertyId,
+        propertyName = propertyName,
+    ),
+    internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
     private var authId: String? = null
-    private var idfaStatus: SPIDFAStatus? = SPIDFAStatus.current()
-    private var includeData: IncludeData = IncludeData()
-    private var language: SPMessageLanguage = SPMessageLanguage.ENGLISH
+    private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
+    private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
 
@@ -85,24 +88,23 @@ class Coordinator(
             usnat = campaigns.usnat?.let { SPUserData.SPConsent(consents = state.usNat.consents) }
         )
 
+    @Suppress("Unused")
     constructor(
         accountId: Int,
         propertyId: Int,
         propertyName: SPPropertyName,
-        campaigns: SPCampaigns,
-        repository: Repository = Repository(),
-        initialState: State? = null,
-        spClient: SPClient? = null
-    ) : this(
-        accountId,
-        propertyId,
-        propertyName,
-        campaigns,
-        repository,
-        spClient = spClient ?: SourcepointClient(accountId, propertyId, propertyName),
-        state = initialState ?: repository.state
-    ) {
-        repository.state = state
+        campaigns: SPCampaigns
+    ): this(
+        accountId = accountId,
+        propertyId = propertyId,
+        propertyName = propertyName,
+        campaigns = campaigns,
+        repository = Repository()
+    )
+
+    init {
+        resetStateIfPropertyDetailsChanged()
+        persistState()
     }
 
     // TODO: double check CCPA / USNAT GPPData can be overwriting
@@ -113,20 +115,32 @@ class Coordinator(
         userData.usnat?.consents?.gppData.let { repository.gppData = it ?: emptyMap() }
     }
 
+    private fun resetStateIfPropertyDetailsChanged() {
+        if (propertyId != state.propertyId || accountId != state.accountId) {
+            state = State(propertyId = propertyId, accountId = accountId)
+        }
+    }
+
+    fun persistState() {
+        repository.state = state
+    }
+
     private fun resetStateIfAuthIdChanged() {
         if (state.authId == null) {
             state.authId = authId
         }
 
         if (authId != null && state.authId != authId) {
-            state = State(authId = authId)
+            state = State(authId = authId, propertyId = propertyId, accountId = accountId)
         }
-        repository.state = state
+        persistState()
     }
 
-    override suspend fun loadMessages(authId: String?, pubData: JsonObject?): List<MessageToDisplay> {
-        state = repository.state
-
+    override suspend fun loadMessages(
+        authId: String?,
+        pubData: JsonObject?,
+        language: SPMessageLanguage
+    ): List<MessageToDisplay> {
         this.authId = authId
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
@@ -135,15 +149,17 @@ class Coordinator(
                 state.updateGDPRStatusForVendorListChanges()
                 state.updateUSNatStatusForVendorListChanges()
                 messages = try {
-                    messages()
+                    messages(language)
                 } catch (error: Throwable) {
                     emptyList<MessageToDisplay>()
                     throw error
                 }
+                // TODO: maybe we should use `launch` here and not wait for pvData to return
                 pvData(pubData, messages)
             }
         }
         storeLegislationConsent(userData = userData)
+        persistState()
         return messages
     }
 
@@ -181,7 +197,7 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun metaData(next: suspend () -> Unit) {
@@ -250,7 +266,7 @@ class Coordinator(
                 )
             )
         }
-        repository.state = state
+        persistState()
     }
 
     suspend fun consentStatus(next: suspend () -> Unit) {
@@ -316,11 +332,11 @@ class Coordinator(
                 SPCampaignType.unknown -> return@forEach
             }
         }
-        repository.state = state
+        persistState()
         return response.campaigns.mapNotNull { MessageToDisplay.initFromCampaign(it) }
     }
 
-    private suspend fun messages(): List<MessageToDisplay> =
+    private suspend fun messages(language: SPMessageLanguage): List<MessageToDisplay> =
         if (shouldCallMessages) {
             try {
                 val response = spClient.getMessages(MessagesRequest(
@@ -432,7 +448,7 @@ class Coordinator(
         gdprPvData?.join()
         ccpaPvData?.join()
         usNatPvData?.join()
-        repository.state = state
+        persistState()
     }
 
     private suspend fun gdprPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
@@ -547,7 +563,7 @@ class Coordinator(
                 )
             )
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? {
@@ -659,7 +675,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.gdpr.consents.tcData = postResponse.tcData ?: emptyMap()
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?): GDPRChoiceResponse =
@@ -680,6 +696,8 @@ class Coordinator(
             consents = state.ccpa.consents.copy(
                 uuid = postResponse.uuid,
                 dateCreated = postResponse.dateCreated ?: now(),
+                rejectedAll = postResponse.rejectedAll ?: getResponse?.ccpa?.rejectedAll ?: false,
+                consentedAll = postResponse.consentedAll ?: getResponse?.ccpa?.consentedAll ?: false,
                 status = postResponse.status ?: getResponse?.ccpa?.status ?: CCPAConsent.CCPAConsentStatus.RejectedAll,
                 rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
                 rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
@@ -690,7 +708,7 @@ class Coordinator(
         if (action.type == SPActionType.SaveAndExit) {
             state.ccpa.consents.gppData = postResponse.gppData
         }
-        repository.state = state
+        persistState()
     }
 
     private suspend fun reportCCPAAction(action: SPAction, getResponse: ChoiceAllResponse?): CCPAChoiceResponse =
@@ -719,7 +737,7 @@ class Coordinator(
                 )
             )
         )
-        repository.state = state
+        persistState()
     }
 
     private suspend fun reportUSNatAction(action: SPAction, getResponse: ChoiceAllResponse?): USNatChoiceResponse =
@@ -750,13 +768,21 @@ class Coordinator(
         } catch (error: Exception) {
             throw error
         }
-        repository.state = state
+        storeLegislationConsent(userData = userData)
+        persistState()
         return userData
     }
 
     private fun handleCustomConsentResponse(response: GDPRConsent) {
-        state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(grants = response.grants))
-        repository.state = state
+        state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(
+            vendors = response.vendors,
+            categories = response.categories,
+            legIntVendors = response.legIntVendors,
+            legIntCategories = response.legIntCategories,
+            specialFeatures = response.specialFeatures,
+            grants = response.grants
+        ))
+        persistState()
     }
 
     override suspend fun customConsentGDPR(
@@ -791,5 +817,11 @@ class Coordinator(
             categories = categories,
             legIntCategories = legIntCategories
         ))
+    }
+
+    override fun clearLocalData() {
+        repository.clear()
+        state = State(accountId = accountId, propertyId = propertyId, authId = authId)
+        persistState()
     }
 }

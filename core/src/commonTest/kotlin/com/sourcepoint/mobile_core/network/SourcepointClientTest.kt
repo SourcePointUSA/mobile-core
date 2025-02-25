@@ -1,5 +1,10 @@
 package com.sourcepoint.mobile_core.network
 
+import com.sourcepoint.mobile_core.asserters.assertContains
+import com.sourcepoint.mobile_core.asserters.assertFalse
+import com.sourcepoint.mobile_core.asserters.assertIsEmpty
+import com.sourcepoint.mobile_core.asserters.assertNotEmpty
+import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
@@ -29,14 +34,12 @@ import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class SourcepointClientTest {
     private val accountId = 22
@@ -67,18 +70,18 @@ class SourcepointClientTest {
             )
         )
         assertNotNull(response.gdpr)
-        assertEquals(response.gdpr!!.applies, true)
-        assertEquals(response.gdpr!!.sampleRate, 1.0f)
-        assertTrue(response.gdpr!!.vendorListId.isNotEmpty())
+        assertEquals(response.gdpr?.applies, true)
+        assertEquals(response.gdpr?.sampleRate, 1.0f)
+        assertNotEmpty(response.gdpr?.vendorListId)
 
         assertNotNull(response.usnat)
-        assertEquals(response.usnat!!.applies, true)
-        assertEquals(response.usnat!!.sampleRate, 1.0f)
-        assertTrue(response.usnat!!.vendorListId.isNotEmpty())
+        assertEquals(response.usnat?.applies, true)
+        assertEquals(response.usnat?.sampleRate, 1.0f)
+        assertNotEmpty(response.usnat?.vendorListId)
 
         assertNotNull(response.ccpa)
-        assertEquals(response.ccpa!!.applies, true)
-        assertEquals(response.ccpa!!.sampleRate, 1.0f)
+        assertEquals(response.ccpa?.applies, true)
+        assertEquals(response.ccpa?.sampleRate, 1.0f)
     }
 
     @Test
@@ -116,46 +119,46 @@ class SourcepointClientTest {
         )
     }
 
-    private fun assertCampaignConsents(campaign: MessagesResponse.Campaign<*>) {
+    private fun assertCampaignConsentsFromMessages(campaign: MessagesResponse.Campaign<*>) {
         when(campaign) {
-            is MessagesResponse.GDPR -> assertCampaignConsents(campaign.derivedConsents)
-            is MessagesResponse.USNat -> assertCampaignConsents(campaign.derivedConsents)
-            is MessagesResponse.CCPA -> assertCampaignConsents(campaign.derivedConsents)
+            is MessagesResponse.GDPR -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
+            is MessagesResponse.USNat -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
+            is MessagesResponse.CCPA -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.Ios14 -> assertNull(campaign.derivedConsents)
         }
     }
 
-    private fun assertCampaignConsents(consents: GDPRConsent?) {
+    private fun assertCampaignConsentsFromMessages(consents: GDPRConsent?) {
         assertNotNull(consents)
-        assertTrue(consents.euconsent!!.isNotEmpty())
-        assertTrue(consents.tcData.isNotEmpty())
-        assertTrue(consents.grants.isNotEmpty())
+        assertNotEmpty(consents.euconsent)
+        assertNotEmpty(consents.tcData)
+        assertNotEmpty(consents.grants)
         assertNotNull(consents.dateCreated)
         assertNotNull(consents.expirationDate)
-        assertTrue(consents.webConsentPayload!!.isNotEmpty())
+        assertNotEmpty(consents.webConsentPayload)
     }
 
-    private fun assertCampaignConsents(consents: USNatConsent?) {
+    private fun assertCampaignConsentsFromMessages(consents: USNatConsent?) {
         assertNotNull(consents)
-        assertTrue(consents.gppData.isNotEmpty())
-        assertTrue(consents.consentStrings.isNotEmpty())
-        assertTrue(consents.userConsents.vendors.isEmpty())
-        assertTrue(consents.userConsents.categories.isNotEmpty())
+        assertNotEmpty(consents.gppData)
+        assertNotEmpty(consents.consentStrings)
+        assertIsEmpty(consents.userConsents.vendors)
+        assertNotEmpty(consents.userConsents.categories)
         assertNotNull(consents.dateCreated)
         assertNotNull(consents.expirationDate)
-        assertTrue(consents.webConsentPayload!!.isNotEmpty())
+        assertNotEmpty(consents.webConsentPayload)
     }
 
-    private fun assertCampaignConsents(consents: CCPAConsent?) {
+    private fun assertCampaignConsentsFromMessages(consents: CCPAConsent?) {
         assertNotNull(consents)
-        assertTrue(consents.gppData.isNotEmpty())
+        assertNotEmpty(consents.gppData)
         assertNotNull(consents.signedLspa)
-        assertNotEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
-        assertTrue(consents.rejectedCategories.isEmpty())
-        assertTrue(consents.rejectedVendors.isEmpty())
+        assertEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
+        assertIsEmpty(consents.rejectedCategories)
+        assertIsEmpty(consents.rejectedVendors)
         assertNotNull(consents.dateCreated)
         assertNotNull(consents.expirationDate)
-        assertTrue(consents.webConsentPayload!!.isNotEmpty())
+        assertNotEmpty(consents.webConsentPayload)
     }
 
     @Test
@@ -205,13 +208,13 @@ class SourcepointClientTest {
         response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
-            assertTrue(campaign.message!!.messageJson.isNotEmpty(), "Empty message_json for ${campaign.type}")
+            assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")
             assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
-            assertCampaignConsents(campaign)
+            assertCampaignConsentsFromMessages(campaign)
         }
 
-        assertTrue(response.localState.isNotEmpty())
-        assertTrue(response.nonKeyedLocalState.isNotEmpty())
+        assertNotEmpty(response.localState)
+        assertNotEmpty(response.nonKeyedLocalState)
     }
 
     @Test
@@ -290,9 +293,9 @@ class SourcepointClientTest {
                 ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
         )
-        assertTrue(response.gdpr?.consentStatus?.consentedAll == true)
-        assertTrue(response.gdpr?.acceptedVendors?.isNotEmpty() == true)
-        assertTrue(response.gdpr?.acceptedCategories?.isNotEmpty() == true)
+        assertTrue(response.gdpr?.consentStatus?.consentedAll)
+        assertNotEmpty(response.gdpr?.acceptedVendors)
+        assertNotEmpty(response.gdpr?.acceptedCategories)
     }
 
     @Test
@@ -305,9 +308,9 @@ class SourcepointClientTest {
                 ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
         )
-        assertTrue(response.gdpr?.consentStatus?.rejectedAny == true)
-        assertTrue(response.gdpr?.acceptedVendors?.isEmpty() == true)
-        assertTrue(response.gdpr?.acceptedCategories?.isEmpty() == true)
+        assertTrue(response.gdpr?.consentStatus?.rejectedAny)
+        assertIsEmpty(response.gdpr?.acceptedVendors)
+        assertIsEmpty(response.gdpr?.acceptedCategories)
     }
 
     @Test
@@ -316,9 +319,9 @@ class SourcepointClientTest {
             actionType = SPActionType.AcceptAll,
             request = GDPRChoiceRequest(sendPVData = true, propertyId = 123, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus?.consentedAll == true)
-        assertTrue(response.acceptedVendors?.isNotEmpty() == true )
-        assertTrue(response.acceptedCategories?.isNotEmpty() == true)
+        assertTrue(response.consentStatus?.consentedAll)
+        assertNotEmpty(response.acceptedVendors)
+        assertNotEmpty(response.acceptedCategories)
     }
 
     @Test
@@ -327,9 +330,9 @@ class SourcepointClientTest {
             actionType = SPActionType.RejectAll,
             request = GDPRChoiceRequest(sendPVData = true, propertyId = 123, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus?.rejectedAny == true)
-        assertTrue(response.acceptedVendors?.isEmpty() == true)
-        assertTrue(response.acceptedCategories?.isEmpty() == true)
+        assertTrue(response.consentStatus?.rejectedAny)
+        assertIsEmpty(response.acceptedVendors)
+        assertIsEmpty(response.acceptedCategories)
     }
 
     @Test
@@ -351,10 +354,10 @@ class SourcepointClientTest {
                 idfaStatus = SPIDFAStatus.Accepted
             )
         )
-        assertTrue(response.consentStatus?.rejectedAny == true)
-        assertTrue(response.consentStatus?.consentedToAny == true)
-        assertTrue(response.acceptedLegIntVendors?.contains("5f1b2fbeb8e05c306f2a1eb9") == true)
-        assertTrue(response.acceptedLegIntCategories?.contains("608bad95d08d3112188e0e2f") == true)
+        assertTrue(response.consentStatus?.rejectedAny)
+        assertTrue(response.consentStatus?.consentedToAny)
+        assertContains(response.acceptedLegIntVendors, "5f1b2fbeb8e05c306f2a1eb9")
+        assertContains(response.acceptedLegIntCategories, "608bad95d08d3112188e0e2f")
     }
 
     @Test
@@ -363,7 +366,7 @@ class SourcepointClientTest {
             actionType = SPActionType.AcceptAll,
             request = CCPAChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.consentedAll == true)
+        assertTrue(response.consentedAll)
         assertEquals(response.status, CCPAConsent.CCPAConsentStatus.ConsentedAll)
     }
 
@@ -373,7 +376,7 @@ class SourcepointClientTest {
             actionType = SPActionType.RejectAll,
             request = CCPAChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.rejectedAll == true)
+        assertTrue(response.rejectedAll)
         assertEquals(response.status, CCPAConsent.CCPAConsentStatus.RejectedAll)
     }
 
@@ -390,9 +393,9 @@ class SourcepointClientTest {
                 sampleRate = 1.0f
             )
         )
-        assertTrue(response.consentedAll == false)
-        assertTrue(response.rejectedAll == false)
-        assertTrue(response.rejectedCategories?.contains("608bae685461ff11a2c2865d") == true)
+        assertFalse(response.consentedAll)
+        assertFalse(response.rejectedAll)
+        assertContains(response.rejectedCategories, "608bae685461ff11a2c2865d")
     }
 
     @Test
@@ -401,7 +404,7 @@ class SourcepointClientTest {
             actionType = SPActionType.AcceptAll,
             request = USNatChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus.consentedToAll == true)
+        assertTrue(response.consentStatus.consentedToAll)
     }
 
     @Test
@@ -410,7 +413,7 @@ class SourcepointClientTest {
             actionType = SPActionType.RejectAll,
             request = USNatChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus.rejectedAny == true)
+        assertTrue(response.consentStatus.rejectedAny)
     }
 
     @Test
@@ -427,7 +430,7 @@ class SourcepointClientTest {
                 sampleRate = 1f
             )
         )
-        assertTrue(response.consentStatus.rejectedAny == true)
-        assertTrue(response.consentStatus.consentedToAny == true)
+        assertTrue(response.consentStatus.rejectedAny)
+        assertTrue(response.consentStatus.consentedToAny)
     }
 }

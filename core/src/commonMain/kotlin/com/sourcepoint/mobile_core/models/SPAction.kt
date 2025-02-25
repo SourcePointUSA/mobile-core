@@ -24,17 +24,19 @@ data class SPAction(
     val pmPayload: JsonObject = JsonObject(emptyMap()),
     val encodablePubData: JsonObject = JsonObject(emptyMap())
 ) {
-    constructor(
-        type: SPActionType,
-        campaignType: SPCampaignType,
-        messageId: String? = null,
-        pmPayload: String? = null,
-        encodablePubData: String? = null
-    ):  this(
-        type = type,
-        campaignType = campaignType,
-        messageId = messageId,
-        pmPayload = pmPayload?.encodeToJsonObject() ?: JsonObject(emptyMap()),
-        encodablePubData = encodablePubData?.encodeToJsonObject() ?: JsonObject(emptyMap())
-    )
+    companion object {
+        fun init(
+            type: SPActionType,
+            campaignType: SPCampaignType,
+            messageId: String? = null,
+            pmPayload: String? = null,
+            encodablePubData: String? = null
+        ): SPAction = SPAction(
+            type = type,
+            campaignType = campaignType,
+            messageId = messageId,
+            pmPayload = pmPayload?.encodeToJsonObject() ?: JsonObject(emptyMap()),
+            encodablePubData = encodablePubData?.encodeToJsonObject() ?: JsonObject(emptyMap())
+        )
+    }
 }

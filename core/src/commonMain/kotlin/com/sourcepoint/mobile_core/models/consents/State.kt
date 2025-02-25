@@ -11,6 +11,8 @@ data class State (
     var usNat: USNatState = USNatState(),
     var ios14: AttCampaign = AttCampaign(),
     var authId: String? = null,
+    val propertyId: Int,
+    val accountId: Int,
     var localVersion: Int = VERSION,
     var localState: String = "",
     var nonKeyedLocalState: String = "",

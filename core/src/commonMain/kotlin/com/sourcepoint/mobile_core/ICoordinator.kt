@@ -2,8 +2,8 @@ package com.sourcepoint.mobile_core
 
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPAction
+import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.consents.SPUserData
-import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import kotlinx.serialization.json.JsonObject
 
 interface ICoordinator {
@@ -13,7 +13,8 @@ interface ICoordinator {
 
     @Throws(Exception::class) suspend fun loadMessages(
         authId: String?,
-        pubData: JsonObject?
+        pubData: JsonObject?,
+        language: SPMessageLanguage
     ): List<MessageToDisplay>
 
     @Throws(Exception::class) suspend fun customConsentGDPR(
@@ -27,4 +28,6 @@ interface ICoordinator {
         categories: List<String>,
         legIntCategories: List<String>
     )
+
+    fun clearLocalData()
 }
