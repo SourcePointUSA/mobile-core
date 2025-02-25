@@ -2,8 +2,14 @@ package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
 import com.sourcepoint.mobile_core.asserters.assertAllAccepted
+import com.sourcepoint.mobile_core.asserters.assertContains
+import com.sourcepoint.mobile_core.asserters.assertContainsAllOf
 import com.sourcepoint.mobile_core.asserters.assertDefaultConsents
+import com.sourcepoint.mobile_core.asserters.assertDoesNotContain
+import com.sourcepoint.mobile_core.asserters.assertDoesNotContainAllOf
+import com.sourcepoint.mobile_core.asserters.assertFalse
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
+import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType
@@ -29,6 +35,12 @@ class CoordinatorTest {
     private val accountId = 22
     private val propertyId = 16893
     private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
+    private val customVendorId = "5ff4d000a228633ac048be41" // "Game Accounts"
+    private val categoriesUsedByVendorId = listOf(
+        "608bad95d08d3112188e0e36", // "Create profiles for personalised advertising",
+        "608bad95d08d3112188e0e2f", // "Use limited data to select advertising",
+        "608bad95d08d3112188e0e3d", // "Use profiles to select personalised advertising"
+    )
     private val campaigns = SPCampaigns(
         gdpr = SPCampaign(),
         ccpa = SPCampaign(),
@@ -123,6 +135,40 @@ class CoordinatorTest {
             )
         )
         assertNotEmpty(consents.usnat?.consents?.uuid)
+    }
+
+    @Test
+    fun deleteCustomGDPRConsentRemovesVendorFromVendorsProperty() = runTest {
+        val coordinator = getCoordinator()
+        coordinator.reportAction(SPAction(SPActionType.AcceptAll, SPCampaignType.Gdpr))
+        coordinator.deleteCustomConsentGDPR(
+            vendors = listOf(customVendorId),
+            categories = categoriesUsedByVendorId,
+            legIntCategories = emptyList()
+        )
+        val consents = coordinator.userData.gdpr?.consents
+//        TODO: the response to deleteCustomConsent doesn't contain an updated consentStatus
+//        assertFalse(consents?.consentStatus?.consentedAll)
+//        assertFalse(consents?.consentStatus?.rejectedAll)
+//        assertTrue(consents?.consentStatus?.rejectedAny)
+        assertDoesNotContain(consents?.vendors, customVendorId)
+        assertDoesNotContainAllOf(consents?.categories, categoriesUsedByVendorId)
+        assertFalse(consents?.grants?.get(customVendorId)?.vendorGrant)
+    }
+
+    @Test
+    fun customConsentGDPRAddsVendorToVendorsProperty() = runTest {
+        val coordinator = getCoordinator()
+        coordinator.reportAction(SPAction(SPActionType.RejectAll, SPCampaignType.Gdpr))
+        coordinator.customConsentGDPR(
+            vendors = listOf(customVendorId),
+            categories = categoriesUsedByVendorId,
+            legIntCategories = emptyList()
+        )
+        val consents = coordinator.userData.gdpr?.consents
+        assertContains(consents?.vendors, customVendorId)
+        assertContainsAllOf(consents?.categories, categoriesUsedByVendorId)
+        assertTrue(consents?.grants?.get(customVendorId)?.vendorGrant)
     }
 
     @Test
