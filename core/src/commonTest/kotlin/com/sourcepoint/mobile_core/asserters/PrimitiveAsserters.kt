@@ -41,9 +41,23 @@ fun <T> assertDoesNotContain(iterable: Iterable<T>?, element: T, message: String
     }
 }
 
+fun <T> assertDoesNotContainAllOf(iterable: Iterable<T>?, other: Iterable<T>, message: String? = null) {
+    if(iterable == null) { fail(message ?: "Expected collection to contain $other, but it's null.") }
+    other.forEach {
+        assertDoesNotContain(iterable, it, message ?: "Expected $iterable not to contain $it")
+    }
+}
+
 fun <T> assertContains(iterable: Iterable<T>?, element: T, message: String? = null) {
     if(iterable == null) { fail(message ?: "Expected collection to contain $element, but it's null.") }
     kotlin.test.assertContains(iterable, element, message ?: "Expected $iterable not to contain $element")
+}
+
+fun <T> assertContainsAllOf(iterable: Iterable<T>?, other: Iterable<T>, message: String? = null) {
+    if(iterable == null) { fail(message ?: "Expected collection to contain $other, but it's null.") }
+    other.forEach {
+        kotlin.test.assertContains(iterable, it, message ?: "Expected $iterable not to contain $it")
+    }
 }
 
 fun assertTrue(actual: Boolean?, message: String? = null) {
