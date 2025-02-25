@@ -824,5 +824,7 @@ class Coordinator(
 
     override fun clearLocalData() {
         repository.clear()
+        state = State(accountId = accountId, propertyId = propertyId, authId = authId)
+        persistState()
     }
 }
