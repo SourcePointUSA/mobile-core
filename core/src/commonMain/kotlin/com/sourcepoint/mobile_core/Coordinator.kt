@@ -777,7 +777,14 @@ class Coordinator(
     }
 
     private fun handleCustomConsentResponse(response: GDPRConsent) {
-        state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(grants = response.grants))
+        state.gdpr = state.gdpr.copy(consents = state.gdpr.consents.copy(
+            vendors = response.vendors,
+            categories = response.categories,
+            legIntVendors = response.legIntVendors,
+            legIntCategories = response.legIntCategories,
+            specialFeatures = response.specialFeatures,
+            grants = response.grants
+        ))
         persistState()
     }
 
