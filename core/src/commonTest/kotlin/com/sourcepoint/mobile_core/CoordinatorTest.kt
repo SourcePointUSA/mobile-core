@@ -205,4 +205,18 @@ class CoordinatorTest {
 
         assertEquals(0, coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH).size)
     }
+
+    @Test
+    fun whenALegislationDoesNotApplyMessageIsReturnedRegardless() = runTest {
+        val spClientMock = SPClientMock(
+            original = spClient,
+            getMetaData = { MetaDataResponse(
+                ccpa = MetaDataResponse.MetaDataResponseCCPA(applies = false, sampleRate = 1.0f)
+            )
+        })
+        val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(ccpa = SPCampaign()))
+        val messages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
+        assertEquals(1, messages.size)
+        assertNotEmpty(repository.uspString)
+    }
 }
