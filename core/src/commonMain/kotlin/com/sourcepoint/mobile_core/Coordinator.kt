@@ -83,9 +83,24 @@ class Coordinator(
 
     override val userData: SPUserData
         get() = SPUserData(
-            gdpr = campaigns.gdpr?.let { SPUserData.SPConsent(consents = state.gdpr.consents) },
-            ccpa = campaigns.ccpa?.let { SPUserData.SPConsent(consents = state.ccpa.consents) },
-            usnat = campaigns.usnat?.let { SPUserData.SPConsent(consents = state.usNat.consents) }
+            gdpr = campaigns.gdpr?.let {
+                SPUserData.SPConsent(
+                    consents = state.gdpr.consents,
+                    childPmId = state.gdpr.childPmId
+                )
+            },
+            ccpa = campaigns.ccpa?.let {
+                SPUserData.SPConsent(
+                    consents = state.ccpa.consents,
+                    childPmId = state.ccpa.childPmId
+                )
+            },
+            usnat = campaigns.usnat?.let {
+                SPUserData.SPConsent(
+                    consents = state.usNat.consents,
+                    childPmId = state.usNat.childPmId
+                )
+            }
         )
 
     @Suppress("Unused")
@@ -539,7 +554,6 @@ class Coordinator(
                     grants = it.grants,
                     euconsent = it.euconsent,
                     consentStatus = it.consentStatus,
-                    childPmId = it.childPmId,
                     gcmStatus = it.gcmStatus
                 )
             )
