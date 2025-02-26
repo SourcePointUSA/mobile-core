@@ -73,7 +73,7 @@ class Coordinator(
                 state.usNat.consents.uuid == null &&
                 (state.ccpa.consents.status == CCPAConsent.CCPAConsentStatus.RejectedAll || state.ccpa.consents.status == CCPAConsent.CCPAConsentStatus.RejectedSome)
 
-    internal val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
+    private val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
 
     private val shouldCallMessages: Boolean get() =
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
@@ -230,6 +230,7 @@ class Coordinator(
     }
 
     private fun handleConsentStatusResponse(response: ConsentStatusResponse) {
+        state.localVersion = State.VERSION
         state.localState = response.localState
         response.consentStatusData.gdpr?.let {
             state.gdpr = state.gdpr.copy(
@@ -318,13 +319,10 @@ class Coordinator(
                         }
                     )
                 )
-                state.localVersion = State.VERSION
                 handleConsentStatusResponse(response)
             } catch (error: Throwable) {
                 throw error
             }
-        } else {
-            state.localVersion = State.VERSION
         }
         next()
     }

@@ -1,6 +1,7 @@
 package com.sourcepoint.mobile_core
 
 import com.russhwolf.settings.MapSettings
+import com.russhwolf.settings.Settings
 import com.sourcepoint.mobile_core.asserters.assertAllAccepted
 import com.sourcepoint.mobile_core.asserters.assertContains
 import com.sourcepoint.mobile_core.asserters.assertContainsAllOf
@@ -13,25 +14,32 @@ import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.SPAction
-import com.sourcepoint.mobile_core.models.SPActionType.*
+import com.sourcepoint.mobile_core.models.SPActionType.AcceptAll
+import com.sourcepoint.mobile_core.models.SPActionType.RejectAll
+import com.sourcepoint.mobile_core.models.SPActionType.SaveAndExit
 import com.sourcepoint.mobile_core.models.SPCampaign
-import com.sourcepoint.mobile_core.models.SPCampaignType.*
+import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
+import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
+import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
 import com.sourcepoint.mobile_core.models.SPCampaigns
+import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPMessageLanguage.ENGLISH
 import com.sourcepoint.mobile_core.models.SPPropertyName
-import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
+import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import com.sourcepoint.mobile_core.utils.now
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertSame
@@ -40,8 +48,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid.Companion.random
 
 class CoordinatorTest {
-    private val storage = MapSettings()
-    private val repository = Repository(storage)
+    private val storage: Settings get() = MapSettings()
+    private val repository: Repository get() = Repository(storage)
     private val accountId = 22
     private val propertyId = 16893
     private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
@@ -62,6 +70,19 @@ class CoordinatorTest {
         accountId = accountId,
         propertyId = propertyId,
         propertyName = propertyName
+    )
+    private val saveAndExitActionUsnat = SPAction.init(
+        type = SaveAndExit,
+        campaignType = UsNat,
+        pmPayload = """
+        {
+            "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
+            "categories": ["6568ae4503cf5cf81eb79fa5"],
+            "lan": "EN",
+            "privacyManagerId": "943890",
+            "vendors": []
+        }
+        """
     )
 
     private fun getCoordinator(
@@ -84,8 +105,38 @@ class CoordinatorTest {
         state = state
     )
 
+    private suspend fun Coordinator.acceptAllLegislations() {
+        reportAction(SPAction(AcceptAll, Gdpr))
+        reportAction(SPAction(AcceptAll, Ccpa))
+        reportAction(SPAction(AcceptAll, UsNat))
+    }
+
+    private suspend fun Coordinator.loadMessages(
+        authId: String? = null,
+        pubData: JsonObject? = null,
+        language: SPMessageLanguage = ENGLISH
+    ) = loadMessages(authId, pubData, language)
+
     @OptIn(ExperimentalUuidApi::class)
     fun getRandomAuthId() = "mobile-core-testing-${random()}"
+
+    private fun metaDataResponseUSNat(
+        applies: Boolean = false,
+        sampleRate: Float = 1f,
+        additionsChangeDate: Instant = now(),
+        applicableSections: List<Int> = emptyList(),
+        vendorListId: String = ""
+    ) = MetaDataResponse.MetaDataResponseUSNat(
+        applies = applies,
+        sampleRate = sampleRate,
+        additionsChangeDate = additionsChangeDate,
+        applicableSections = applicableSections,
+        vendorListId = vendorListId
+    )
+
+    private fun consentStatusResponse() = ConsentStatusResponse(
+        consentStatusData = ConsentStatusResponse.ConsentStatusData(), localState = ""
+    )
 
     @Test
     fun shouldResetStateIfPropertyDetailsChange() {
@@ -104,7 +155,7 @@ class CoordinatorTest {
     fun shouldNotResetStateIfAuthIdChangesFromNull() = runTest {
         val state = State(accountId = accountId, propertyId = propertyId, authId = null)
         val coordinator = getCoordinator(spClient = SPClientMock(), state = state)
-        coordinator.loadMessages(authId = "foo", pubData = null, language = ENGLISH)
+        coordinator.loadMessages(authId = "foo")
         assertSame(coordinator.state, state)
     }
 
@@ -112,44 +163,25 @@ class CoordinatorTest {
     fun shouldResetStateIfAuthIdChangeFromSomethingToSomethingElse() = runTest {
         val state = State(accountId = accountId, propertyId = propertyId, authId = "foo")
         val coordinator = getCoordinator(spClient = SPClientMock(), state = state)
-        coordinator.loadMessages(authId = "bar", pubData = null, language = ENGLISH)
+        coordinator.loadMessages(authId = "bar")
         assertNotSame(coordinator.state, state)
     }
 
     @Test
     fun reportActionReturnsGDPRConsent() = runTest {
-        val consents = getCoordinator().reportAction(
-            action = SPAction(type = AcceptAll, campaignType = Gdpr),
-        )
+        val consents = getCoordinator().reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
         assertNotEmpty(consents.gdpr?.consents?.uuid)
     }
 
     @Test
     fun reportActionReturnsCCPAConsent() = runTest {
-        val consents = getCoordinator().reportAction(
-            action = SPAction(type = RejectAll, campaignType = Ccpa),
-        )
+        val consents = getCoordinator().reportAction(SPAction(type = RejectAll, campaignType = Ccpa))
         assertNotEmpty(consents.ccpa?.consents?.uuid)
     }
 
     @Test
     fun reportActionReturnsUSNatConsent() = runTest {
-        val coordinator = getCoordinator()
-        val consents = coordinator.reportAction(
-            action = SPAction.init(
-                type = SaveAndExit,
-                campaignType = UsNat,
-                pmPayload = """
-                {
-                    "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
-                    "categories": ["6568ae4503cf5cf81eb79fa5"],
-                    "lan": "EN",
-                    "privacyManagerId": "943890",
-                    "vendors": []
-                }
-                """,
-            )
-        )
+        val consents = getCoordinator().reportAction(saveAndExitActionUsnat)
         assertNotEmpty(consents.usnat?.consents?.uuid)
     }
 
@@ -196,26 +228,25 @@ class CoordinatorTest {
 
     @Test
     fun consentIsStoredAfterCallingLoadMessagesAndNoMessagesShouldAppearAfterAcceptingAll() = runTest {
-        val coordinator = getCoordinator()
-        assertEquals(3, coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH).size)
-        assertNotEmpty(repository.gppData)
-        assertNotEmpty(repository.tcData)
-        assertNotEmpty(repository.uspString)
+        val localStorage = repository
+        val coordinator = getCoordinator(repository = localStorage)
+        assertEquals(3, coordinator.loadMessages().size)
+        assertNotEmpty(localStorage.gppData)
+        assertNotEmpty(localStorage.tcData)
+        assertNotEmpty(localStorage.uspString)
         assertDefaultConsents(coordinator.userData.gdpr?.consents)
         assertDefaultConsents(coordinator.userData.ccpa?.consents)
         assertDefaultConsents(coordinator.userData.usnat?.consents)
 
-        coordinator.reportAction(SPAction(AcceptAll, Gdpr))
-        coordinator.reportAction(SPAction(AcceptAll, Ccpa))
-        coordinator.reportAction(SPAction(AcceptAll, UsNat))
-        assertNotEmpty(repository.gppData)
-        assertNotEmpty(repository.tcData)
-        assertNotEmpty(repository.uspString)
+        coordinator.acceptAllLegislations()
+        assertNotEmpty(localStorage.gppData)
+        assertNotEmpty(localStorage.tcData)
+        assertNotEmpty(localStorage.uspString)
         assertAllAccepted(coordinator.userData.gdpr?.consents)
         assertAllAccepted(coordinator.userData.ccpa?.consents)
         assertAllAccepted(coordinator.userData.usnat?.consents)
 
-        assertIsEmpty(coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH))
+        assertIsEmpty(coordinator.loadMessages())
     }
 
     @Test
@@ -227,185 +258,136 @@ class CoordinatorTest {
         assertNotEmpty(firstUuid)
 
         coordinator = getCoordinator()
-        coordinator.loadMessages(authId = authId, pubData = null, language = ENGLISH)
+        coordinator.loadMessages(authId = authId)
         assertEquals(firstUuid, coordinator.userData.gdpr?.consents?.uuid)
     }
 
-//    @Test
-//    fun consentStatusNotCalledWhenLocalDataOutdatedNoUuid() = runTest {
-//        val spClientMock = SPClientMock()
-//        val coordinator = getCoordinator(spClient = spClientMock)
-//        repository.state = State(localVersion = 0, propertyId = propertyId, accountId = accountId)
-//        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-//        assertFalse(spClientMock.consentStatusCalled)
-//    }
+    @Test
+    fun consentStatusNotCalledWhenLocalDataOutdatedNoUuid() = runTest {
+        var consentStatusCalled = false
+        val spClientMock = SPClientMock(getConsentStatus = { _, _ ->
+            consentStatusCalled = true
+            consentStatusResponse()
+        })
+        val coordinator = getCoordinator(
+            spClient = spClientMock,
+            state = State(localVersion = 0, propertyId = propertyId, accountId = accountId)
+        )
+        coordinator.loadMessages()
+        assertFalse(consentStatusCalled)
+    }
 
-//    @Test
-//    fun consentStatusCalledWhenLocalDataOutdatedHasUuid() = runTest {
-//        val spClientMock = SPClientMock()
-//        val coordinator = getCoordinator(spClient = spClientMock)
-//        val consent = GDPRConsent(uuid = "test")
-//        coordinator.state = State(gdpr = State.GDPRState(consents = consent), localVersion = 0, propertyId = propertyId, accountId = accountId)
-//        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-//        assertTrue(spClientMock.consentStatusCalled)
-//        //Check that consentStatus is not called again after it's been called first time
-//        spClientMock.consentStatusCalled = false
-//        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-//        assertFalse(spClientMock.consentStatusCalled)
-//    }
+    @Test
+    fun consentStatusCalledWhenLocalDataOutdatedHasUuid() = runTest {
+        var consentStatusCalled = false
+        val spClientMock = SPClientMock(getConsentStatus = { _, _ ->
+            consentStatusCalled = true
+            consentStatusResponse()
+        })
+        val coordinator = getCoordinator(spClient = spClientMock, state = State(
+            gdpr = State.GDPRState(consents = GDPRConsent(uuid = "foo")),
+            localVersion = 0,
+            propertyId = propertyId,
+            accountId = accountId
+        ))
+        coordinator.loadMessages()
+        assertTrue(consentStatusCalled)
+    }
 
     @Test
     fun consentStatusSetsLocalVersionWhenSucceds() = runTest {
-        val spClientMock = SPClientMock()
-        val coordinator = getCoordinator(spClient = spClientMock)
-        val consent = GDPRConsent(uuid = "test")
-        repository.state = State(gdpr = State.GDPRState(consents = consent), localVersion = 0, propertyId = propertyId, accountId = accountId)
-        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
+        val coordinator = getCoordinator(spClient =  SPClientMock())
+        coordinator.loadMessages()
         assertEquals(State.VERSION, coordinator.state.localVersion)
     }
 
     @Test
     fun consentStatusLeavesLocalVersionWhenFails() = runTest {
-        val spClientMock = SPClientMock()
-        val coordinator = getCoordinator(spClient = spClientMock)
-        val consent = GDPRConsent(uuid = "test")
-        coordinator.state = State(gdpr = State.GDPRState(consents = consent), localVersion = 0, propertyId = propertyId, accountId = accountId)
-        coordinator.persistState()
-        try { coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH) } catch (_: Throwable) { }
+        val coordinator = getCoordinator(
+            spClient = SPClientMock(getConsentStatus = { _, _ -> throw  Exception() }),
+            state = State(
+                gdpr = State.GDPRState(consents = GDPRConsent(uuid = "foo")),
+                localVersion = 0,
+                propertyId = propertyId,
+                accountId = accountId
+            )
+        )
+        runCatching { coordinator.loadMessages() }
         assertEquals(0, coordinator.state.localVersion)
     }
 
     @Test
-    fun whenUserHasConsentStoredKeepsItUnchanged() = runTest {
+    fun whenUserHasConsentStoredCallingLoadMessagesDoesNotChangeIt() = runTest {
         val coordinator = getCoordinator()
-        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
+        coordinator.loadMessages()
         val userData = coordinator.userData
         val actionResult = coordinator.reportAction(SPAction(RejectAll, Gdpr))
         assertNotEquals(userData, actionResult)
-        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
+        coordinator.loadMessages()
         val secondUserData = coordinator.userData
         assertEquals(actionResult, secondUserData)
     }
 
     @Test
-    fun whenUserHasConsentStoredAndExpirationDataGreaterCurrentDate() = runTest {
+    fun whenUserHasConsentStoredAndExpirationDateGreaterCurrentDate() = runTest {
         val coordinator = getCoordinator()
-        val messages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(messages.filter { it.type == Gdpr })
-        assertNotEmpty(messages.filter { it.type == Ccpa })
-        coordinator.reportAction(SPAction(AcceptAll, Gdpr))
-        coordinator.reportAction(SPAction(AcceptAll, Ccpa))
-        assertTrue(coordinator.state.gdpr.consents.consentStatus.consentedAll)
-        assertEquals(CCPAConsent.CCPAConsentStatus.ConsentedAll, coordinator.state.ccpa.consents.status)
-
-        val secondMessages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertIsEmpty(secondMessages.filter { it.type == Gdpr })
-        assertIsEmpty(secondMessages.filter { it.type == Ccpa })
-        assertTrue(coordinator.state.gdpr.consents.consentStatus.consentedAll)
-        assertEquals(CCPAConsent.CCPAConsentStatus.ConsentedAll, coordinator.state.ccpa.consents.status)
-
+        coordinator.acceptAllLegislations()
         coordinator.state = coordinator.state.copy(
             gdpr = coordinator.state.gdpr.copy(
-                consents = coordinator.state.gdpr.consents.copy(
-                    expirationDate = now().minus(1.days)
-                )
-            )
-        )
-        coordinator.state = coordinator.state.copy(
+                consents = coordinator.state.gdpr.consents.copy(expirationDate = now().minus(1.days))
+            ),
             ccpa = coordinator.state.ccpa.copy(
-                consents = coordinator.state.ccpa.consents.copy(
-                    expirationDate = now().minus(1.days)
-                )
+                consents = coordinator.state.ccpa.consents.copy(expirationDate = now().minus(1.days))
+            ),
+            usNat = coordinator.state.usNat.copy(
+                consents = coordinator.state.usNat.consents.copy(expirationDate = now().minus(1.days))
             )
         )
-        coordinator.persistState()
-
-        val thirdMessages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(thirdMessages.filter { it.type == Gdpr })
-        assertNotEmpty(thirdMessages.filter { it.type == Ccpa })
-        assertFalse(coordinator.state.gdpr.consents.consentStatus.consentedAll)
-        assertEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, coordinator.state.ccpa.consents.status)
+        assertEquals(3, coordinator.loadMessages().size)
     }
 
     @Test
     fun propertyWithSupportLegacyUSPStringReceivesIABUSPrivacyString() = runTest {
-        val optedOutUspString = "1YYN"
-        val optedInUspString = "1YNN"
-        val coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign(supportLegacyUSPString = true)))
-        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        val newUserUspString = coordinator.userData.usnat?.consents?.gppData?.get("IABUSPrivacy_String")?.content
-        assertEquals(optedInUspString, newUserUspString)
-        val rejectedAction = SPAction(type = RejectAll, campaignType = UsNat)
-        val userData = coordinator.reportAction(rejectedAction)
-        val actionUspString = userData.usnat?.consents?.gppData?.get("IABUSPrivacy_String")?.content
-        assertEquals(optedOutUspString, actionUspString)
+        val localStorage = repository
+        val coordinator = getCoordinator(
+            campaigns = SPCampaigns(usnat = SPCampaign(supportLegacyUSPString = true)),
+            repository = localStorage
+        )
+        assertNull(localStorage.uspString)
+        coordinator.loadMessages()
+        assertNotEmpty(localStorage.uspString)
     }
 
     @Test
-    fun propertyWithAuthIdPersistsConsent() = runTest {
-        var coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign()))
-        val saveAndExitAction = SPAction.init(type = SaveAndExit, campaignType = UsNat, pmPayload = """
-                {
-                    "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
-                    "categories": ["6568ae4503cf5cf81eb79fa5"],
-                    "lan": "EN",
-                    "privacyManagerId": "943890",
-                    "vendors": []
-                }
-                """)
-        val randomUuid = getRandomAuthId()
-        coordinator.loadMessages(authId = randomUuid, pubData = null, language = ENGLISH)
-        val actionUserData = coordinator.reportAction(saveAndExitAction)
-        assertNotNull(actionUserData.usnat?.consents?.uuid )
-        assertEquals(actionUserData.usnat?.consents?.uuid, coordinator.userData.usnat?.consents?.uuid)
+    fun propertyWithAuthIdAndTransitionCCPAAuthSetsFlagInConsentStatusMetadata() = runTest {
+        var coordinator = getCoordinator(campaigns = SPCampaigns(ccpa = SPCampaign()))
+        val authId = getRandomAuthId()
+        coordinator.loadMessages(authId = authId)
+        coordinator.reportAction(SPAction(type = RejectAll, campaignType = Ccpa))
 
-        coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign()))
-        val messages = coordinator.loadMessages(authId = randomUuid, pubData = null, language = ENGLISH)
-        assertIsEmpty(messages)
-        assertEquals(actionUserData.usnat?.consents?.uuid, coordinator.userData.usnat?.consents?.uuid)
+        coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
+        assertIsEmpty(coordinator.loadMessages(authId = authId))
+        assertTrue(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny)
+        assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.consentedToAll)
     }
 
-//    @Test
-//    fun propertyWithAuthIdAndTransitionCCPAAuthSetsFlagInConsentStatusMetadata() = runTest {
-//        var coordinator = getCoordinator(campaigns = SPCampaigns(ccpa = SPCampaign()))
-//        val randomUuid = getRandomAuthId()
-//        coordinator.loadMessages(authId = randomUuid, pubData = null, language = ENGLISH)
-//        val actionResult = coordinator.reportAction(SPAction(type = RejectAll, campaignType = Ccpa))
-//        assertEquals(CCPAConsent.CCPAConsentStatus.RejectedAll, actionResult.ccpa?.consents?.status)
-//
-//        coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
-//        val messages = coordinator.loadMessages(authId = randomUuid, pubData = null, language = ENGLISH)
-//        assertIsEmpty(messages)
-//        assertTrue(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny)
-//        assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.consentedToAll)
-//    }
-
-//    @Test
-//    fun handlesCCPAoptoutWhenThereNoAuthID() = runTest {
-//        val spClientMock = SPClientMock()
-//        val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
-//        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-//        assertNull(spClientMock.consentStatusCalledWith?.usnat?.transitionCCPAAuth)
-//    }
+    @Test
+    fun handlesCCPAOptOutWhenThereIsNoAuthId() = runTest {
+        var consentStatusMetaData: ConsentStatusRequest.MetaData? = null
+        val spClientMock = SPClientMock(getConsentStatus = { _, metadata ->
+            consentStatusMetaData = metadata
+            consentStatusResponse()
+        })
+        val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
+        coordinator.loadMessages()
+        assertNull(consentStatusMetaData?.usnat?.transitionCCPAAuth)
+    }
 
     @Test
     fun usnatPropertyAdditionsChangeDateBiggerThanConsentDateCreatedShowMessage() = runTest {
         val coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign()))
-        val messages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(messages)
-        val saveAndExitAction = SPAction.init(type = SaveAndExit, campaignType = UsNat, pmPayload = """
-                {
-                    "shownCategories": ["6568ae4503cf5cf81eb79fa5"],
-                    "categories": ["6568ae4503cf5cf81eb79fa5"],
-                    "lan": "EN",
-                    "privacyManagerId": "943890",
-                    "vendors": []
-                }
-                """)
-        coordinator.reportAction(saveAndExitAction)
-        val secondMessages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertIsEmpty(secondMessages)
-
+        assertEquals(1, coordinator.loadMessages().size)
+        coordinator.reportAction(saveAndExitActionUsnat)
         coordinator.state = coordinator.state.copy(
             usNat = coordinator.state.usNat.copy(
                 consents = coordinator.state.usNat.consents.copy(
@@ -413,89 +395,82 @@ class CoordinatorTest {
                 )
             )
         )
-        coordinator.persistState()
-        val thirdMessages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(thirdMessages)
+        assertEquals(1, coordinator.loadMessages().size)
     }
 
-//    @Test
-//    fun whenUsnatApplicableSectionsChangeShouldCallConsentStatus() = runTest {
-//        val firstApplicableSection = 1
-//        val differentApplicableSection = 2
-//        val spClientMock = SPClientMock()
-//        spClientMock.metaDataResponse = MetaDataResponse(
-//            gdpr = null,
-//            usnat = MetaDataResponse.MetaDataResponseUSNat(
-//                applies = true,
-//                sampleRate = 1f,
-//                additionsChangeDate = now(),
-//                applicableSections = listOf(firstApplicableSection),
-//                vendorListId = ""
-//            ),
-//            ccpa = null
-//        )
-//        val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(usnat = SPCampaign()))
-//        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-//        assertFalse(spClientMock.consentStatusCalled)
-//
-//        spClientMock.metaDataResponse = MetaDataResponse(
-//            gdpr = null,
-//            usnat = MetaDataResponse.MetaDataResponseUSNat(
-//                applies = true,
-//                sampleRate = 1f,
-//                additionsChangeDate = now(),
-//                applicableSections = listOf(differentApplicableSection),
-//                vendorListId = ""
-//            ),
-//            ccpa = null
-//        )
-//        coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-//        assertTrue(spClientMock.consentStatusCalled)
-//    }
+    @Test
+    fun whenUsnatApplicableSectionsChangeShouldCallConsentStatus() = runTest {
+        val firstApplicableSections = listOf(1)
+        val differentApplicableSections = listOf(2)
+        var consentStatusCalled = false
+        val spClientMock = SPClientMock(
+            getMetaData = { MetaDataResponse(
+                gdpr = null,
+                usnat = metaDataResponseUSNat(applicableSections = firstApplicableSections),
+                ccpa = null
+            )},
+            getConsentStatus = { _, _ ->
+                consentStatusCalled = true
+                consentStatusResponse()
+            }
+        )
+        val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(usnat = SPCampaign()))
+        coordinator.loadMessages()
+        assertFalse(consentStatusCalled)
+        assertEquals(firstApplicableSections, coordinator.state.usNat.metaData.applicableSections)
+
+        spClientMock.getMetaData = { MetaDataResponse(
+            gdpr = null,
+            usnat = metaDataResponseUSNat(applicableSections = differentApplicableSections),
+            ccpa = null
+        ) }
+        coordinator.loadMessages()
+        assertTrue(consentStatusCalled)
+        assertEquals(differentApplicableSections, coordinator.state.usNat.metaData.applicableSections)
+    }
 
     @Test
     fun flushingConsentWhenGdprVendorListIdChanges() = runTest {
-        val coordinator = getCoordinator()
-        val messages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(messages.filter { it.type == Gdpr })
+        val coordinator = getCoordinator(campaigns = SPCampaigns(gdpr = SPCampaign()))
+        assertEquals(1, coordinator.loadMessages().size)
         coordinator.reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
         coordinator.state = coordinator.state.copy(
             gdpr = coordinator.state.gdpr.copy(
                 metaData = coordinator.state.gdpr.metaData.copy(vendorListId = "foo")
             )
         )
-        val secondMessages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(secondMessages.filter { it.type == Gdpr })
+        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
     }
 
     @Test
     fun flushingConsentWhenUsnatVendorListIdChanges() = runTest {
-        val coordinator = getCoordinator()
-        val messages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(messages.filter { it.type == UsNat })
+        val coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign()))
+        assertEquals(1, coordinator.loadMessages().size)
         coordinator.reportAction(SPAction(type = AcceptAll, campaignType = UsNat))
         coordinator.state = coordinator.state.copy(
             usNat = coordinator.state.usNat.copy(
-                metaData = coordinator.state.usNat.metaData.copy(
-                    vendorListId = "foo"
-                )
+                metaData = coordinator.state.usNat.metaData.copy(vendorListId = "foo")
             )
         )
-        val secondMessages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
-        assertNotEmpty(secondMessages.filter { it.type == UsNat })
+        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = UsNat))
     }
 
     @Test
     fun whenALegislationDoesNotApplyMessageIsReturnedRegardless() = runTest {
+        val localStorage = repository
         val spClientMock = SPClientMock(
             original = spClient,
             getMetaData = { MetaDataResponse(
                 ccpa = MetaDataResponse.MetaDataResponseCCPA(applies = false, sampleRate = 1.0f)
             )
         })
-        val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(ccpa = SPCampaign()))
-        val messages = coordinator.loadMessages(authId = null, pubData = null, language = ENGLISH)
+        val coordinator = getCoordinator(
+            spClient = spClientMock,
+            campaigns = SPCampaigns(ccpa = SPCampaign()),
+            repository = localStorage
+        )
+        val messages = coordinator.loadMessages()
         assertEquals(1, messages.size)
-        assertNotEmpty(repository.uspString)
+        assertNotEmpty(localStorage.uspString)
     }
 }
