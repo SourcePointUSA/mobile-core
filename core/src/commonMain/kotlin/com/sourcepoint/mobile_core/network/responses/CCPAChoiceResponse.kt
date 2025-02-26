@@ -13,7 +13,6 @@ class CCPAChoiceResponse (
     val consentedAll: Boolean? = null,
     val rejectedAll: Boolean? = null,
     val status: CCPAConsent.CCPAConsentStatus? = null,
-    val uspstring: String? = null,
     val gpcEnabled: Boolean? = null,
     val rejectedVendors: List<String>? = null,
     val rejectedCategories: List<String>? = null,
