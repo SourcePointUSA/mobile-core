@@ -24,7 +24,8 @@ data class SPUserData(
 
     @Serializable
     data class SPConsent<ConsentType>(
-        val consents: ConsentType?
+        val consents: ConsentType?,
+        val childPmId: String? = null
     )
 
     @Serializable

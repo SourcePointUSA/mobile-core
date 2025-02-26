@@ -25,57 +25,64 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 
+@Suppress("MemberVisibilityCanBePrivate")
 class SPClientMock(
-    val getMetaData: (metaDataResponse: MetaDataResponse) -> MetaDataResponse = { it },
-    val postPvData: () -> PvDataResponse = { PvDataResponse() },
-    val getConsentStatus: () -> ConsentStatusResponse = {
-        ConsentStatusResponse(
-            consentStatusData = ConsentStatusResponse.ConsentStatusData(),
-            localState = ""
-        )
-    },
-    val postChoiceGDPRAction: () -> GDPRChoiceResponse = { GDPRChoiceResponse(uuid = "") },
-    val postChoiceCCPAAction: () -> CCPAChoiceResponse = { CCPAChoiceResponse(uuid = "") },
-    val postChoiceUSNATAction: () -> USNatChoiceResponse = { USNatChoiceResponse(
-        consentStatus = ConsentStatus(),
-        consentStrings = emptyList(),
-        userConsents = USNatConsent.USNatUserConsents()
-    ) },
-    val getChoiceAll: () -> ChoiceAllResponse = { ChoiceAllResponse() },
-    val getMessages: () -> MessagesResponse = { MessagesResponse(
-        campaigns = emptyList(),
-        localState = "",
-        nonKeyedLocalState = ""
-    ) },
-    val customConsentGDPR: () -> GDPRConsent = { GDPRConsent() },
-    val deleteCustomConsentGDPR: () -> GDPRConsent = { GDPRConsent() },
+    var original: SPClient? = null,
+    var getMetaData: (() -> MetaDataResponse?)? = null,
+    var postPvData: (() -> PvDataResponse?)? = null,
+    var getConsentStatus: (() -> ConsentStatusResponse?)? = null,
+    var postChoiceGDPRAction: (() -> GDPRChoiceResponse?)? = null,
+    var postChoiceCCPAAction: (() -> CCPAChoiceResponse?)? = null,
+    var postChoiceUSNATAction: (() -> USNatChoiceResponse?)? = null,
+    var getChoiceAll: (() -> ChoiceAllResponse?)? = null,
+    var getMessages: (() -> MessagesResponse?)? = null,
+    var customConsentGDPR: (() -> GDPRConsent?)? = null,
+    var deleteCustomConsentGDPR: (() -> GDPRConsent?)? = null,
+) : SPClient {
+    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns) =
+        getMetaData?.invoke() ?:
+            original?.getMetaData(campaigns) ?:
+            MetaDataResponse()
 
-): SPClient {
-    var consentStatusCalled = false
-    var error: SPError? = null
-    var consentStatusCalledWith: ConsentStatusRequest.MetaData? = null
-    var metaDataResponse: MetaDataResponse = MetaDataResponse()
+    override suspend fun postPvData(request: PvDataRequest) =
+        postPvData?.invoke() ?:
+            original?.postPvData(request) ?:
+            PvDataResponse()
 
-    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns) = getMetaData(metaDataResponse)
-    override suspend fun postPvData(request: PvDataRequest) = postPvData()
-    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse {
-        consentStatusCalled = true
-        if ( error!=null ) {
-            throw error as SPError
-        } else {
-            consentStatusCalledWith = metadata
-            return getConsentStatus()
-        }
-    }
+    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData) =
+        getConsentStatus?.invoke() ?:
+            original?.getConsentStatus(authId, metadata) ?:
+            ConsentStatusResponse(consentStatusData = ConsentStatusResponse.ConsentStatusData(), localState = "")
+
     override suspend fun postChoiceGDPRAction(actionType: SPActionType, request: GDPRChoiceRequest) =
-        postChoiceGDPRAction()
+        postChoiceGDPRAction?.invoke() ?:
+            original?.postChoiceGDPRAction(actionType, request) ?:
+            GDPRChoiceResponse(uuid = "")
+
     override suspend fun postChoiceCCPAAction(actionType: SPActionType, request: CCPAChoiceRequest) =
-        postChoiceCCPAAction()
+        postChoiceCCPAAction?.invoke() ?:
+            original?.postChoiceCCPAAction(actionType, request) ?:
+            CCPAChoiceResponse(uuid = "")
+
     override suspend fun postChoiceUSNatAction(actionType: SPActionType, request: USNatChoiceRequest) =
-        postChoiceUSNATAction()
+        postChoiceUSNATAction?.invoke() ?:
+            original?.postChoiceUSNatAction(actionType, request) ?:
+            USNatChoiceResponse(
+                consentStatus = ConsentStatus(),
+                consentStrings = emptyList(),
+                userConsents = USNatConsent.USNatUserConsents()
+            )
+
     override suspend fun getChoiceAll(actionType: SPActionType, campaigns: ChoiceAllRequest.ChoiceAllCampaigns) =
-        getChoiceAll()
-    override suspend fun getMessages(request: MessagesRequest) = getMessages()
+        getChoiceAll?.invoke() ?:
+            original?.getChoiceAll(actionType, campaigns) ?:
+            ChoiceAllResponse()
+
+    override suspend fun getMessages(request: MessagesRequest) =
+        getMessages?.invoke() ?:
+            original?.getMessages(request) ?:
+            MessagesResponse(campaigns = emptyList(), localState = "", nonKeyedLocalState = "")
+
     override suspend fun postReportIdfaStatus(
         propertyId: Int?,
         uuid: String?,
@@ -85,7 +92,9 @@ class SPClientMock(
         idfaStatus: SPIDFAStatus,
         iosVersion: String,
         partitionUUID: String?
-    ) {}
+    ) {
+        original?.postReportIdfaStatus(propertyId, uuid, requestUUID, uuidType, messageId, idfaStatus, iosVersion, partitionUUID)
+    }
 
     override suspend fun customConsentGDPR(
         consentUUID: String,
@@ -93,7 +102,10 @@ class SPClientMock(
         vendors: List<String>,
         categories: List<String>,
         legIntCategories: List<String>
-    ) = customConsentGDPR()
+    ) =
+        customConsentGDPR?.invoke() ?:
+            original?.customConsentGDPR(consentUUID, propertyId, vendors, categories, legIntCategories) ?:
+            GDPRConsent()
 
     override suspend fun deleteCustomConsentGDPR(
         consentUUID: String,
@@ -101,7 +113,12 @@ class SPClientMock(
         vendors: List<String>,
         categories: List<String>,
         legIntCategories: List<String>
-    ) =  deleteCustomConsentGDPR()
+    ) =
+        deleteCustomConsentGDPR?.invoke() ?:
+            original?.deleteCustomConsentGDPR(consentUUID, propertyId, vendors, categories, legIntCategories) ?:
+            GDPRConsent()
 
-    override suspend fun errorMetrics(error: SPError) {}
+    override suspend fun errorMetrics(error: SPError) {
+        original?.errorMetrics(error)
+    }
 }

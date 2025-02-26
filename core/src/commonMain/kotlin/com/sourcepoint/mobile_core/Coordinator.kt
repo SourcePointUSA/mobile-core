@@ -52,9 +52,9 @@ class Coordinator(
         propertyId = propertyId,
         propertyName = propertyName,
     ),
+    private var authId: String? = null,
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
-    private var authId: String? = null
     private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
     private val includeData: IncludeData = IncludeData()
 
@@ -83,9 +83,24 @@ class Coordinator(
 
     override val userData: SPUserData
         get() = SPUserData(
-            gdpr = campaigns.gdpr?.let { SPUserData.SPConsent(consents = state.gdpr.consents) },
-            ccpa = campaigns.ccpa?.let { SPUserData.SPConsent(consents = state.ccpa.consents) },
-            usnat = campaigns.usnat?.let { SPUserData.SPConsent(consents = state.usNat.consents) }
+            gdpr = campaigns.gdpr?.let {
+                SPUserData.SPConsent(
+                    consents = state.gdpr.consents,
+                    childPmId = state.gdpr.childPmId
+                )
+            },
+            ccpa = campaigns.ccpa?.let {
+                SPUserData.SPConsent(
+                    consents = state.ccpa.consents,
+                    childPmId = state.ccpa.childPmId
+                )
+            },
+            usnat = campaigns.usnat?.let {
+                SPUserData.SPConsent(
+                    consents = state.usNat.consents,
+                    childPmId = state.usNat.childPmId
+                )
+            }
         )
 
     @Suppress("Unused")
@@ -536,7 +551,6 @@ class Coordinator(
                     grants = it.grants,
                     euconsent = it.euconsent,
                     consentStatus = it.consentStatus,
-                    childPmId = it.childPmId,
                     gcmStatus = it.gcmStatus
                 )
             )
@@ -548,7 +562,6 @@ class Coordinator(
                     expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
                     status = it.status,
                     gppData = it.gppData,
-                    uspstring = it.uspstring,
                 )
             )
         }
@@ -702,7 +715,6 @@ class Coordinator(
                 rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
                 rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
                 webConsentPayload = postResponse.webConsentPayload ?: getResponse?.ccpa?.webConsentPayload,
-                uspstring = postResponse.uspstring ?: getResponse?.ccpa?.uspstring
             )
         )
         if (action.type == SPActionType.SaveAndExit) {

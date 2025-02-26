@@ -51,7 +51,6 @@ data class ChoiceAllResponse (
         val expirationDate: Instant?,
         val rejectedAll: Boolean,
         val status: CCPAConsent.CCPAConsentStatus,
-        @SerialName("uspString") val uspstring: String,
         val rejectedVendors: List<String>,
         val rejectedCategories: List<String>,
         val gpcEnabled: Boolean?,

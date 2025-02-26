@@ -12,7 +12,6 @@ data class GDPRConsent (
     val dateCreated: Instant = now(),
     val expirationDate: Instant = dateCreated.inOneYear(),
     val uuid: String? = null,
-    val childPmId: String? = null,
     val euconsent: String? = null,
     val legIntCategories: List<String> = emptyList(),
     val legIntVendors: List<String> = emptyList(),
