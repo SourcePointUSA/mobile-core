@@ -15,7 +15,6 @@ data class CCPAConsent(
     val expirationDate: Instant = dateCreated.inOneYear(),
     val signedLspa: Boolean? = null,
     val uspstring: String? = null,
-    val childPmId: String? = null,
     val rejectedAll: Boolean = false,
     val consentedAll: Boolean = false,
     val rejectedVendors: List<String> = emptyList(),
