@@ -462,4 +462,63 @@ class CoordinatorTest {
         val secondMessages = coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
         assertNotEmpty(secondMessages.filter { it.type == SPCampaignType.Gdpr })
     }
+
+    @Test
+    fun flushingConsentWhenUsnatVendorListIdChanges() = runTest {
+        val coordinator = getCoordinator()
+        val messages = coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertNotEmpty(messages.filter { it.type == SPCampaignType.UsNat })
+        coordinator.reportAction(SPAction(type = SPActionType.AcceptAll, campaignType = SPCampaignType.UsNat))
+        coordinator.state = coordinator.state.copy(
+            usNat = coordinator.state.usNat.copy(
+                metaData = coordinator.state.usNat.metaData.copy(
+                    vendorListId = "foo"
+                )))
+        val secondMessages = coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertNotEmpty(secondMessages.filter { it.type == SPCampaignType.UsNat })
+    }
+
+    @Test
+    fun shouldReturnGroupPmIdFromMetadataAndSave() = runTest {
+        val coordinator = getCoordinator(
+            accountId = accountId,
+            propertyId = 24188,
+            propertyName = SPPropertyName.create("mobile.prop-1"),
+            campaigns = SPCampaigns(gdpr = SPCampaign(groupPmId = "613056"))
+        )
+        coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
+        assertTrue(coordinator.userData.gdpr?.consents?.applies)
+        assertNotEmpty(coordinator.userData.gdpr?.consents?.euconsent)
+        assertNotEmpty(coordinator.userData.gdpr?.consents?.grants)
+        assertEquals("613057", repository.state?.gdpr?.childPmId)
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    @Test
+    fun onlyChangesConsentUuidAfterDifferentAuthIdUsed() = runTest {
+        val coordinator = getCoordinator()
+        coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
+        val guestGDPRUUID = coordinator.state.gdpr.consents.uuid
+        val guestCCPAUUID = coordinator.state.ccpa.consents.uuid
+
+        var randomUuid = Uuid.random().toString()
+        coordinator.loadMessages(authId = randomUuid, pubData = null, language = SPMessageLanguage.ENGLISH)
+        val loggedInGDPRUUID = coordinator.state.gdpr.consents.uuid
+        val loggedInCCPAUUID = coordinator.state.ccpa.consents.uuid
+        assertEquals(guestGDPRUUID, loggedInGDPRUUID)
+        assertEquals(guestCCPAUUID, loggedInCCPAUUID)
+
+        coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
+        val loggedOutGDPRUUID = coordinator.state.gdpr.consents.uuid
+        val loggedOutCCPAUUID = coordinator.state.ccpa.consents.uuid
+        assertEquals(loggedInGDPRUUID, loggedOutGDPRUUID)
+        assertEquals(loggedInCCPAUUID, loggedOutCCPAUUID)
+
+        randomUuid = Uuid.random().toString()
+        coordinator.loadMessages(authId = randomUuid, pubData = null, language = SPMessageLanguage.ENGLISH)
+        val differentUserGDPRUUID = coordinator.state.gdpr.consents.uuid
+        val differentUserCCPAUUID = coordinator.state.ccpa.consents.uuid
+        assertNotEquals(loggedOutGDPRUUID, differentUserGDPRUUID)
+        assertNotEquals(loggedOutCCPAUUID, differentUserCCPAUUID)
+    }
 }
