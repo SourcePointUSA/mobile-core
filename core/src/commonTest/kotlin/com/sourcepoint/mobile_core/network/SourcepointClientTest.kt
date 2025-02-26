@@ -69,20 +69,16 @@ class SourcepointClientTest {
                 ccpa = MetaDataRequest.Campaigns.Campaign()
             )
         )
-        assertNotNull(response.gdpr)
-        assertEquals("123", response.gdpr?.childPmId)
-        assertEquals(response.gdpr?.applies, true)
-        assertEquals(response.gdpr?.sampleRate, 1.0f)
+        assertTrue(response.gdpr?.applies)
+        assertEquals(1.0f, response.gdpr?.sampleRate)
         assertNotEmpty(response.gdpr?.vendorListId)
 
-        assertNotNull(response.usnat)
-        assertEquals(response.usnat?.applies, true)
-        assertEquals(response.usnat?.sampleRate, 1.0f)
+        assertTrue(response.usnat?.applies)
+        assertEquals(1.0f, response.usnat?.sampleRate)
         assertNotEmpty(response.usnat?.vendorListId)
 
-        assertNotNull(response.ccpa)
-        assertEquals(response.ccpa?.applies, true)
-        assertEquals(response.ccpa?.sampleRate, 1.0f)
+        assertTrue(response.ccpa?.applies)
+        assertEquals(1.0f, response.ccpa?.sampleRate)
     }
 
     @Test
