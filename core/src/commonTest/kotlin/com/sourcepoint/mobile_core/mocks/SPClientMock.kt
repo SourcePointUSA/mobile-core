@@ -26,7 +26,7 @@ import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 
 class SPClientMock(
-    val getMetaData: () -> MetaDataResponse = { MetaDataResponse() },
+    val getMetaData: (metaDataResponse: MetaDataResponse) -> MetaDataResponse = { it },
     val postPvData: () -> PvDataResponse = { PvDataResponse() },
     val getConsentStatus: () -> ConsentStatusResponse = {
         ConsentStatusResponse(
@@ -51,11 +51,22 @@ class SPClientMock(
     val deleteCustomConsentGDPR: () -> GDPRConsent = { GDPRConsent() },
 
 ): SPClient {
+    var consentStatusCalled = false
+    var error: SPError? = null
+    var consentStatusCalledWith: ConsentStatusRequest.MetaData? = null
+    var metaDataResponse: MetaDataResponse = MetaDataResponse()
 
-    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns) = getMetaData()
+    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns) = getMetaData(metaDataResponse)
     override suspend fun postPvData(request: PvDataRequest) = postPvData()
-    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData) =
-        getConsentStatus()
+    override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse {
+        consentStatusCalled = true
+        if ( error!=null ) {
+            throw error as SPError
+        } else {
+            consentStatusCalledWith = metadata
+            return getConsentStatus()
+        }
+    }
     override suspend fun postChoiceGDPRAction(actionType: SPActionType, request: GDPRChoiceRequest) =
         postChoiceGDPRAction()
     override suspend fun postChoiceCCPAAction(actionType: SPActionType, request: CCPAChoiceRequest) =

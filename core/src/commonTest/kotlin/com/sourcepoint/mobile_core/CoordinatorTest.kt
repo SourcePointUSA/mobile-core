@@ -25,7 +25,6 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
-import com.sourcepoint.mobile_core.network.SourcepointClientMock
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import com.sourcepoint.mobile_core.utils.now
@@ -221,7 +220,7 @@ class CoordinatorTest {
 
     @Test
     fun consentStatusCalledWhenAuthIdPassed() = runTest {
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         val coordinator = getCoordinator(spClient = spClientMock)
         coordinator.loadMessages(authId = "test", pubData = null, language = SPMessageLanguage.ENGLISH)
         assertTrue(spClientMock.consentStatusCalled)
@@ -230,7 +229,7 @@ class CoordinatorTest {
 
     @Test
     fun consentStatusNotCalledWhenLocalDataOutdatedNoUuid() = runTest {
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         val coordinator = getCoordinator(spClient = spClientMock)
         repository.state = State(localVersion = 0, propertyId = propertyId, accountId = accountId)
         coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
@@ -239,7 +238,7 @@ class CoordinatorTest {
 
     @Test
     fun consentStatusCalledWhenLocalDataOutdatedHasUuid() = runTest {
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         val coordinator = getCoordinator(spClient = spClientMock)
         val consent = GDPRConsent(uuid = "test")
         coordinator.state = State(gdpr = State.GDPRState(consents = consent), localVersion = 0, propertyId = propertyId, accountId = accountId)
@@ -253,7 +252,7 @@ class CoordinatorTest {
 
     @Test
     fun consentStatusSetsLocalVersionWhenSucceds() = runTest {
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         val coordinator = getCoordinator(spClient = spClientMock)
         val consent = GDPRConsent(uuid = "test")
         repository.state = State(gdpr = State.GDPRState(consents = consent), localVersion = 0, propertyId = propertyId, accountId = accountId)
@@ -263,7 +262,7 @@ class CoordinatorTest {
 
     @Test
     fun consentStatusLeavesLocalVersionWhenFails() = runTest {
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         val coordinator = getCoordinator(spClient = spClientMock)
         val consent = GDPRConsent(uuid = "test")
         coordinator.state = State(gdpr = State.GDPRState(consents = consent), localVersion = 0, propertyId = propertyId, accountId = accountId)
@@ -379,7 +378,7 @@ class CoordinatorTest {
 
     @Test
     fun handlesCCPAoptoutWhenThereNoAuthID() = runTest {
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         val coordinator = getCoordinator(spClient = spClientMock, campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
         coordinator.loadMessages(authId = null, pubData = null, language = SPMessageLanguage.ENGLISH)
         assertNull(spClientMock.consentStatusCalledWith?.usnat?.transitionCCPAAuth)
@@ -417,7 +416,7 @@ class CoordinatorTest {
     fun whenUsnatApplicableSectionsChangeShouldCallConsentStatus() = runTest {
         val firstApplicableSection = 1
         val differentApplicableSection = 2
-        val spClientMock = SourcepointClientMock()
+        val spClientMock = SPClientMock()
         spClientMock.metaDataResponse = MetaDataResponse(
             gdpr = null,
             usnat = MetaDataResponse.MetaDataResponseUSNat(
