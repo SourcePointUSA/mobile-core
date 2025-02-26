@@ -73,7 +73,7 @@ class Coordinator(
                 state.usNat.consents.uuid == null &&
                 (state.ccpa.consents.status == CCPAConsent.CCPAConsentStatus.RejectedAll || state.ccpa.consents.status == CCPAConsent.CCPAConsentStatus.RejectedSome)
 
-    val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
+    internal val shouldCallConsentStatus: Boolean get() = (needsNewConsentData || authId != null)
 
     private val shouldCallMessages: Boolean get() =
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
@@ -121,7 +121,7 @@ class Coordinator(
         }
     }
 
-    fun persistState() {
+    internal fun persistState() {
         repository.state = state
     }
 
