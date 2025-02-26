@@ -72,6 +72,7 @@ class SourcepointClientTest {
         assertTrue(response.gdpr?.applies)
         assertEquals(1.0f, response.gdpr?.sampleRate)
         assertNotEmpty(response.gdpr?.vendorListId)
+        assertEquals("123", response.gdpr?.childPmId)
 
         assertTrue(response.usnat?.applies)
         assertEquals(1.0f, response.usnat?.sampleRate)
