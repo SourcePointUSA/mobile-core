@@ -5,17 +5,17 @@ import kotlin.test.assertFalse
 import kotlin.test.fail
 
 fun assertIsEmpty(actual: String?, message: String? = null) {
-    if(actual == null) { fail(message ?: "Expected collection not to be empty, but it's null.") }
+    if(actual == null) { fail(message ?: "Expected collection be empty, but it's null.") }
     assertTrue(actual.isEmpty(), message ?: "Expected string $actual to be empty")
 }
 
 fun assertIsEmpty(actual: Collection<*>?, message: String? = null) {
-    if(actual == null) { fail(message ?: "Expected collection not to be empty, but it's null.") }
+    if(actual == null) { fail(message ?: "Expected collection be empty, but it's null.") }
     assertTrue(actual.isEmpty(), message ?: "Expected collection $actual to be empty")
 }
 
 fun assertIsEmpty(actual: Map<*, *>?, message: String? = null) {
-    if(actual == null) { fail(message ?: "Expected map not to be empty, but it's null.") }
+    if(actual == null) { fail(message ?: "Expected map to be empty, but it's null.") }
     assertTrue(actual.isEmpty(), message ?: "Expected map $actual to be empty")
 }
 
