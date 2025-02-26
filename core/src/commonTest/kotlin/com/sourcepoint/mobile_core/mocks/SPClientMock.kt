@@ -30,7 +30,7 @@ class SPClientMock(
     var original: SPClient? = null,
     var getMetaData: (() -> MetaDataResponse?)? = null,
     var postPvData: (() -> PvDataResponse?)? = null,
-    var getConsentStatus: (() -> ConsentStatusResponse?)? = null,
+    var getConsentStatus: ((authId: String?, metadata: ConsentStatusRequest.MetaData) -> ConsentStatusResponse?)? = null,
     var postChoiceGDPRAction: (() -> GDPRChoiceResponse?)? = null,
     var postChoiceCCPAAction: (() -> CCPAChoiceResponse?)? = null,
     var postChoiceUSNATAction: (() -> USNatChoiceResponse?)? = null,
@@ -50,7 +50,7 @@ class SPClientMock(
             PvDataResponse()
 
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData) =
-        getConsentStatus?.invoke() ?:
+        getConsentStatus?.invoke(authId, metadata) ?:
             original?.getConsentStatus(authId, metadata) ?:
             ConsentStatusResponse(consentStatusData = ConsentStatusResponse.ConsentStatusData(), localState = "")
 
