@@ -6,7 +6,6 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// TODO: implement USPString logic
 @Serializable
 data class CCPAConsent(
     val applies: Boolean = false,
@@ -14,7 +13,6 @@ data class CCPAConsent(
     val dateCreated: Instant = now(),
     val expirationDate: Instant = dateCreated.inOneYear(),
     val signedLspa: Boolean? = null,
-    val uspstring: String? = null,
     val rejectedAll: Boolean = false,
     val consentedAll: Boolean = false,
     val rejectedVendors: List<String> = emptyList(),
@@ -23,6 +21,20 @@ data class CCPAConsent(
     val webConsentPayload: String? = null,
     @SerialName("GPPData") var gppData: IABData = emptyMap(),
 ) {
+    val uspstring: String get() {
+        val version = 1
+        val hadChanceToOptOut = true
+
+        return if (applies) {
+            "$version" +
+                (if (hadChanceToOptOut) "Y" else "N") +
+                (if (status == CCPAConsentStatus.RejectedAll || status == CCPAConsentStatus.RejectedSome) "Y" else "N") +
+                (if (signedLspa == true) "Y" else "N")
+        } else {
+            "$version---"
+        }
+    }
+
     @Serializable
     enum class CCPAConsentStatus {
         @SerialName("consentedAll") ConsentedAll,

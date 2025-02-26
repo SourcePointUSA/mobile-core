@@ -565,7 +565,6 @@ class Coordinator(
                     expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
                     status = it.status,
                     gppData = it.gppData,
-                    uspstring = it.uspstring,
                 )
             )
         }
@@ -719,7 +718,6 @@ class Coordinator(
                 rejectedVendors = postResponse.rejectedVendors ?: getResponse?.ccpa?.rejectedVendors?: emptyList(),
                 rejectedCategories = postResponse.rejectedCategories ?: getResponse?.ccpa?.rejectedCategories ?: emptyList(),
                 webConsentPayload = postResponse.webConsentPayload ?: getResponse?.ccpa?.webConsentPayload,
-                uspstring = postResponse.uspstring ?: getResponse?.ccpa?.uspstring
             )
         )
         if (action.type == SPActionType.SaveAndExit) {
