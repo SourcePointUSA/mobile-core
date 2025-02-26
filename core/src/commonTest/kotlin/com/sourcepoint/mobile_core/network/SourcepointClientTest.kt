@@ -64,12 +64,13 @@ class SourcepointClientTest {
     fun getMetaData() = runTest {
         val response = api.getMetaData(
             MetaDataRequest.Campaigns(
-                gdpr = MetaDataRequest.Campaigns.Campaign(),
+                gdpr = MetaDataRequest.Campaigns.Campaign(groupPmId = "123"),
                 usnat = MetaDataRequest.Campaigns.Campaign(),
                 ccpa = MetaDataRequest.Campaigns.Campaign()
             )
         )
         assertNotNull(response.gdpr)
+        assertEquals("123", response.gdpr?.childPmId)
         assertEquals(response.gdpr?.applies, true)
         assertEquals(response.gdpr?.sampleRate, 1.0f)
         assertNotEmpty(response.gdpr?.vendorListId)
