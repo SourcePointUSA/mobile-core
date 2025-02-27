@@ -136,7 +136,7 @@ class Coordinator(
         }
     }
 
-    internal fun persistState() {
+    private fun persistState() {
         repository.state = state
     }
 
@@ -776,7 +776,7 @@ class Coordinator(
                 SPCampaignType.IOS14, SPCampaignType.unknown -> throw IllegalStateException()
             }
         } catch (error: Exception) {
-            throw error
+            throw error // TODO: handle this
         }
         storeLegislationConsent(userData = userData)
         persistState()

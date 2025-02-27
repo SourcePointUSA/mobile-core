@@ -111,6 +111,7 @@ class CoordinatorTest {
         reportAction(SPAction(AcceptAll, UsNat))
     }
 
+    @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
     private suspend fun Coordinator.loadMessages(
         authId: String? = null,
         pubData: JsonObject? = null,
@@ -295,7 +296,7 @@ class CoordinatorTest {
     }
 
     @Test
-    fun consentStatusSetsLocalVersionWhenSucceds() = runTest {
+    fun consentStatusSetsLocalVersionWhenSucceeds() = runTest {
         val coordinator = getCoordinator(spClient =  SPClientMock())
         coordinator.loadMessages()
         assertEquals(State.VERSION, coordinator.state.localVersion)
