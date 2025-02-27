@@ -52,9 +52,9 @@ class Coordinator(
         propertyId = propertyId,
         propertyName = propertyName,
     ),
+    private var authId: String? = null,
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
-    private var authId: String? = null
     private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
     private val includeData: IncludeData = IncludeData()
 
@@ -136,7 +136,7 @@ class Coordinator(
         }
     }
 
-    private fun persistState() {
+    internal fun persistState() {
         repository.state = state
     }
 
@@ -230,6 +230,7 @@ class Coordinator(
     }
 
     private fun handleConsentStatusResponse(response: ConsentStatusResponse) {
+        state.localVersion = State.VERSION
         state.localState = response.localState
         response.consentStatusData.gdpr?.let {
             state.gdpr = state.gdpr.copy(
@@ -295,7 +296,6 @@ class Coordinator(
                                 applies = state.gdpr.consents.applies,
                                 dateCreated = state.gdpr.consents.dateCreated,
                                 uuid = state.gdpr.consents.uuid,
-                                hasLocalData = state.hasGDPRLocalData,
                                 idfaStatus = idfaStatus
                             )
                         },
@@ -304,7 +304,6 @@ class Coordinator(
                                 applies = state.usNat.consents.applies,
                                 dateCreated = state.usNat.consents.dateCreated,
                                 uuid = state.usNat.consents.uuid,
-                                hasLocalData = state.hasUSNatLocalData,
                                 idfaStatus = idfaStatus,
                                 transitionCCPAAuth = authTransitionCCPAUSNat,
                                 optedOut = transitionCCPAOptedOut
@@ -315,19 +314,15 @@ class Coordinator(
                                 applies = state.ccpa.consents.applies,
                                 dateCreated = state.ccpa.consents.dateCreated,
                                 uuid = state.ccpa.consents.uuid,
-                                hasLocalData = state.hasCCPALocalData,
                                 idfaStatus = idfaStatus
                             )
                         }
                     )
                 )
-                state.localVersion = State.VERSION
                 handleConsentStatusResponse(response)
             } catch (error: Throwable) {
                 throw error
             }
-        } else {
-            state.localVersion = State.VERSION
         }
         next()
     }

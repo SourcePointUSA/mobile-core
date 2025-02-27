@@ -215,7 +215,8 @@ class SourcepointClient(
                     authId = authId,
                     metadata = metadata
                 )
-            )}.build()
+            )
+        }.build()
         ).bodyOr(::reportErrorAndThrow)
 
     override suspend fun postChoiceGDPRAction(

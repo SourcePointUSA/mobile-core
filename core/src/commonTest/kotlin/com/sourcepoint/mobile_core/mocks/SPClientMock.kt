@@ -25,18 +25,19 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 
+@Suppress("MemberVisibilityCanBePrivate")
 class SPClientMock(
-    private val original: SPClient? = null,
-    private val getMetaData: (() -> MetaDataResponse?)? = null,
-    private val postPvData: (() -> PvDataResponse?)? = null,
-    private val getConsentStatus: (() -> ConsentStatusResponse?)? = null,
-    private val postChoiceGDPRAction: (() -> GDPRChoiceResponse?)? = null,
-    private val postChoiceCCPAAction: (() -> CCPAChoiceResponse?)? = null,
-    private val postChoiceUSNATAction: (() -> USNatChoiceResponse?)? = null,
-    private val getChoiceAll: (() -> ChoiceAllResponse?)? = null,
-    private val getMessages: (() -> MessagesResponse?)? = null,
-    private val customConsentGDPR: (() -> GDPRConsent?)? = null,
-    private val deleteCustomConsentGDPR: (() -> GDPRConsent?)? = null,
+    var original: SPClient? = null,
+    var getMetaData: (() -> MetaDataResponse?)? = null,
+    var postPvData: (() -> PvDataResponse?)? = null,
+    var getConsentStatus: ((authId: String?, metadata: ConsentStatusRequest.MetaData) -> ConsentStatusResponse?)? = null,
+    var postChoiceGDPRAction: (() -> GDPRChoiceResponse?)? = null,
+    var postChoiceCCPAAction: (() -> CCPAChoiceResponse?)? = null,
+    var postChoiceUSNATAction: (() -> USNatChoiceResponse?)? = null,
+    var getChoiceAll: (() -> ChoiceAllResponse?)? = null,
+    var getMessages: (() -> MessagesResponse?)? = null,
+    var customConsentGDPR: (() -> GDPRConsent?)? = null,
+    var deleteCustomConsentGDPR: (() -> GDPRConsent?)? = null,
 ) : SPClient {
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns) =
         getMetaData?.invoke() ?:
@@ -49,7 +50,7 @@ class SPClientMock(
             PvDataResponse()
 
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData) =
-        getConsentStatus?.invoke() ?:
+        getConsentStatus?.invoke(authId, metadata) ?:
             original?.getConsentStatus(authId, metadata) ?:
             ConsentStatusResponse(consentStatusData = ConsentStatusResponse.ConsentStatusData(), localState = "")
 
