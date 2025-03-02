@@ -1,7 +1,11 @@
 package com.sourcepoint.mobile_core
 
+import com.sourcepoint.mobile_core.models.DeleteCustomConsentGDPRException
 import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
+import com.sourcepoint.mobile_core.models.LoadMessagesException
 import com.sourcepoint.mobile_core.models.MessageToDisplay
+import com.sourcepoint.mobile_core.models.PostCustomConsentGDPRException
+import com.sourcepoint.mobile_core.models.ReportActionException
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType.AcceptAll
 import com.sourcepoint.mobile_core.models.SPActionType.RejectAll
@@ -12,6 +16,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
 import com.sourcepoint.mobile_core.models.SPCampaignType.IOS14
 import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
 import com.sourcepoint.mobile_core.models.SPCampaigns
+import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPPropertyName
@@ -162,19 +167,18 @@ class Coordinator(
         this.authId = authId
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
-        metaData {
-            consentStatus {
-                state.updateGDPRStatusForVendorListChanges()
-                state.updateUSNatStatusForVendorListChanges()
-                messages = try {
-                    messages(language)
-                } catch (error: Throwable) {
-                    emptyList<MessageToDisplay>()
-                    throw error
+        try {
+            metaData {
+                consentStatus {
+                    state.updateGDPRStatusForVendorListChanges()
+                    state.updateUSNatStatusForVendorListChanges()
+                    messages = messages(language)
+                    // TODO: maybe we should use `launch` here and not wait for pvData to return
+                    pvData(pubData, messages)
                 }
-                // TODO: maybe we should use `launch` here and not wait for pvData to return
-                pvData(pubData, messages)
             }
+        } catch (error: SPError) {
+            throw LoadMessagesException(causedBy = error)
         }
         storeLegislationConsent(userData = userData)
         persistState()
@@ -712,11 +716,12 @@ class Coordinator(
                 UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
                 IOS14, SPCampaignType.Unknown -> {}
             }
-        } catch (error: Exception) {
-            throw error // TODO: handle this
+        } catch (error: SPError) {
+            throw ReportActionException(causedBy = error, actionType = action.type, campaignType = action.campaignType)
+        } finally {
+            storeLegislationConsent(userData = userData)
+            persistState()
         }
-        storeLegislationConsent(userData = userData)
-        persistState()
         return userData
     }
 
@@ -740,13 +745,17 @@ class Coordinator(
         if (state.gdpr.consents.uuid.isNullOrEmpty()) {
             throw InvalidCustomConsentUUIDError()
         }
-        handleCustomConsentResponse(spClient.customConsentGDPR(
-            consentUUID = state.gdpr.consents.uuid!!,
-            propertyId = propertyId,
-            vendors = vendors,
-            categories = categories,
-            legIntCategories = legIntCategories
-        ))
+        try {
+            handleCustomConsentResponse(spClient.customConsentGDPR(
+                consentUUID = state.gdpr.consents.uuid!!,
+                propertyId = propertyId,
+                vendors = vendors,
+                categories = categories,
+                legIntCategories = legIntCategories
+            ))
+        } catch (error: SPError) {
+            throw PostCustomConsentGDPRException(causedBy = error)
+        }
     }
 
     override suspend fun deleteCustomConsentGDPR(
@@ -757,18 +766,26 @@ class Coordinator(
         if (state.gdpr.consents.uuid.isNullOrEmpty()) {
             throw InvalidCustomConsentUUIDError()
         }
-        handleCustomConsentResponse(spClient.deleteCustomConsentGDPR(
-            consentUUID = state.gdpr.consents.uuid!!,
-            propertyId = propertyId,
-            vendors = vendors,
-            categories = categories,
-            legIntCategories = legIntCategories
-        ))
+        try {
+            handleCustomConsentResponse(spClient.deleteCustomConsentGDPR(
+                consentUUID = state.gdpr.consents.uuid!!,
+                propertyId = propertyId,
+                vendors = vendors,
+                categories = categories,
+                legIntCategories = legIntCategories
+            ))
+        } catch (error: SPError) {
+            throw DeleteCustomConsentGDPRException(causedBy = error)
+        }
     }
 
     override fun clearLocalData() {
         repository.clear()
         state = State(accountId = accountId, propertyId = propertyId, authId = authId)
         persistState()
+    }
+
+    override suspend fun logError(error: SPError) {
+        spClient.errorMetrics(error)
     }
 }
