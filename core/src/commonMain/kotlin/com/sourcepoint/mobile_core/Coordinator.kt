@@ -348,7 +348,7 @@ class Coordinator(
                         partitionUUID = it.messageMetaData?.messagePartitionUUID
                     )
                 }
-                SPCampaignType.unknown -> return@forEach
+                SPCampaignType.Unknown -> return@forEach
             }
         }
         persistState()
