@@ -3,8 +3,14 @@ package com.sourcepoint.mobile_core
 import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.SPAction
-import com.sourcepoint.mobile_core.models.SPActionType
+import com.sourcepoint.mobile_core.models.SPActionType.AcceptAll
+import com.sourcepoint.mobile_core.models.SPActionType.RejectAll
+import com.sourcepoint.mobile_core.models.SPActionType.SaveAndExit
 import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
+import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
+import com.sourcepoint.mobile_core.models.SPCampaignType.IOS14
+import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
@@ -333,10 +339,10 @@ class Coordinator(
 
         response.campaigns.forEach {
             when (it.type) {
-                SPCampaignType.Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent)
-                SPCampaignType.Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent)
-                SPCampaignType.UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat.consents) as USNatConsent)
-                SPCampaignType.IOS14 -> {
+                Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent)
+                Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent)
+                UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat.consents) as USNatConsent)
+                IOS14 -> {
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
                         partitionUUID = it.messageMetaData?.messagePartitionUUID
@@ -445,17 +451,17 @@ class Coordinator(
     private suspend fun pvData(pubData: JsonObject?, messages: List<MessageToDisplay>) = coroutineScope {
         val gdprPvData = campaigns.gdpr?.let {
             launch {
-                gdprPvData(pubData, messageMetaData = messages.firstOrNull { it.type == SPCampaignType.Gdpr }?.metaData)
+                gdprPvData(pubData, messageMetaData = messages.firstOrNull { it.type == Gdpr }?.metaData)
             }
         }
         val ccpaPvData = campaigns.ccpa?.let {
             launch {
-                ccpaPvData(pubData, messageMetaData = messages.firstOrNull { it.type == SPCampaignType.Ccpa }?.metaData)
+                ccpaPvData(pubData, messageMetaData = messages.firstOrNull { it.type == Ccpa }?.metaData)
             }
         }
         val usNatPvData = campaigns.usnat?.let {
             launch {
-                usnatPvData(pubData, messageMetaData = messages.firstOrNull { it.type == SPCampaignType.UsNat }?.metaData)
+                usnatPvData(pubData, messageMetaData = messages.firstOrNull { it.type == UsNat }?.metaData)
             }
         }
         gdprPvData?.join()
@@ -578,7 +584,7 @@ class Coordinator(
     }
 
     private suspend fun getChoiceAll(action: SPAction, campaigns: ChoiceAllRequest.ChoiceAllCampaigns): ChoiceAllResponse? {
-        val shouldCallGetChoice: Boolean = (action.type == SPActionType.AcceptAll || action.type == SPActionType.RejectAll)
+        val shouldCallGetChoice = (action.type == AcceptAll || action.type == RejectAll)
         if (!shouldCallGetChoice)
             return null
 
@@ -683,7 +689,7 @@ class Coordinator(
                 specialFeatures = postResponse.acceptedSpecialFeatures ?: getResponse?.gdpr?.acceptedSpecialFeatures ?: emptyList()
             )
         )
-        if (action.type == SPActionType.SaveAndExit) {
+        if (action.type == SaveAndExit) {
             state.gdpr.consents.tcData = postResponse.tcData ?: emptyMap()
         }
         persistState()
@@ -715,7 +721,7 @@ class Coordinator(
                 webConsentPayload = postResponse.webConsentPayload ?: getResponse?.ccpa?.webConsentPayload,
             )
         )
-        if (action.type == SPActionType.SaveAndExit) {
+        if (action.type == SaveAndExit) {
             state.ccpa.consents.gppData = postResponse.gppData
         }
         persistState()
@@ -764,16 +770,16 @@ class Coordinator(
             val getResponse = getChoiceAll(
                 action = action,
                 campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
-                    gdpr = if (action.campaignType == SPCampaignType.Gdpr) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.gdpr.consents.applies) else null,
-                    ccpa = if (action.campaignType == SPCampaignType.Ccpa) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.ccpa.consents.applies) else null,
-                    usnat = if (action.campaignType == SPCampaignType.UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null
+                    gdpr = if (action.campaignType == Gdpr) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.gdpr.consents.applies) else null,
+                    ccpa = if (action.campaignType == Ccpa) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.ccpa.consents.applies) else null,
+                    usnat = if (action.campaignType == UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null
                 )
             )
             when (action.campaignType) {
-                SPCampaignType.Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
-                SPCampaignType.Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
-                SPCampaignType.UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
-                SPCampaignType.IOS14, SPCampaignType.unknown -> throw IllegalStateException()
+                Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
+                Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
+                UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
+                IOS14, SPCampaignType.Unknown -> {}
             }
         } catch (error: Exception) {
             throw error // TODO: handle this
