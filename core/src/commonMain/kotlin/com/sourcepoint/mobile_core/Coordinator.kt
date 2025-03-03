@@ -65,7 +65,7 @@ class Coordinator(
 ): ICoordinator {
     @Suppress("Unused") var translateMessage: Boolean? = null; set(value) { includeData.translateMessage = value; field = value }
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
-    var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() }
+    public var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } //workaround for ios
     private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
