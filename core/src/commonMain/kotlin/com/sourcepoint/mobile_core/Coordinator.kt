@@ -64,7 +64,8 @@ class Coordinator(
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
     @Suppress("Unused") var translateMessage: Boolean? = null; set(value) { includeData.translateMessage = value; field = value }
-    private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
+    private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
+    var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() }
     private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
