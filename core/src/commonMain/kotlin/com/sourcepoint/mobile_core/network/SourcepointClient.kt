@@ -54,36 +54,45 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KSuspendFunction1
 
 interface SPClient {
-    @Throws(Exception::class) suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
 
-    @Throws(Exception::class) suspend fun postPvData(request: PvDataRequest): PvDataResponse
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
-    @Throws(Exception::class) suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
-    @Throws(Exception::class) suspend fun postChoiceGDPRAction(
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun postChoiceGDPRAction(
         actionType: SPActionType,
         request: GDPRChoiceRequest
     ): GDPRChoiceResponse
 
-    @Throws(Exception::class) suspend fun postChoiceCCPAAction(
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun postChoiceCCPAAction(
         actionType: SPActionType,
         request: CCPAChoiceRequest
     ): CCPAChoiceResponse
 
-    @Throws(Exception::class) suspend fun postChoiceUSNatAction(
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun postChoiceUSNatAction(
         actionType: SPActionType,
         request: USNatChoiceRequest
     ): USNatChoiceResponse
 
-    @Throws(Exception::class) suspend fun getChoiceAll(
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun getChoiceAll(
         actionType: SPActionType,
         campaigns: ChoiceAllRequest.ChoiceAllCampaigns
     ): ChoiceAllResponse
 
-    @Throws(Exception::class) suspend fun getMessages(request: MessagesRequest): MessagesResponse
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
     suspend fun postReportIdfaStatus(
         propertyId: Int?,
@@ -96,7 +105,8 @@ interface SPClient {
         partitionUUID: String?
     )
 
-    @Throws(Exception::class) suspend fun customConsentGDPR(
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun customConsentGDPR(
         consentUUID: String,
         propertyId: Int,
         vendors: List<String>,
@@ -104,7 +114,8 @@ interface SPClient {
         legIntCategories: List<String>
     ): GDPRConsent
 
-    @Throws(Exception::class) suspend fun deleteCustomConsentGDPR(
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun deleteCustomConsentGDPR(
         consentUUID: String,
         propertyId: Int,
         vendors: List<String>,
@@ -136,14 +147,14 @@ class SourcepointClient(
         HttpResponseValidator {
             validateResponse { response ->
                 if (response.request.url.segments.contains("custom-metrics")) {
-                    return@validateResponse
+                    return@validateResponse // by-pass calls to custom-metrics
                 }
 
                 if (response.status.value !in 200..299) {
                     throw reportErrorAndThrow(SPNetworkError(
                         statusCode = response.status.value,
                         path = response.request.url.segments.last(),
-                        campaignType = null
+                        httpVerb = response.request.method.value
                     ))
                 }
             }
@@ -377,13 +388,13 @@ class SourcepointClient(
     }
 }
 
-suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T {
+@Throws(SPUnableToParseBodyError::class, CancellationException::class)
+suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T =
     try {
-        return body()
+        body()
     } catch (_: Exception) {
         throw loggingFunction(SPUnableToParseBodyError(bodyName = T::class.qualifiedName))
     }
-}
 
 // Maps a Serializable class into query params using toQueryParams function
 inline fun <reified T> URLBuilder.withParams(paramsObject: T) where T : Any {
