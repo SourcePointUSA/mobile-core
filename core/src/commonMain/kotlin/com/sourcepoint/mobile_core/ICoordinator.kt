@@ -51,4 +51,6 @@ interface ICoordinator {
     suspend fun logError(error: SPError)
 
     fun clearLocalData()
+
+    fun setTranslateMessage(value: Boolean)
 }
