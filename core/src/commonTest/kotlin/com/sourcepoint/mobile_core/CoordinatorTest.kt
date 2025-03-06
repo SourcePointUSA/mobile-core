@@ -13,6 +13,7 @@ import com.sourcepoint.mobile_core.asserters.assertIsEmpty
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.mocks.SPClientMock
+import com.sourcepoint.mobile_core.models.LoadMessagesException
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPActionType.AcceptAll
 import com.sourcepoint.mobile_core.models.SPActionType.RejectAll
@@ -39,6 +40,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
@@ -89,7 +91,7 @@ class CoordinatorTest {
         authId: String? = null,
         accountId: Int = this.accountId,
         propertyId: Int = this.propertyId,
-        propertyName: SPPropertyName = this.propertyName,
+        propertyName: String = this.propertyName.rawValue ,
         campaigns: SPCampaigns = this.campaigns,
         spClient: SPClient = this.spClient,
         repository: Repository = this.repository,
@@ -98,7 +100,7 @@ class CoordinatorTest {
         authId = authId,
         accountId = accountId,
         propertyId = propertyId,
-        propertyName = propertyName,
+        propertyName = SPPropertyName.create(propertyName),
         campaigns = campaigns,
         spClient = spClient,
         repository = repository,
@@ -473,5 +475,12 @@ class CoordinatorTest {
         val messages = coordinator.loadMessages()
         assertEquals(1, messages.size)
         assertNotEmpty(localStorage.uspString)
+    }
+
+    @Test
+    fun throwsLoadMessagesExceptionIfTheConfigIsWrong() = runTest {
+        assertFailsWith<LoadMessagesException> { getCoordinator(accountId = -1).loadMessages() }
+        assertFailsWith<LoadMessagesException> { getCoordinator(propertyId = -1).loadMessages() }
+        assertFailsWith<LoadMessagesException> { getCoordinator(propertyName = "foo").loadMessages() }
     }
 }

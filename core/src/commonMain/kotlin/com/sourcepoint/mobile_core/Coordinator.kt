@@ -63,7 +63,6 @@ class Coordinator(
     private var authId: String? = null,
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
-    @Suppress("Unused") var translateMessage: Boolean? = null; set(value) { includeData.translateMessage = value; field = value }
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
     public var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } //workaround for ios
     private val includeData: IncludeData = IncludeData()
@@ -789,5 +788,9 @@ class Coordinator(
 
     override suspend fun logError(error: SPError) {
         spClient.errorMetrics(error)
+    }
+
+    override fun setTranslateMessage(value: Boolean) {
+        includeData.translateMessage = value
     }
 }
