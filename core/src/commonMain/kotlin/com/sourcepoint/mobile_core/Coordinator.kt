@@ -63,7 +63,8 @@ class Coordinator(
     private var authId: String? = null,
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
-    private val idfaStatus: SPIDFAStatus? get() = SPIDFAStatus.current()
+    private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
+    public var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } //workaround for ios
     private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
