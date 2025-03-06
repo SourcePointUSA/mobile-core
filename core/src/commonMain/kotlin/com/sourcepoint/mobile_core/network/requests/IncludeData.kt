@@ -11,7 +11,7 @@ data class IncludeData(
     val webConsentPayload: TypeString = TypeString(),
     val localState: TypeString = TypeString(),
     val categories: Boolean = true,
-    val translateMessage: Boolean? = null,
+    var translateMessage: Boolean? = null,
     @SerialName("GPPData") val gppData: GPPConfig = GPPConfig()
 ) {
     @Serializable

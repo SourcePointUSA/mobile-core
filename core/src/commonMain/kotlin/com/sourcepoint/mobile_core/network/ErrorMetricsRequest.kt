@@ -1,6 +1,7 @@
 package com.sourcepoint.mobile_core.network
 
 import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,6 +15,6 @@ data class ErrorMetricsRequest(
     @SerialName("OSVersion") val osVersion: String,
     val deviceFamily: String,
     val propertyId: String,
-    val propertyName: String,
+    val propertyName: SPPropertyName,
     val campaignType: SPCampaignType?
 ): DefaultRequest()

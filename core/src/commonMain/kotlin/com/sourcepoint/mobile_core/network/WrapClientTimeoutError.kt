@@ -22,7 +22,8 @@ val WrapHttpTimeoutError = createClientPlugin(name = "WrapHttpTimeoutError", ::W
                 is CancellationException,
                 is HttpRequestTimeoutException -> throw SPClientTimeout(
                     timeoutInSeconds = pluginConfig.timeoutInSeconds,
-                    path = path
+                    path = path,
+                    httpVerb = request.method.value
                 )
                 else -> throw SPUnknownNetworkError(path)
             }

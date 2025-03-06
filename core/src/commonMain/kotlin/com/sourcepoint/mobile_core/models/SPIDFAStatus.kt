@@ -2,9 +2,6 @@ package com.sourcepoint.mobile_core.models
 
 import kotlinx.serialization.SerialName
 
-// TODO implement IDFA logic for both platforms
-// - Android should default to null
-// - iOS should have logic to get it from OS
 enum class SPIDFAStatus {
     @SerialName("unknown") Unknown,
     @SerialName("accepted") Accepted,

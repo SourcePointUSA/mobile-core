@@ -13,7 +13,7 @@ data class ConsentStatus (
     val hasConsentData: Boolean? = null,
     val vendorListAdditions: Boolean? = null,
     val legalBasisChanges: Boolean? = null,
-    val granularStatus: ConsentStatusGranularStatus? = null,
+    var granularStatus: ConsentStatusGranularStatus? = null,
     val rejectedVendors: List<String?>? = emptyList(),
     val rejectedCategories: List<String?>? = emptyList()
 ) {
@@ -28,6 +28,6 @@ data class ConsentStatus (
         val sellStatus: Boolean? = null,
         val shareStatus: Boolean? = null,
         val sensitiveDataStatus: Boolean? = null,
-        val gpcStatus: Boolean? = null
+        var gpcStatus: Boolean? = null
     )
 }

@@ -1,7 +1,6 @@
 .kotlin
 
 *.DS_Store
-.idea
 local.properties
 
 # Android Studio

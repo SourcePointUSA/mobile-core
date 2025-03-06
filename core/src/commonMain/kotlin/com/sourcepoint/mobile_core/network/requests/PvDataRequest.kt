@@ -1,11 +1,9 @@
 package com.sourcepoint.mobile_core.network.requests
 
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-
 
 
 @Serializable

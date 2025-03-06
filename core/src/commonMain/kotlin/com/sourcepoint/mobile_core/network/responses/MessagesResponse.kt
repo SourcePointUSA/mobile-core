@@ -1,17 +1,23 @@
 package com.sourcepoint.mobile_core.network.responses
 
 import com.sourcepoint.mobile_core.models.SPCampaignType
-import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.consents.AttCampaign
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
+import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageCategory
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageSubCategory
 import com.sourcepoint.mobile_core.utils.IntEnum
 import com.sourcepoint.mobile_core.utils.IntEnumSerializer
 import com.sourcepoint.mobile_core.utils.StringEnumWithDefaultSerializer
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -32,6 +38,8 @@ data class MessagesResponse(
         val message: Message? = null
         val messageMetaData: MessageMetaData? = null
         val childPmId: String? = null
+
+        abstract fun toConsent(default: ConsentClass?): ConsentClass?
     }
 
     @Serializable
@@ -42,7 +50,18 @@ data class MessagesResponse(
         @SerialName("message_choice") val messageChoices: List<JsonObject>,
         @SerialName("site_id") val propertyId: Int
     ) {
-        fun encodeToJson() = encodeToString(serializer(), this)
+        fun encodeToJson(categoryId: MessageCategory, subCategoryId: MessageSubCategory) = encodeToString(
+            serializer = MessageWithCategorySubCategory.serializer(),
+            value = MessageWithCategorySubCategory(
+                categoryId = categoryId,
+                subCategoryId = subCategoryId,
+                categories = categories,
+                language = language,
+                messageJson = messageJson,
+                messageChoices = messageChoices,
+                propertyId = propertyId
+            )
+        )
 
         @Serializable
         data class GDPRCategory(
@@ -83,7 +102,7 @@ data class MessagesResponse(
                     Unknown;
 
                     object Serializer: StringEnumWithDefaultSerializer<VendorType>(
-                        VendorType.entries, Unknown
+                        entries, Unknown
                     )
                 }
             }
@@ -97,8 +116,8 @@ data class MessagesResponse(
         private val euconsent: String?,
         private val grants: SPGDPRVendorGrants?,
         private val consentStatus: ConsentStatus?,
-        private val dateCreated: String?,
-        private val expirationDate: String?,
+        private val dateCreated: Instant?,
+        private val expirationDate: Instant?,
         private val webConsentPayload: String?,
         @SerialName("TCData") val tcData: IABData? = emptyMap(),
         override val derivedConsents: GDPRConsent? = if (
@@ -110,11 +129,30 @@ data class MessagesResponse(
             grants = grants,
             consentStatus = consentStatus,
             webConsentPayload = webConsentPayload,
-            expirationDate = expirationDate,
-            dateCreated = dateCreated,
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
             tcData = tcData ?: emptyMap()
         ) else null
-    ): Campaign<GDPRConsent?>()
+    ): Campaign<GDPRConsent?>() {
+        override fun toConsent(default: GDPRConsent?): GDPRConsent? =
+            if (derivedConsents != null) {
+                default?.copy(
+                    grants = derivedConsents.grants,
+                    euconsent = derivedConsents.euconsent,
+                    tcData = derivedConsents.tcData,
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    consentStatus = derivedConsents.consentStatus,
+                    webConsentPayload = derivedConsents.webConsentPayload,
+                    legIntCategories = derivedConsents.legIntCategories,
+                    legIntVendors = derivedConsents.legIntVendors,
+                    vendors = derivedConsents.vendors,
+                    categories = derivedConsents.categories
+                )
+            } else {
+                default?.copy()
+            }
+    }
 
     @Serializable
     @SerialName("usnat")
@@ -123,8 +161,8 @@ data class MessagesResponse(
         private val consentStatus: ConsentStatus?,
         private val consentStrings: ConsentStrings?,
         private val userConsents: USNatConsent.USNatUserConsents?,
-        private val dateCreated: String?,
-        private val expirationDate: String?,
+        private val dateCreated: Instant?,
+        private val expirationDate: Instant?,
         private val webConsentPayload: String?,
         @SerialName("GPPData") val gppData: IABData? = emptyMap(),
         override val derivedConsents: USNatConsent? = if (
@@ -132,15 +170,33 @@ data class MessagesResponse(
             userConsents != null &&
             consentStatus != null
         ) USNatConsent(
-            dateCreated = dateCreated,
-            expirationDate = expirationDate,
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
             consentStatus = consentStatus,
             consentStrings = consentStrings,
             userConsents = userConsents,
             webConsentPayload = webConsentPayload,
             gppData = gppData ?: emptyMap()
         ) else null
-    ): Campaign<USNatConsent?>()
+    ): Campaign<USNatConsent?>() {
+        override fun toConsent(default: USNatConsent?): USNatConsent? =
+            if (derivedConsents != null){
+                default?.copy(
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    consentStrings = derivedConsents.consentStrings,
+                    webConsentPayload = derivedConsents.webConsentPayload,
+                    userConsents = default.userConsents.copy(
+                        categories = derivedConsents.userConsents.categories,
+                        vendors = derivedConsents.userConsents.vendors
+                    ),
+                    consentStatus = derivedConsents.consentStatus,
+                    gppData = derivedConsents.gppData
+                )
+            } else {
+                default?.copy()
+            }
+    }
 
     @Serializable
     @SerialName("CCPA")
@@ -150,8 +206,8 @@ data class MessagesResponse(
         val signedLspa: Boolean?,
         val rejectedVendors: List<String>? = emptyList(),
         val rejectedCategories: List<String>? = emptyList(),
-        val dateCreated: String?,
-        val expirationDate: String?,
+        val dateCreated: Instant?,
+        val expirationDate: Instant?,
         val webConsentPayload: String?,
         @SerialName("GPPData") val gppData: IABData? = emptyMap(),
         override val derivedConsents: CCPAConsent? = if (
@@ -159,22 +215,43 @@ data class MessagesResponse(
             rejectedCategories != null &&
             signedLspa != null
         ) CCPAConsent(
-            dateCreated = dateCreated,
-            expirationDate = expirationDate,
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
+            status = status,
             signedLspa = signedLspa,
             rejectedCategories = rejectedCategories,
             rejectedVendors = rejectedVendors,
             webConsentPayload = webConsentPayload,
             gppData = gppData ?: emptyMap()
         ) else null
-    ): Campaign<CCPAConsent?>()
+    ): Campaign<CCPAConsent?>() {
+        override fun toConsent(default: CCPAConsent?): CCPAConsent? =
+            if (derivedConsents != null){
+                default?.copy(
+                    status = derivedConsents.status,
+                    rejectedVendors = derivedConsents.rejectedVendors,
+                    rejectedCategories = derivedConsents.rejectedCategories,
+                    signedLspa = derivedConsents.signedLspa,
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    rejectedAll = derivedConsents.rejectedAll,
+                    consentedAll = derivedConsents.consentedAll,
+                    webConsentPayload = derivedConsents.webConsentPayload,
+                    gppData = derivedConsents.gppData
+                )
+            } else {
+                default?.copy()
+            }
+    }
 
     @Serializable
     @SerialName("ios14")
     data class Ios14(
         override val type: SPCampaignType = SPCampaignType.IOS14,
         override val derivedConsents: Nothing? = null
-    ): Campaign<Nothing>()
+    ): Campaign<AttCampaign>() {
+        override fun toConsent(default: AttCampaign?): AttCampaign? = null
+    }
 
     @Serializable
     data class MessageMetaData(
@@ -218,3 +295,14 @@ data class MessagesResponse(
         }
     }
 }
+
+@Serializable
+data class MessageWithCategorySubCategory(
+    val categoryId: MessageCategory,
+    val subCategoryId: MessageSubCategory,
+    val categories: List<MessagesResponse.Message.GDPRCategory>?,
+    val language: SPMessageLanguage?,
+    @SerialName("message_json") val messageJson: JsonObject,
+    @SerialName("message_choice") val messageChoices: List<JsonObject>,
+    @SerialName("site_id") val propertyId: Int
+)
