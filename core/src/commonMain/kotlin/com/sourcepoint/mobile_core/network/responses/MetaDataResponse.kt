@@ -13,8 +13,8 @@ data class MetaDataResponse (
     data class MetaDataResponseGDPR (
         val applies: Boolean,
         val sampleRate: Float,
-        val additionsChangeDate: String,
-        val legalBasisChangeDate: String,
+        val additionsChangeDate: String?,
+        val legalBasisChangeDate: String?,
         val childPmId: String?,
         @SerialName("_id") val vendorListId: String
     )
@@ -23,7 +23,7 @@ data class MetaDataResponse (
     data class MetaDataResponseUSNat (
         val applies: Boolean,
         val sampleRate: Float,
-        val additionsChangeDate: String,
+        val additionsChangeDate: String?,
         val applicableSections: List<Int>,
         @SerialName("_id") val vendorListId: String
     )

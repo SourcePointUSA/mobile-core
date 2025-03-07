@@ -1,9 +1,6 @@
 package com.sourcepoint.mobile_core.network
 
-import com.sourcepoint.mobile_core.models.InvalidChoiceAllParamsError
 import com.sourcepoint.mobile_core.models.SPActionType
-import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
-import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
@@ -16,17 +13,16 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
-import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
-import com.sourcepoint.mobile_core.network.requests.IncludeData
-import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
+import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
+import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
@@ -73,14 +69,14 @@ class SourcepointClientTest {
         assertEquals(response.gdpr!!.applies, true)
         assertEquals(response.gdpr!!.sampleRate, 1.0f)
         assertTrue(response.gdpr!!.vendorListId.isNotEmpty())
-        assertTrue(response.gdpr!!.additionsChangeDate.isNotEmpty())
-        assertTrue(response.gdpr!!.legalBasisChangeDate.isNotEmpty())
+        assertTrue(response.gdpr!!.additionsChangeDate!!.isNotEmpty())
+        assertTrue(response.gdpr!!.legalBasisChangeDate!!.isNotEmpty())
 
         assertNotNull(response.usnat)
         assertEquals(response.usnat!!.applies, true)
         assertEquals(response.usnat!!.sampleRate, 1.0f)
         assertTrue(response.usnat!!.vendorListId.isNotEmpty())
-        assertTrue(response.usnat!!.additionsChangeDate.isNotEmpty())
+        assertTrue(response.usnat!!.additionsChangeDate!!.isNotEmpty())
         assertTrue(response.usnat!!.applicableSections.isNotEmpty())
 
         assertNotNull(response.ccpa)
