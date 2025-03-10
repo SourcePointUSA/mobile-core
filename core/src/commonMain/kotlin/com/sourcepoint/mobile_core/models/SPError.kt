@@ -1,5 +1,8 @@
 package com.sourcepoint.mobile_core.models
 
+import kotlin.experimental.ExperimentalObjCName
+import kotlin.native.ObjCName
+
 open class SPError(
     val code: String = "sp_metric_generic_mobile-core_error",
     val description: String = "Something went wrong in the Mobile Core",
@@ -44,6 +47,8 @@ open class InvalidCustomConsentUUIDError : SPError (
     code = "sp_metric_invalid_consent_UUID"
 )
 
+@OptIn(ExperimentalObjCName::class)
+@ObjCName(swiftName = "CoreInvalidPropertyNameError")
 open class InvalidPropertyNameError(propertyName: String): SPError(
     code = "sp_metric_invalid_property_name",
     description = "PropertyName can only include letters, numbers, '.', ':', '-' and '/'. $propertyName passed is invalid"
