@@ -10,6 +10,7 @@ import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
+import com.sourcepoint.mobile_core.models.SPUnknownNetworkError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
@@ -123,6 +124,7 @@ interface SPClient {
         legIntCategories: List<String>
     ): GDPRConsent
 
+    @Throws(SPNetworkError::class, SPUnknownNetworkError::class, CancellationException::class)
     suspend fun errorMetrics(error: SPError)
 }
 
