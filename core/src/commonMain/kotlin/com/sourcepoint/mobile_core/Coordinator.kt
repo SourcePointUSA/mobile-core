@@ -781,6 +781,39 @@ class Coordinator(
         }
     }
 
+    override suspend fun reportIdfaStatus(osVersion: String, requestUUID: String) {
+        var uuid = ""
+        var uuidType: SPCampaignType? = null
+        userData.gdpr?.consents?.uuid?.let {
+            if (it.isNotEmpty()) {
+                uuid = it
+                uuidType = Gdpr
+            }
+        }
+        userData.ccpa?.consents?.uuid?.let {
+            if (it.isNotEmpty()) {
+                uuid = it
+                uuidType = Ccpa
+            }
+        }
+        userData.usnat?.consents?.uuid?.let {
+            if (it.isNotEmpty()) {
+                uuid = it
+                uuidType = UsNat
+            }
+        }
+        spClient.postReportIdfaStatus(
+            propertyId = propertyId,
+            uuid = uuid,
+            requestUUID = requestUUID,
+            uuidType = uuidType,
+            messageId = state.ios14.messageId,
+            idfaStatus = idfaStatus ?: SPIDFAStatus.Unknown,
+            iosVersion = osVersion,
+            partitionUUID = state.ios14.partitionUUID
+        )
+    }
+
     override fun clearLocalData() {
         repository.clear()
         state = State(accountId = accountId, propertyId = propertyId, authId = authId)

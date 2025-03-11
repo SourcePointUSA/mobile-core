@@ -48,6 +48,9 @@ interface ICoordinator {
         legIntCategories: List<String>
     )
 
+    @Throws(CancellationException::class)
+    suspend fun reportIdfaStatus(osVersion: String, requestUUID: String)
+
     suspend fun logError(error: SPError)
 
     fun clearLocalData()
