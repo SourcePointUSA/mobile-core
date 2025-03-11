@@ -3,6 +3,8 @@ package com.sourcepoint.mobile_core.models
 import kotlin.experimental.ExperimentalObjCName
 import kotlin.native.ObjCName
 
+@OptIn(ExperimentalObjCName::class)
+@ObjCName(swiftName = "CoreSPError")
 open class SPError(
     val code: String = "sp_metric_generic_mobile-core_error",
     val description: String = "Something went wrong in the Mobile Core",
