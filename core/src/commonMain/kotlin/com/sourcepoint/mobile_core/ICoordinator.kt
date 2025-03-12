@@ -9,6 +9,8 @@ import com.sourcepoint.mobile_core.models.ReportActionException
 import com.sourcepoint.mobile_core.models.SPAction
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
+import com.sourcepoint.mobile_core.models.SPNetworkError
+import com.sourcepoint.mobile_core.models.SPUnknownNetworkError
 import com.sourcepoint.mobile_core.models.consents.SPUserData
 import kotlinx.serialization.json.JsonObject
 import kotlin.coroutines.cancellation.CancellationException
@@ -51,6 +53,7 @@ interface ICoordinator {
     @Throws(CancellationException::class)
     suspend fun reportIdfaStatus(osVersion: String, requestUUID: String)
 
+    @Throws(SPNetworkError::class, SPUnknownNetworkError::class, CancellationException::class)
     suspend fun logError(error: SPError)
 
     fun clearLocalData()
