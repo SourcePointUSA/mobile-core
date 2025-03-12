@@ -50,6 +50,9 @@ interface ICoordinator {
         legIntCategories: List<String>
     )
 
+    @Throws(CancellationException::class)
+    suspend fun reportIdfaStatus(osVersion: String, requestUUID: String)
+
     @Throws(SPNetworkError::class, SPUnknownNetworkError::class, CancellationException::class)
     suspend fun logError(error: SPError)
 

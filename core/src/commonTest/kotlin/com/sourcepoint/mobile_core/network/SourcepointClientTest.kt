@@ -77,6 +77,7 @@ class SourcepointClientTest {
         assertTrue(response.usnat?.applies)
         assertEquals(1.0f, response.usnat?.sampleRate)
         assertNotEmpty(response.usnat?.vendorListId)
+        assertTrue(response.usnat!!.applicableSections.isNotEmpty())
 
         assertTrue(response.ccpa?.applies)
         assertEquals(1.0f, response.ccpa?.sampleRate)

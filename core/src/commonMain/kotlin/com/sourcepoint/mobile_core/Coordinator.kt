@@ -47,6 +47,7 @@ import com.sourcepoint.mobile_core.utils.inOneYear
 import com.sourcepoint.mobile_core.utils.now
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 
 class Coordinator(
@@ -192,8 +193,8 @@ class Coordinator(
             state.gdpr = state.gdpr.copy(
                 consents = state.gdpr.consents.copy(applies = it.applies),
                 metaData = state.gdpr.metaData.copy(
-                    additionsChangeDate = it.additionsChangeDate,
-                    legalBasisChangeDate = it.legalBasisChangeDate,
+                    additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
+                    legalBasisChangeDate = it.legalBasisChangeDate ?: Instant.DISTANT_PAST,
                     vendorListId = it.vendorListId
                 ),
                 childPmId = it.childPmId
@@ -211,7 +212,7 @@ class Coordinator(
                 consents = state.usNat.consents.copy(applies = it.applies),
                 metaData = state.usNat.metaData.copy(
                     vendorListId = it.vendorListId,
-                    additionsChangeDate = it.additionsChangeDate,
+                    additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
                     applicableSections = it.applicableSections
                 )
             )
@@ -778,6 +779,39 @@ class Coordinator(
         } catch (error: SPError) {
             throw DeleteCustomConsentGDPRException(causedBy = error)
         }
+    }
+
+    override suspend fun reportIdfaStatus(osVersion: String, requestUUID: String) {
+        var uuid = ""
+        var uuidType: SPCampaignType? = null
+        userData.gdpr?.consents?.uuid?.let {
+            if (it.isNotEmpty()) {
+                uuid = it
+                uuidType = Gdpr
+            }
+        }
+        userData.ccpa?.consents?.uuid?.let {
+            if (it.isNotEmpty()) {
+                uuid = it
+                uuidType = Ccpa
+            }
+        }
+        userData.usnat?.consents?.uuid?.let {
+            if (it.isNotEmpty()) {
+                uuid = it
+                uuidType = UsNat
+            }
+        }
+        spClient.postReportIdfaStatus(
+            propertyId = propertyId,
+            uuid = uuid,
+            requestUUID = requestUUID,
+            uuidType = uuidType,
+            messageId = state.ios14.messageId,
+            idfaStatus = idfaStatus ?: SPIDFAStatus.Unknown,
+            iosVersion = osVersion,
+            partitionUUID = state.ios14.partitionUUID
+        )
     }
 
     override fun clearLocalData() {
