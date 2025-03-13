@@ -821,7 +821,7 @@ class Coordinator(
     }
 
     override suspend fun logError(error: SPError) {
-        spClient.errorMetrics(error)
+        try { spClient.errorMetrics(error) } catch (_: Throwable) {}
     }
 
     override fun setTranslateMessage(value: Boolean) {

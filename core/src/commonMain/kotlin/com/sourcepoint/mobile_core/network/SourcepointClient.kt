@@ -124,7 +124,6 @@ interface SPClient {
         legIntCategories: List<String>
     ): GDPRConsent
 
-    @Throws(SPNetworkError::class, SPUnknownNetworkError::class, CancellationException::class)
     suspend fun errorMetrics(error: SPError)
 }
 
