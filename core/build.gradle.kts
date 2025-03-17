@@ -115,10 +115,10 @@ android {
 
 // FIXME: this does not work for tvOS
 tasks.register<Exec>("bootIOSSimulator") {
-    isIgnoreExitValue = false
+    isIgnoreExitValue = true
     val errorBuffer = ByteArrayOutputStream()
     errorOutput = ByteArrayOutputStream()
-    commandLine("xcrun", "simctl", "boot", deviceName)
+    commandLine("xcrun", "simctl", "bootstatus", deviceName, "-b")
 
     doLast {
         val result = executionResult.get()
