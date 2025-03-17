@@ -116,15 +116,28 @@ android {
 // FIXME: this does not work for tvOS
 tasks.register<Exec>("bootIOSSimulator") {
     isIgnoreExitValue = true
-    val errorBuffer = ByteArrayOutputStream()
-    errorOutput = ByteArrayOutputStream()
-    commandLine("xcrun", "simctl", "bootstatus", deviceName, "-b")
+    // Check if the simulator is already booted
+    val checkBootStatus = ByteArrayOutputStream()
+    exec {
+        commandLine("xcrun", "simctl", "list", "devices", "booted")
+        standardOutput = checkBootStatus
+    }
 
-    doLast {
-        val result = executionResult.get()
-        if (result.exitValue != 148 && result.exitValue != 149) { // ignoring device already booted errors
-            println(errorBuffer.toString())
-            result.assertNormalExitValue()
+    onlyIf {
+        !checkBootStatus.toString().contains(deviceName)
+    }
+
+    if (!checkBootStatus.toString().contains(deviceName)) {
+        val errorBuffer = ByteArrayOutputStream()
+        errorOutput = errorBuffer
+        commandLine("xcrun", "simctl", "bootstatus", deviceName, "-b")
+
+        doLast {
+            val result = executionResult.get()
+            if (result.exitValue != 148 && result.exitValue != 149) { // Ignore "already booted" errors
+                println(errorBuffer.toString())
+                result.assertNormalExitValue()
+            }
         }
     }
 }
