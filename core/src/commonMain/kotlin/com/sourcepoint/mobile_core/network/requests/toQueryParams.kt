@@ -2,6 +2,7 @@ package com.sourcepoint.mobile_core.network.requests
 
 import com.sourcepoint.mobile_core.network.json
 import com.sourcepoint.mobile_core.network.jsonWithNulls
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -12,10 +13,10 @@ import kotlin.reflect.typeOf
 
 // Encodes a @Serializable class into query params. Param names will maintain the class' json
 // naming. Primitive types are directly converted to string. Objects are converted to JsonObject
-inline fun <reified T> T.toQueryParams(omitNulls: Boolean = true): Map<String, String?> where T : Any {
+inline fun <T> T.toQueryParams(serializer: KSerializer<T>, omitNulls: Boolean = true): Map<String, String?> {
     val jsonFormater = if (omitNulls) json else jsonWithNulls
 
-    return jsonFormater.encodeToJsonElement(serializer(typeOf<T>()), this)
+    return jsonFormater.encodeToJsonElement(serializer, this)
         .jsonObject
         .entries
         .fold(mutableMapOf()) { entries, entry ->

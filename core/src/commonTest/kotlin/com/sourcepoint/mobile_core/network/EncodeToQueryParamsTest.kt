@@ -42,13 +42,13 @@ class EncodeToQueryParamsTest {
                 "__renamed" to "renamed val",
                 "objectValue" to "{\"foo\":\"hello world\"}"
             ),
-            dummyClass.toQueryParams()
+            dummyClass.toQueryParams(serializer = Dummy.serializer())
         )
     }
 
     @Test
     fun canEncodeNulls() = runTest {
-        val encoded = dummyClass.toQueryParams(omitNulls = false)
+        val encoded = dummyClass.toQueryParams(serializer = Dummy.serializer(), omitNulls = false)
         assertEquals(encoded["objectValue"], "{\"foo\":\"hello world\",\"anotherNullable\":null}")
         assertNull(encoded["nullableValue"])
     }
