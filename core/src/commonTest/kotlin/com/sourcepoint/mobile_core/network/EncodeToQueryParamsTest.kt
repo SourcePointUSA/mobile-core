@@ -1,7 +1,6 @@
 package com.sourcepoint.mobile_core.network
 
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
-import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
@@ -32,7 +31,7 @@ class EncodeToQueryParamsTest {
     )
 
     @Test
-    fun encodesSerializableClassToQueryParams() = runTest {
+    fun encodesSerializableClassToQueryParams() {
         assertEquals(
             mapOf(
                 "intValue" to "42",
@@ -47,7 +46,7 @@ class EncodeToQueryParamsTest {
     }
 
     @Test
-    fun canEncodeNulls() = runTest {
+    fun canEncodeNulls() {
         val encoded = dummyClass.toQueryParams(omitNulls = false)
         assertEquals(encoded["objectValue"], "{\"foo\":\"hello world\",\"anotherNullable\":null}")
         assertNull(encoded["nullableValue"])

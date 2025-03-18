@@ -1,7 +1,6 @@
 package com.sourcepoint.mobile_core.utils
 
 import com.sourcepoint.mobile_core.network.json
-import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
@@ -15,7 +14,7 @@ class DefaultEnumSerializerTest {
     }
 
     @Test
-    fun serializingEnumsIsCaseInsensitive() = runTest {
+    fun serializingEnumsIsCaseInsensitive() {
         assertEquals(MyEnum.Foo, json.decodeFromString("\"Foo\""))
         assertEquals(MyEnum.Foo, json.decodeFromString("\"foo\""))
 
