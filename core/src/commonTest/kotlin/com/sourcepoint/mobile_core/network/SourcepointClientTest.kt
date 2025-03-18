@@ -25,6 +25,7 @@ import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
+import com.sourcepoint.mobile_core.utils.runTestWithRetries
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
@@ -32,7 +33,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -62,7 +62,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getMetaData() = runTest {
+    fun getMetaData() = runTestWithRetries {
         val response = api.getMetaData(
             MetaDataRequest.Campaigns(
                 gdpr = MetaDataRequest.Campaigns.Campaign(groupPmId = "123"),
@@ -85,7 +85,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getConsentStatus() = runTest {
+    fun getConsentStatus() = runTestWithRetries {
         val response = api.getConsentStatus(
             authId = null,
             metadata = ConsentStatusRequest.MetaData(
@@ -162,7 +162,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getMessages() = runTest {
+    fun getMessages() = runTestWithRetries {
         val response = api.getMessages(
             MessagesRequest(
                 body = MessagesRequest.Body(
@@ -218,7 +218,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun loggingWithErrorWhenRequestTimeoutInTheClient() = runTest {
+    fun loggingWithErrorWhenRequestTimeoutInTheClient() = runTestWithRetries {
         val mockEngine = mock(delayInSeconds = 2)
 
         assertFailsWith<SPClientTimeout> {
@@ -228,7 +228,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun loggingWithErrorWhenStatusCodeNot200() = runTest {
+    fun loggingWithErrorWhenStatusCodeNot200() = runTestWithRetries {
         val mockEngine = mock(status = HttpStatusCode.GatewayTimeout.value)
 
         assertFailsWith<SPNetworkError> {
@@ -241,7 +241,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun loggingWithErrorWhenResponseCantBeParsed() = runTest {
+    fun loggingWithErrorWhenResponseCantBeParsed() = runTestWithRetries {
         val mockEngine = mock(response = """{"gdpr":{}}""")
 
         assertFailsWith<SPUnableToParseBodyError> {
@@ -254,7 +254,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun canAddAndRemoveCustomConsentsInGDPR() = runTest {
+    fun canAddAndRemoveCustomConsentsInGDPR() = runTestWithRetries {
         val customVendorId = "5ff4d000a228633ac048be41"
         val categoryId1 = "608bad95d08d3112188e0e36"
         val categoryId2 = "608bad95d08d3112188e0e2f"
@@ -284,7 +284,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTest {
+    fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTestWithRetries {
         val response = api.getChoiceAll(
             actionType = SPActionType.AcceptAll,
             campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
@@ -299,7 +299,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getGDPRChoiceRejectAllContainCorrectResponse() = runTest {
+    fun getGDPRChoiceRejectAllContainCorrectResponse() = runTestWithRetries {
         val response = api.getChoiceAll(
             actionType = SPActionType.RejectAll,
             campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
@@ -314,7 +314,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceGDPRAction(
             actionType = SPActionType.AcceptAll,
             request = GDPRChoiceRequest(sendPVData = true, propertyId = 123, sampleRate = 1.0f)
@@ -325,7 +325,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTest {
+    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceGDPRAction(
             actionType = SPActionType.RejectAll,
             request = GDPRChoiceRequest(sendPVData = true, propertyId = 123, sampleRate = 1.0f)
@@ -336,7 +336,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postGDPRChoiceActionSaveExitContainCorrectResponse() = runTest {
+    fun postGDPRChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceGDPRAction(
             actionType = SPActionType.SaveAndExit,
             request = GDPRChoiceRequest(
@@ -361,7 +361,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postCCPAChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun postCCPAChoiceActionAcceptContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceCCPAAction(
             actionType = SPActionType.AcceptAll,
             request = CCPAChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
@@ -371,7 +371,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postCCPAChoiceActionRejectContainCorrectResponse() = runTest {
+    fun postCCPAChoiceActionRejectContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceCCPAAction(
             actionType = SPActionType.RejectAll,
             request = CCPAChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
@@ -381,7 +381,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postCCPAChoiceActionSaveExitContainCorrectResponse() = runTest {
+    fun postCCPAChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceCCPAAction(
             actionType = SPActionType.SaveAndExit,
             request = CCPAChoiceRequest(
@@ -399,7 +399,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceUSNatAction(
             actionType = SPActionType.AcceptAll,
             request = USNatChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
@@ -408,7 +408,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postUSNatChoiceActionRejectContainCorrectResponse() = runTest {
+    fun postUSNatChoiceActionRejectContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceUSNatAction(
             actionType = SPActionType.RejectAll,
             request = USNatChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
@@ -417,7 +417,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun postUSNatChoiceActionSaveExitContainCorrectResponse() = runTest {
+    fun postUSNatChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceUSNatAction(
             actionType = SPActionType.SaveAndExit,
             request = USNatChoiceRequest(
