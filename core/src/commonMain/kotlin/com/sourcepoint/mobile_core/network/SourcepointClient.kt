@@ -389,7 +389,7 @@ class SourcepointClient(
 }
 
 @Throws(SPUnableToParseBodyError::class, CancellationException::class)
-suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T =
+internal suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T =
     try {
         body()
     } catch (_: Exception) {
@@ -397,7 +397,6 @@ suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunc
     }
 
 // Maps a Serializable class into query params using toQueryParams function
-internal inline fun <reified T> URLBuilder.withParams(paramsObject: T) where T : Any =
-    paramsObject
-        .toQueryParams()
-        .map { param -> param.value?.let { parameters.append(param.key, it) } }
+internal inline fun <reified T> URLBuilder.withParams(paramsObject: T) = paramsObject
+    .toQueryParams()
+    .map { param -> param.value?.let { parameters.append(param.key, it) } }
