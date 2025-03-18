@@ -54,9 +54,6 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KSuspendFunction1
 
@@ -206,8 +203,7 @@ class SourcepointClient(
                     accountId = accountId,
                     propertyId = propertyId,
                     metadata = campaigns
-                ),
-                MetaDataRequest.serializer()
+                )
             )
         }.build()
     ).bodyOr(::reportErrorAndThrow)
@@ -215,7 +211,7 @@ class SourcepointClient(
     override suspend fun postPvData(request: PvDataRequest): PvDataResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "pv-data")
-            withParams(DefaultRequest(), DefaultRequest.serializer())
+            withParams(DefaultRequest())
             }.build()) {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -229,8 +225,7 @@ class SourcepointClient(
                     propertyId = propertyId,
                     authId = authId,
                     metadata = metadata
-                ),
-                ConsentStatusRequest.serializer()
+                )
             )
         }.build()
         ).bodyOr(::reportErrorAndThrow)
@@ -241,7 +236,7 @@ class SourcepointClient(
     ): GDPRChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "gdpr", actionType.type.toString())
-            withParams(DefaultRequest(), DefaultRequest.serializer())
+            withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -253,7 +248,7 @@ class SourcepointClient(
     ): USNatChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
-            withParams(DefaultRequest(), DefaultRequest.serializer())
+            withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -265,7 +260,7 @@ class SourcepointClient(
     ): CCPAChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "ccpa", actionType.type.toString())
-            withParams(DefaultRequest(), DefaultRequest.serializer())
+            withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -282,14 +277,14 @@ class SourcepointClient(
         }
         return http.get(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", choicePath)
-            withParams(ChoiceAllRequest(accountId, propertyId, campaigns), ChoiceAllRequest.serializer())
+            withParams(ChoiceAllRequest(accountId, propertyId, campaigns))
         }.build()).bodyOr(::reportErrorAndThrow)
     }
 
     override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
         http.get(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "messages")
-            withParams(request, MessagesRequest.serializer())
+            withParams(request)
         }.build()).bodyOr(::reportErrorAndThrow)
 
     override suspend fun postReportIdfaStatus(
@@ -304,7 +299,7 @@ class SourcepointClient(
     ) {
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "metrics", "v1", "apple-tracking")
-            withParams(DefaultRequest(), DefaultRequest.serializer())
+            withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(
@@ -334,7 +329,7 @@ class SourcepointClient(
     ): GDPRConsent =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
-            withParams(DefaultRequest(), DefaultRequest.serializer())
+            withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(
@@ -357,7 +352,7 @@ class SourcepointClient(
         http.delete(URLBuilder(baseWrapperUrl).apply {
             path("consent", "tcfv2", "consent", "v3", "custom")
             appendPathSegments(propertyId.toString())
-            withParams(mapOf("consentUUID" to consentUUID), MapSerializer(String.serializer(), String.serializer()))
+            withParams(mapOf("consentUUID" to consentUUID))
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(
@@ -383,7 +378,7 @@ class SourcepointClient(
                 code = error.code,
                 description = error.description,
                 campaignType = error.campaignType
-            ), ErrorMetricsRequest.serializer())
+            ))
         }.build())
     }
 
@@ -402,10 +397,7 @@ suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunc
     }
 
 // Maps a Serializable class into query params using toQueryParams function
-inline fun <T> URLBuilder.withParams(paramsObject: T, serializer: KSerializer<T>) where T : Any {
+internal inline fun <reified T> URLBuilder.withParams(paramsObject: T) where T : Any =
     paramsObject
-        .toQueryParams(serializer)
-        .map { param ->
-            param.value?.let { parameters.append(param.key, it) }
-        }
-}
+        .toQueryParams()
+        .map { param -> param.value?.let { parameters.append(param.key, it) } }
