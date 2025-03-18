@@ -48,7 +48,8 @@ class SourcepointClientTest {
     private val api = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
-        propertyName = propertyName
+        propertyName = propertyName,
+        httpEngine = PlatformHttpClient.create().engine
     )
 
     private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
