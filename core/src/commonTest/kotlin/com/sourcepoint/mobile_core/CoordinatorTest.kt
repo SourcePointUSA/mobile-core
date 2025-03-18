@@ -28,6 +28,7 @@ import com.sourcepoint.mobile_core.models.SPMessageLanguage.ENGLISH
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.State
+import com.sourcepoint.mobile_core.network.PlatformHttpClient
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
@@ -71,7 +72,8 @@ class CoordinatorTest {
     private val spClient = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
-        propertyName = propertyName
+        propertyName = propertyName,
+        httpEngine = PlatformHttpClient.create().engine
     )
     private val saveAndExitActionUsnat = SPAction.init(
         type = SaveAndExit,

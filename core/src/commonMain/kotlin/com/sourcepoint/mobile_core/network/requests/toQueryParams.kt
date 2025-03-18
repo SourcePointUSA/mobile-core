@@ -12,7 +12,7 @@ import kotlin.reflect.typeOf
 
 // Encodes a @Serializable class into query params. Param names will maintain the class' json
 // naming. Primitive types are directly converted to string. Objects are converted to JsonObject
-inline fun <reified T> T.toQueryParams(omitNulls: Boolean = true): Map<String, String?> where T : Any {
+internal inline fun <reified T> T.toQueryParams(omitNulls: Boolean = true): Map<String, String?> {
     val jsonFormater = if (omitNulls) json else jsonWithNulls
 
     return jsonFormater.encodeToJsonElement(serializer(typeOf<T>()), this)

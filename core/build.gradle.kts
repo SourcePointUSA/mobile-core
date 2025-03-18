@@ -1,6 +1,3 @@
-import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
-import java.io.ByteArrayOutputStream
-
 plugins {
     kotlin("multiplatform") version "2.0.21"
     kotlin("native.cocoapods") version "2.0.21"
@@ -111,28 +108,6 @@ android {
     packaging {
         resources.excludes += "DebugProbesKt.bin"
     }
-}
-
-// FIXME: this does not work for tvOS
-tasks.register<Exec>("bootIOSSimulator") {
-    isIgnoreExitValue = true
-    val errorBuffer = ByteArrayOutputStream()
-    errorOutput = ByteArrayOutputStream()
-    commandLine("xcrun", "simctl", "boot", deviceName)
-
-    doLast {
-        val result = executionResult.get()
-        if (result.exitValue != 148 && result.exitValue != 149) { // ignoring device already booted errors
-            println(errorBuffer.toString())
-            result.assertNormalExitValue()
-        }
-    }
-}
-
-tasks.withType<KotlinNativeSimulatorTest>().configureEach {
-    dependsOn("bootIOSSimulator")
-    standalone.set(false)
-    device.set(deviceName)
 }
 
 tasks.withType<Test> {
