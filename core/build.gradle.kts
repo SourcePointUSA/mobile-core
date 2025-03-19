@@ -68,6 +68,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
+                implementation("com.russhwolf:multiplatform-settings-test:$settingsVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:$dataTimeVersion")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
