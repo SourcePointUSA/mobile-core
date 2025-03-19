@@ -1,3 +1,11 @@
+## 0.1.0 (March, 19, 2025)
+* [DIA-4943](https://sourcepoint.atlassian.net/browse/DIA-4943) implemented `SPCoordinator.reportAction`
+* [DIA-4948](https://sourcepoint.atlassian.net/browse/DIA-4948) implemented `SPCoordinator.loadMessages`
+* [DIA-5341](https://sourcepoint.atlassian.net/browse/DIA-5341) fixed an issue causing `SPClient` to throw exception when something goes wrong with `/custom-metrics` call
+
+## 0.0.11 (March, 07, 2025)
+* [DIA-5293](https://sourcepoint.atlassian.net/browse/DIA-5293) fixed an issue causing the `/meta-data` response to fail parsing.
+
 ## 0.0.10 (December, 12, 2024)
 * [DIA-3496](https://sourcepoint.atlassian.net/browse/DIA-3496) Implement `GET` consent-all and reject-all calls
 * [DIA-3497](https://sourcepoint.atlassian.net/browse/DIA-3497) Implement `POST` gdpr choice call
