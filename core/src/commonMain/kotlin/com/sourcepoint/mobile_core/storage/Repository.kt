@@ -7,7 +7,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class Repository(private val storage: Settings) {
-    constructor(): this(storage = Settings())
+    constructor(): this(storage = getStorageOrDefault())
 
     companion object {
         const val TCF_PREFIX = "IABTCF_"
