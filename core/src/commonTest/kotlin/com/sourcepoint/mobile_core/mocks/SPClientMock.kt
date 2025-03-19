@@ -28,7 +28,7 @@ import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 @Suppress("MemberVisibilityCanBePrivate")
 class SPClientMock(
     var original: SPClient? = null,
-    var getMetaData: (() -> MetaDataResponse?)? = null,
+    var getMetaData: (suspend () -> MetaDataResponse?)? = null,
     var postPvData: (() -> PvDataResponse?)? = null,
     var getConsentStatus: ((authId: String?, metadata: ConsentStatusRequest.MetaData) -> ConsentStatusResponse?)? = null,
     var postChoiceGDPRAction: (() -> GDPRChoiceResponse?)? = null,
