@@ -2,13 +2,12 @@ package network
 
 import com.sourcepoint.core.BuildConfig
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DefaultRequestTest {
     @Test
-    fun containsTheRightAttributes() = runTest {
+    fun containsTheRightAttributes() {
         val request = DefaultRequest()
         assertEquals("mobile-core-tvOS", request.scriptType)
         assertEquals(BuildConfig.Version, request.scriptVersion)

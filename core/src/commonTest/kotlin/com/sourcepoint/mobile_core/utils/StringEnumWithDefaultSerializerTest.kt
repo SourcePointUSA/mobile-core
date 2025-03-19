@@ -1,7 +1,6 @@
 package com.sourcepoint.mobile_core.utils
 
 import com.sourcepoint.mobile_core.network.json
-import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlin.test.Test
@@ -21,17 +20,17 @@ class StringEnumWithDefaultSerializerTest {
     data class DummyWithStringEnum(val enumProperty: StringTestEnum)
 
     @Test
-    fun encodeToString() = runTest {
+    fun encodeToString() {
         assertEquals("\"Foo\"", json.encodeToString(StringTestEnum.Foo))
     }
 
     @Test
-    fun decodeFromString() = runTest {
+    fun decodeFromString() {
         assertEquals(StringTestEnum.Bar, json.decodeFromString("\"Bar\""))
     }
 
     @Test
-    fun encodeToStringInsideObject() = runTest {
+    fun encodeToStringInsideObject() {
         assertEquals(
             "{\"enumProperty\":\"Foo\"}",
             json.encodeToString(DummyWithStringEnum(enumProperty = StringTestEnum.Foo))
@@ -39,7 +38,7 @@ class StringEnumWithDefaultSerializerTest {
     }
 
     @Test
-    fun decodeFromStringInsideObject() = runTest {
+    fun decodeFromStringInsideObject() {
         assertEquals(
             DummyWithStringEnum(enumProperty = StringTestEnum.Bar),
             json.decodeFromString("{\"enumProperty\":\"Bar\"}")
@@ -47,7 +46,7 @@ class StringEnumWithDefaultSerializerTest {
     }
 
     @Test
-    fun decodeToDefaultValue() = runTest {
+    fun decodeToDefaultValue() {
         assertEquals(StringTestEnum.Unknown, json.decodeFromString( "\"etc\""))
     }
 }

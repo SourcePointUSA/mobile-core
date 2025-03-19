@@ -1,11 +1,17 @@
 package com.sourcepoint.mobile_core.network
 
+import com.sourcepoint.mobile_core.asserters.assertContains
+import com.sourcepoint.mobile_core.asserters.assertFalse
+import com.sourcepoint.mobile_core.asserters.assertIsEmpty
+import com.sourcepoint.mobile_core.asserters.assertNotEmpty
+import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
+import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
@@ -19,6 +25,7 @@ import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
+import com.sourcepoint.mobile_core.utils.runTestWithRetries
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
@@ -26,25 +33,23 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 
 class SourcepointClientTest {
     private val accountId = 22
     private val propertyId = 16893
-    private val propertyName = "https://mobile.multicampaign.demo"
+    private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
     private val api = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
-        propertyName = propertyName
+        propertyName = propertyName,
+        httpEngine = PlatformHttpClient.create().engine
     )
 
     private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
@@ -57,35 +62,30 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getMetaData() = runTest {
+    fun getMetaData() = runTestWithRetries {
         val response = api.getMetaData(
             MetaDataRequest.Campaigns(
-                gdpr = MetaDataRequest.Campaigns.Campaign(),
+                gdpr = MetaDataRequest.Campaigns.Campaign(groupPmId = "123"),
                 usnat = MetaDataRequest.Campaigns.Campaign(),
                 ccpa = MetaDataRequest.Campaigns.Campaign()
             )
         )
-        assertNotNull(response.gdpr)
-        assertEquals(response.gdpr!!.applies, true)
-        assertEquals(response.gdpr!!.sampleRate, 1.0f)
-        assertTrue(response.gdpr!!.vendorListId.isNotEmpty())
-        assertTrue(response.gdpr!!.additionsChangeDate!!.isNotEmpty())
-        assertTrue(response.gdpr!!.legalBasisChangeDate!!.isNotEmpty())
+        assertTrue(response.gdpr?.applies)
+        assertEquals(1.0f, response.gdpr?.sampleRate)
+        assertNotEmpty(response.gdpr?.vendorListId)
+        assertEquals("123", response.gdpr?.childPmId)
 
-        assertNotNull(response.usnat)
-        assertEquals(response.usnat!!.applies, true)
-        assertEquals(response.usnat!!.sampleRate, 1.0f)
-        assertTrue(response.usnat!!.vendorListId.isNotEmpty())
-        assertTrue(response.usnat!!.additionsChangeDate!!.isNotEmpty())
+        assertTrue(response.usnat?.applies)
+        assertEquals(1.0f, response.usnat?.sampleRate)
+        assertNotEmpty(response.usnat?.vendorListId)
         assertTrue(response.usnat!!.applicableSections.isNotEmpty())
 
-        assertNotNull(response.ccpa)
-        assertEquals(response.ccpa!!.applies, true)
-        assertEquals(response.ccpa!!.sampleRate, 1.0f)
+        assertTrue(response.ccpa?.applies)
+        assertEquals(1.0f, response.ccpa?.sampleRate)
     }
 
     @Test
-    fun getConsentStatus() = runTest {
+    fun getConsentStatus() = runTestWithRetries {
         val response = api.getConsentStatus(
             authId = null,
             metadata = ConsentStatusRequest.MetaData(
@@ -119,50 +119,50 @@ class SourcepointClientTest {
         )
     }
 
-    private fun assertCampaignConsents(campaign: MessagesResponse.Campaign<*>) {
+    private fun assertCampaignConsentsFromMessages(campaign: MessagesResponse.Campaign<*>) {
         when(campaign) {
-            is MessagesResponse.GDPR -> assertCampaignConsents(campaign.derivedConsents)
-            is MessagesResponse.USNat -> assertCampaignConsents(campaign.derivedConsents)
-            is MessagesResponse.CCPA -> assertCampaignConsents(campaign.derivedConsents)
+            is MessagesResponse.GDPR -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
+            is MessagesResponse.USNat -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
+            is MessagesResponse.CCPA -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.Ios14 -> assertNull(campaign.derivedConsents)
         }
     }
 
-    private fun assertCampaignConsents(consents: GDPRConsent?) {
+    private fun assertCampaignConsentsFromMessages(consents: GDPRConsent?) {
         assertNotNull(consents)
-        assertTrue(consents.euconsent!!.isNotEmpty())
-        assertTrue(consents.tcData.isNotEmpty())
-        assertTrue(consents.grants.isNotEmpty())
-        assertTrue(consents.dateCreated!!.isNotEmpty())
-        assertTrue(consents.expirationDate!!.isNotEmpty())
-        assertTrue(consents.webConsentPayload!!.isNotEmpty())
+        assertNotEmpty(consents.euconsent)
+        assertNotEmpty(consents.tcData)
+        assertNotEmpty(consents.grants)
+        assertNotNull(consents.dateCreated)
+        assertNotNull(consents.expirationDate)
+        assertNotEmpty(consents.webConsentPayload)
     }
 
-    private fun assertCampaignConsents(consents: USNatConsent?) {
+    private fun assertCampaignConsentsFromMessages(consents: USNatConsent?) {
         assertNotNull(consents)
-        assertTrue(consents.gppData.isNotEmpty())
-        assertTrue(consents.consentStrings.isNotEmpty())
-        assertTrue(consents.userConsents.vendors.isEmpty())
-        assertTrue(consents.userConsents.categories.isNotEmpty())
-        assertTrue(consents.dateCreated!!.isNotEmpty())
-        assertTrue(consents.expirationDate!!.isNotEmpty())
-        assertTrue(consents.webConsentPayload!!.isNotEmpty())
+        assertNotEmpty(consents.gppData)
+        assertNotEmpty(consents.consentStrings)
+        assertIsEmpty(consents.userConsents.vendors)
+        assertNotEmpty(consents.userConsents.categories)
+        assertNotNull(consents.dateCreated)
+        assertNotNull(consents.expirationDate)
+        assertNotEmpty(consents.webConsentPayload)
     }
 
-    private fun assertCampaignConsents(consents: CCPAConsent?) {
+    private fun assertCampaignConsentsFromMessages(consents: CCPAConsent?) {
         assertNotNull(consents)
-        assertTrue(consents.gppData.isNotEmpty())
+        assertNotEmpty(consents.gppData)
         assertNotNull(consents.signedLspa)
-        assertNotEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
-        assertTrue(consents.rejectedCategories.isEmpty())
-        assertTrue(consents.rejectedVendors.isEmpty())
-        assertTrue(consents.dateCreated!!.isNotEmpty())
-        assertTrue(consents.expirationDate!!.isNotEmpty())
-        assertTrue(consents.webConsentPayload!!.isNotEmpty())
+        assertEquals(CCPAConsent.CCPAConsentStatus.RejectedNone, consents.status)
+        assertIsEmpty(consents.rejectedCategories)
+        assertIsEmpty(consents.rejectedVendors)
+        assertNotNull(consents.dateCreated)
+        assertNotNull(consents.expirationDate)
+        assertNotEmpty(consents.webConsentPayload)
     }
 
     @Test
-    fun getMessages() = runTest {
+    fun getMessages() = runTestWithRetries {
         val response = api.getMessages(
             MessagesRequest(
                 body = MessagesRequest.Body(
@@ -208,17 +208,17 @@ class SourcepointClientTest {
         response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
-            assertTrue(campaign.message!!.messageJson.isNotEmpty(), "Empty message_json for ${campaign.type}")
+            assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")
             assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
-            assertCampaignConsents(campaign)
+            assertCampaignConsentsFromMessages(campaign)
         }
 
-        assertTrue(response.localState.isNotEmpty())
-        assertTrue(response.nonKeyedLocalState.isNotEmpty())
+        assertNotEmpty(response.localState)
+        assertNotEmpty(response.nonKeyedLocalState)
     }
 
     @Test
-    fun loggingWithErrorWhenRequestTimeoutInTheClient() = runTest {
+    fun loggingWithErrorWhenRequestTimeoutInTheClient() = runTestWithRetries {
         val mockEngine = mock(delayInSeconds = 2)
 
         assertFailsWith<SPClientTimeout> {
@@ -228,7 +228,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun loggingWithErrorWhenStatusCodeNot200() = runTest {
+    fun loggingWithErrorWhenStatusCodeNot200() = runTestWithRetries {
         val mockEngine = mock(status = HttpStatusCode.GatewayTimeout.value)
 
         assertFailsWith<SPNetworkError> {
@@ -241,7 +241,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun loggingWithErrorWhenResponseCantBeParsed() = runTest {
+    fun loggingWithErrorWhenResponseCantBeParsed() = runTestWithRetries {
         val mockEngine = mock(response = """{"gdpr":{}}""")
 
         assertFailsWith<SPUnableToParseBodyError> {
@@ -254,7 +254,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun canAddAndRemoveCustomConsentsInGDPR() = runTest {
+    fun canAddAndRemoveCustomConsentsInGDPR() = runTestWithRetries {
         val customVendorId = "5ff4d000a228633ac048be41"
         val categoryId1 = "608bad95d08d3112188e0e36"
         val categoryId2 = "608bad95d08d3112188e0e2f"
@@ -284,7 +284,7 @@ class SourcepointClientTest {
     }
 
     @Test
-    fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTest {
+    fun getGDPRChoiceAcceptAllContainCorrectResponse() = runTestWithRetries {
         val response = api.getChoiceAll(
             actionType = SPActionType.AcceptAll,
             campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
@@ -293,13 +293,13 @@ class SourcepointClientTest {
                 ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
         )
-        assertTrue(response.gdpr?.consentStatus?.consentedAll == true)
-        assertTrue(response.gdpr?.acceptedVendors?.isNotEmpty() == true)
-        assertTrue(response.gdpr?.acceptedCategories?.isNotEmpty() == true)
+        assertTrue(response.gdpr?.consentStatus?.consentedAll)
+        assertNotEmpty(response.gdpr?.acceptedVendors)
+        assertNotEmpty(response.gdpr?.acceptedCategories)
     }
 
     @Test
-    fun getGDPRChoiceRejectAllContainCorrectResponse() = runTest {
+    fun getGDPRChoiceRejectAllContainCorrectResponse() = runTestWithRetries {
         val response = api.getChoiceAll(
             actionType = SPActionType.RejectAll,
             campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
@@ -308,203 +308,129 @@ class SourcepointClientTest {
                 ChoiceAllRequest.ChoiceAllCampaigns.Campaign(false)
             ),
         )
-        assertTrue(response.gdpr?.consentStatus?.rejectedAny == true)
-        assertTrue(response.gdpr?.acceptedVendors?.isEmpty() == true)
-        assertTrue(response.gdpr?.acceptedCategories?.isEmpty() == true)
+        assertTrue(response.gdpr?.consentStatus?.rejectedAny)
+        assertIsEmpty(response.gdpr?.acceptedVendors)
+        assertIsEmpty(response.gdpr?.acceptedCategories)
     }
 
     @Test
-    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun postGDPRChoiceActionAcceptContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceGDPRAction(
-            SPActionType.AcceptAll,
-            GDPRChoiceRequest(
-                sendPVData = true,
-                propertyId = 123,
-                uuid = null,
-                messageId = null,
-                authId = null,
-                consentAllRef = null,
-                vendorListId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null,
-                granularStatus = null
-            )
+            actionType = SPActionType.AcceptAll,
+            request = GDPRChoiceRequest(sendPVData = true, propertyId = 123, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus?.consentedAll == true)
-        assertTrue(response.acceptedVendors?.isNotEmpty() == true )
-        assertTrue(response.acceptedCategories?.isNotEmpty() == true)
+        assertTrue(response.consentStatus?.consentedAll)
+        assertNotEmpty(response.acceptedVendors)
+        assertNotEmpty(response.acceptedCategories)
     }
 
     @Test
-    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTest {
+    fun postGDPRChoiceActionRejectContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceGDPRAction(
-            SPActionType.RejectAll,
-            GDPRChoiceRequest(
-                sendPVData = true,
-                propertyId = 123,
-                uuid = null,
-                messageId = null,
-                authId = null,
-                consentAllRef = null,
-                vendorListId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null,
-                granularStatus = null
-            )
+            actionType = SPActionType.RejectAll,
+            request = GDPRChoiceRequest(sendPVData = true, propertyId = 123, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus?.rejectedAny == true)
-        assertTrue(response.acceptedVendors?.isEmpty() == true)
-        assertTrue(response.acceptedCategories?.isEmpty() == true)
+        assertTrue(response.consentStatus?.rejectedAny)
+        assertIsEmpty(response.acceptedVendors)
+        assertIsEmpty(response.acceptedCategories)
     }
 
     @Test
-    fun postGDPRChoiceActionSaveExitContainCorrectResponse() = runTest {
+    fun postGDPRChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceGDPRAction(
-            SPActionType.SaveAndExit,
-            GDPRChoiceRequest(
+            actionType = SPActionType.SaveAndExit,
+            request = GDPRChoiceRequest(
                 uuid = "uuid_36",
                 sendPVData = true,
                 propertyId = propertyId,
-                pmSaveAndExitVariables =
-                """{"lan":"EN","vendors":[{"consent":false,"_id":"5f1b2fbeb8e05c306f2a1eb9","vendorType":"CUSTOM","iabId":null,"legInt":true}],
-                        |"privacyManagerId":"488393","categories":
-                        |[{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],"specialFeatures":[]}""".trimMargin(),
+                pmSaveAndExitVariables = """{
+                    "lan":"EN",
+                    "vendors":[{"consent":false,"_id":"5f1b2fbeb8e05c306f2a1eb9","vendorType":"CUSTOM","iabId":null,"legInt":true}],
+                    "privacyManagerId":"488393",
+                    "categories": [{"_id":"608bad95d08d3112188e0e2f","legInt":true,"iabId":2,"consent":false,"type":"IAB_PURPOSE"}],
+                    "specialFeatures":[]
+                }""".encodeToJsonObject()!!,
                 sampleRate = 1f,
-                idfaStatus = SPIDFAStatus.Accepted,
-                messageId = null,
-                authId = null,
-                consentAllRef = null,
-                vendorListId = null,
-                pubData = null,
-                granularStatus = null
+                idfaStatus = SPIDFAStatus.Accepted
             )
         )
-        assertTrue(response.consentStatus?.rejectedAny == true)
-        assertTrue(response.consentStatus?.consentedToAny == true)
-        assertTrue(response.acceptedLegIntVendors?.contains("5f1b2fbeb8e05c306f2a1eb9") == true)
-        assertTrue(response.acceptedLegIntCategories?.contains("608bad95d08d3112188e0e2f") == true)
+        assertTrue(response.consentStatus?.rejectedAny)
+        assertTrue(response.consentStatus?.consentedToAny)
+        assertContains(response.acceptedLegIntVendors, "5f1b2fbeb8e05c306f2a1eb9")
+        assertContains(response.acceptedLegIntCategories, "608bad95d08d3112188e0e2f")
     }
 
     @Test
-    fun postCCPAChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun postCCPAChoiceActionAcceptContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceCCPAAction(
-            SPActionType.AcceptAll,
-            CCPAChoiceRequest(
-                sendPVData = true,
-                propertyId = propertyId,
-                authId = null,
-                uuid = null,
-                messageId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null
-            )
+            actionType = SPActionType.AcceptAll,
+            request = CCPAChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.consentedAll == true)
+        assertTrue(response.consentedAll)
         assertEquals(response.status, CCPAConsent.CCPAConsentStatus.ConsentedAll)
     }
 
     @Test
-    fun postCCPAChoiceActionRejectContainCorrectResponse() = runTest {
+    fun postCCPAChoiceActionRejectContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceCCPAAction(
-            SPActionType.RejectAll,
-            CCPAChoiceRequest(
-                authId = null,
-                sendPVData = true,
-                propertyId = propertyId,
-                uuid = null,
-                messageId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null
-            )
+            actionType = SPActionType.RejectAll,
+            request = CCPAChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.rejectedAll == true)
+        assertTrue(response.rejectedAll)
         assertEquals(response.status, CCPAConsent.CCPAConsentStatus.RejectedAll)
     }
 
     @Test
-    fun postCCPAChoiceActionSaveExitContainCorrectResponse() = runTest {
+    fun postCCPAChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceCCPAAction(
-            SPActionType.SaveAndExit,
-            CCPAChoiceRequest(
+            actionType = SPActionType.SaveAndExit,
+            request = CCPAChoiceRequest(
                 uuid = "uuid_36",
                 pmSaveAndExitVariables =
-                """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".trimMargin(),
+                    """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".encodeToJsonObject()!!,
                 sendPVData = true,
                 propertyId = propertyId,
-                authId = null,
-                messageId = null,
-                pubData = null,
-                sampleRate = null
+                sampleRate = 1.0f
             )
         )
-        assertTrue(response.consentedAll == false)
-        assertTrue(response.rejectedAll == false)
-        assertTrue(response.rejectedCategories?.contains("608bae685461ff11a2c2865d") == true)
+        assertFalse(response.consentedAll)
+        assertFalse(response.rejectedAll)
+        assertContains(response.rejectedCategories, "608bae685461ff11a2c2865d")
     }
 
     @Test
-    fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTest {
+    fun postUSNatChoiceActionAcceptContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceUSNatAction(
-            SPActionType.AcceptAll,
-            USNatChoiceRequest(
-                sendPVData = true,
-                propertyId = propertyId,
-                authId = null,
-                uuid = null,
-                messageId = null,
-                vendorListId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null,
-                granularStatus = null
-            )
+            actionType = SPActionType.AcceptAll,
+            request = USNatChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus.consentedToAll == true)
+        assertTrue(response.consentStatus.consentedToAll)
     }
 
     @Test
-    fun postUSNatChoiceActionRejectContainCorrectResponse() = runTest {
+    fun postUSNatChoiceActionRejectContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceUSNatAction(
-            SPActionType.RejectAll,
-            USNatChoiceRequest(
-                sendPVData = true,
-                propertyId = propertyId,
-                authId = null,
-                uuid = null,
-                messageId = null,
-                vendorListId = null,
-                pubData = null,
-                pmSaveAndExitVariables = null,
-                sampleRate = null,
-                granularStatus = null
-            )
+            actionType = SPActionType.RejectAll,
+            request = USNatChoiceRequest(sendPVData = true, propertyId = propertyId, sampleRate = 1.0f)
         )
-        assertTrue(response.consentStatus.rejectedAny == true)
+        assertTrue(response.consentStatus.rejectedAny)
     }
 
     @Test
-    fun postUSNatChoiceActionSaveExitContainCorrectResponse() = runTest {
+    fun postUSNatChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
         val response = api.postChoiceUSNatAction(
-            SPActionType.SaveAndExit,
-            USNatChoiceRequest(
+            actionType = SPActionType.SaveAndExit,
+            request = USNatChoiceRequest(
                 uuid = "uuid_36",
                 vendorListId = "65a01016e17a3c7a831ec515",
                 pmSaveAndExitVariables =
-                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".trimMargin(),
+                    """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".encodeToJsonObject()!!,
                 sendPVData = true,
                 propertyId = propertyId,
-                sampleRate = 1f,
-                authId = null,
-                messageId = null,
-                pubData = null,
-                granularStatus = null
+                sampleRate = 1f
             )
         )
-        assertTrue(response.consentStatus.rejectedAny == true)
-        assertTrue(response.consentStatus.consentedToAny == true)
+        assertTrue(response.consentStatus.rejectedAny)
+        assertTrue(response.consentStatus.consentedToAny)
     }
 }

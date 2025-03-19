@@ -6,15 +6,15 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
-import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ChoiceAllResponse (
-    val gdpr: GDPR?,
-    val ccpa: CCPA?,
-    val usnat: USNAT?
+    val gdpr: GDPR? = null,
+    val ccpa: CCPA? = null,
+    val usnat: USNAT? = null
 ) {
     @Serializable
     data class GDPR (
@@ -22,8 +22,8 @@ data class ChoiceAllResponse (
         val childPmId: String?,
         val euconsent: String,
         val hasLocalData: Boolean?,
-        val dateCreated: String?,
-        val expirationDate: String?,
+        val dateCreated: Instant?,
+        val expirationDate: Instant?,
         @SerialName("TCData") val tcData: IABData? = emptyMap(),
         val consentStatus: ConsentStatus,
         val grants: SPGDPRVendorGrants,
@@ -47,11 +47,10 @@ data class ChoiceAllResponse (
     @Serializable
     data class CCPA (
         val consentedAll: Boolean,
-        val dateCreated: String?,
-        val expirationDate: String?,
+        val dateCreated: Instant?,
+        val expirationDate: Instant?,
         val rejectedAll: Boolean,
         val status: CCPAConsent.CCPAConsentStatus,
-        @SerialName("uspString") val uspstring: String,
         val rejectedVendors: List<String>,
         val rejectedCategories: List<String>,
         val gpcEnabled: Boolean?,
@@ -65,8 +64,8 @@ data class ChoiceAllResponse (
         val consentStatus: ConsentStatus,
         val consentStrings: ConsentStrings = emptyList(),
         val consentedToAll: Boolean,
-        val dateCreated: String?,
-        val expirationDate: String?,
+        val dateCreated: Instant?,
+        val expirationDate: Instant?,
         val rejectedAny: Boolean,
         val gpcEnabled: Boolean?,
         val webConsentPayload: String?,

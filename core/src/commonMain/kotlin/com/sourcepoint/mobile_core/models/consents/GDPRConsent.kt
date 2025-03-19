@@ -1,12 +1,16 @@
 package com.sourcepoint.mobile_core.models.consents
 
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class GDPRConsent (
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    val applies: Boolean = false,
+    val dateCreated: Instant = now(),
+    val expirationDate: Instant = dateCreated.inOneYear(),
     val uuid: String? = null,
     val euconsent: String? = null,
     val legIntCategories: List<String> = emptyList(),
@@ -18,7 +22,7 @@ data class GDPRConsent (
     val gcmStatus: GCMStatus? = null,
     val webConsentPayload: String? = null,
     val consentStatus: ConsentStatus = ConsentStatus(),
-    @SerialName("TCData") val tcData: IABData = emptyMap(),
+    @SerialName("TCData") var tcData: IABData = emptyMap(),
 ) {
     @Serializable
     data class GCMStatus (

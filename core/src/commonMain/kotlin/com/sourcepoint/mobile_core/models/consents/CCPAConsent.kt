@@ -1,22 +1,40 @@
 package com.sourcepoint.mobile_core.models.consents
 
+import com.sourcepoint.mobile_core.utils.inOneYear
+import com.sourcepoint.mobile_core.utils.now
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// TODO: implement USPString logic
 @Serializable
 data class CCPAConsent(
+    val applies: Boolean = false,
     val uuid: String? = null,
-    val dateCreated: String? = null,
-    val expirationDate: String? = null,
+    val dateCreated: Instant = now(),
+    val expirationDate: Instant = dateCreated.inOneYear(),
     val signedLspa: Boolean? = null,
-    var uspstring: String? = null,
+    val rejectedAll: Boolean = false,
+    val consentedAll: Boolean = false,
     val rejectedVendors: List<String> = emptyList(),
     val rejectedCategories: List<String> = emptyList(),
     val status: CCPAConsentStatus? = null,
     val webConsentPayload: String? = null,
-    @SerialName("GPPData") val gppData: IABData = emptyMap(),
+    @SerialName("GPPData") var gppData: IABData = emptyMap(),
 ) {
+    val uspstring: String get() {
+        val version = 1
+        val hadChanceToOptOut = true
+
+        return if (applies) {
+            "$version" +
+                (if (hadChanceToOptOut) "Y" else "N") +
+                (if (status == CCPAConsentStatus.RejectedAll || status == CCPAConsentStatus.RejectedSome) "Y" else "N") +
+                (if (signedLspa == true) "Y" else "N")
+        } else {
+            "$version---"
+        }
+    }
+
     @Serializable
     enum class CCPAConsentStatus {
         @SerialName("consentedAll") ConsentedAll,
