@@ -390,6 +390,52 @@ class CoordinatorTest {
     }
 
     @Test
+    fun reconsentWorksWhenVendorsAreAddedToTheVendorList() = runTestWithRetries {
+        val campaigns = SPCampaigns(gdpr = SPCampaign())
+        val consents = getCoordinator(campaigns = campaigns).reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
+
+        val spClientMock = SPClientMock(
+            original = spClient,
+            getMetaData = {
+                val originalMetaData = spClient.getMetaData(
+                    campaigns = MetaDataRequest.Campaigns(gdpr = MetaDataRequest.Campaigns.Campaign())
+                )
+                MetaDataResponse(gdpr = MetaDataResponse.MetaDataResponseGDPR(
+                    applies = true,
+                    sampleRate = 1.0f,
+                    additionsChangeDate = consents.gdpr!!.consents!!.dateCreated + 1.days,
+                    legalBasisChangeDate = originalMetaData.gdpr!!.legalBasisChangeDate,
+                    vendorListId = originalMetaData.gdpr!!.vendorListId,
+                ))
+            }
+        )
+        assertEquals(1, getCoordinator(campaigns = campaigns, spClient = spClientMock).loadMessages().size)
+    }
+
+    @Test
+    fun reconsentWorksWhenLegalBasisOfVendorsChangeInTheVendorList() = runTestWithRetries {
+        val campaigns = SPCampaigns(gdpr = SPCampaign())
+        val consents = getCoordinator(campaigns = campaigns).reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
+
+        val spClientMock = SPClientMock(
+            original = spClient,
+            getMetaData = {
+                val originalMetaData = spClient.getMetaData(
+                    campaigns = MetaDataRequest.Campaigns(gdpr = MetaDataRequest.Campaigns.Campaign())
+                )
+                MetaDataResponse(gdpr = MetaDataResponse.MetaDataResponseGDPR(
+                    applies = true,
+                    sampleRate = 1.0f,
+                    additionsChangeDate = originalMetaData.gdpr!!.additionsChangeDate,
+                    legalBasisChangeDate = consents.gdpr!!.consents!!.dateCreated + 1.days,
+                    vendorListId = originalMetaData.gdpr!!.vendorListId,
+                ))
+            }
+        )
+        assertEquals(1, getCoordinator(campaigns = campaigns, spClient = spClientMock).loadMessages().size)
+    }
+
+    @Test
     fun usnatPropertyAdditionsChangeDateBiggerThanConsentDateCreatedShowMessage() = runTestWithRetries {
         val coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign()))
         assertEquals(1, coordinator.loadMessages().size)
