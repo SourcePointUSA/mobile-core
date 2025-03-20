@@ -48,7 +48,6 @@ class SourcepointClientTest {
     private val api = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
-        propertyName = propertyName,
         httpEngine = PlatformHttpClient.create().engine
     )
 
@@ -222,7 +221,7 @@ class SourcepointClientTest {
         val mockEngine = mock(delayInSeconds = 2)
 
         assertFailsWith<SPClientTimeout> {
-            SourcepointClient(accountId, propertyId, propertyName, requestTimeoutInSeconds = 1, httpEngine = mockEngine)
+            SourcepointClient(accountId, propertyId, requestTimeoutInSeconds = 1, httpEngine = mockEngine)
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
     }
@@ -232,7 +231,7 @@ class SourcepointClientTest {
         val mockEngine = mock(status = HttpStatusCode.GatewayTimeout.value)
 
         assertFailsWith<SPNetworkError> {
-            SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
+            SourcepointClient(accountId, propertyId, httpEngine = mockEngine)
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
 
@@ -245,7 +244,7 @@ class SourcepointClientTest {
         val mockEngine = mock(response = """{"gdpr":{}}""")
 
         assertFailsWith<SPUnableToParseBodyError> {
-            SourcepointClient(accountId, propertyId, propertyName, httpEngine = mockEngine)
+            SourcepointClient(accountId, propertyId, httpEngine = mockEngine)
                 .getMetaData(campaigns = MetaDataRequest.Campaigns())
         }
 

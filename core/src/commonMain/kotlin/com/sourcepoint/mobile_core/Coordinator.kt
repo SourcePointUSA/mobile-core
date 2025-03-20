@@ -56,16 +56,13 @@ class Coordinator(
     private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
     private val repository: Repository = Repository(),
-    private val spClient: SPClient = SourcepointClient(
-        accountId = accountId,
-        propertyId = propertyId,
-        propertyName = propertyName,
-    ),
+    private val spClient: SPClient = SourcepointClient(accountId = accountId, propertyId = propertyId),
     private var authId: String? = null,
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
 ): ICoordinator {
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
-    public var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } //workaround for ios
+    // TODO: implement using expect/actual
+    var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } // workaround for ios
     private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
@@ -415,26 +412,20 @@ class Coordinator(
         }
     }
 
-    private suspend fun sampleAndPvData(campaign: State.SPSampleable, request: PvDataRequest): Boolean {
+    private suspend fun sampleAndPvData(campaign: State.SPSampleable, request: PvDataRequest) =
         if (campaign.wasSampled == null) {
-            if (sample(samplingRate = campaign.sampleRate)) {
-                val response = spClient.postPvData(request = request)
-                handlePvDataResponse(response)
-                return true
+            if (sample(campaign.sampleRate)) {
+                handlePvDataResponse(spClient.postPvData(request))
+                true
             } else {
-                return false
+                false
             }
+        } else if (campaign.wasSampled == true) {
+            handlePvDataResponse(spClient.postPvData(request))
+            true
         } else {
-            if (campaign.wasSampled == true) {
-                val response = spClient.postPvData(request = request)
-                handlePvDataResponse(response)
-                return true
-            }
-            else {
-                return false
-            }
+            false
         }
-    }
 
     private suspend fun pvData(pubData: JsonObject?, messages: List<MessageToDisplay>) = coroutineScope {
         val gdprPvData = campaigns.gdpr?.let {

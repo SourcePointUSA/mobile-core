@@ -8,7 +8,6 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPNetworkError
-import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
@@ -16,6 +15,7 @@ import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.DeleteCustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -50,7 +50,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.URLBuilder
-import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
@@ -129,10 +128,8 @@ interface SPClient {
 class SourcepointClient(
     private val accountId: Int,
     private val propertyId: Int,
-    private val propertyName: SPPropertyName,
     httpEngine: HttpClientEngine?,
     private val device: DeviceInformation,
-    private val version: String,
     private val requestTimeoutInSeconds: Int
 ): SPClient {
     private val config:  HttpClientConfig<*>.() -> Unit = {
@@ -165,31 +162,25 @@ class SourcepointClient(
     constructor(
         accountId: Int,
         propertyId: Int,
-        propertyName: SPPropertyName,
         requestTimeoutInSeconds: Int = 5
     ) : this(
         accountId,
         propertyId,
-        propertyName,
         httpEngine = null,
         device = DeviceInformation(),
-        version = BuildConfig.Version,
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
     constructor(
         accountId: Int,
         propertyId: Int,
-        propertyName: SPPropertyName,
         httpEngine: HttpClientEngine,
         requestTimeoutInSeconds: Int = 5,
     ) : this(
         accountId,
         propertyId,
-        propertyName,
         httpEngine = httpEngine,
         device = DeviceInformation(),
-        version = BuildConfig.Version,
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
@@ -350,9 +341,8 @@ class SourcepointClient(
         legIntCategories: List<String>
     ): GDPRConsent =
         http.delete(URLBuilder(baseWrapperUrl).apply {
-            path("consent", "tcfv2", "consent", "v3", "custom")
-            appendPathSegments(propertyId.toString())
-            withParams(mapOf("consentUUID" to consentUUID))
+            path("consent", "tcfv2", "consent", "v3", "custom", propertyId.toString())
+            withParams(DeleteCustomConsentRequest(consentUUID))
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(
@@ -366,20 +356,25 @@ class SourcepointClient(
         }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "metrics", "v1", "custom-metrics")
-            withParams(ErrorMetricsRequest(
-                accountId = accountId.toString(),
-                propertyId = propertyId.toString(),
-                propertyName = propertyName,
-                osVersion = device.osVersion,
-                deviceFamily = device.deviceFamily,
-                sdkVersion = version,
-                code = error.code,
-                description = error.description,
-                campaignType = error.campaignType
-            ))
-        }.build())
+        try {
+            http.post(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "metrics", "v1", "custom-metrics")
+                withParams(DefaultRequest())
+            }.build()) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    ErrorMetricsRequest(
+                        accountId = accountId.toString(),
+                        propertyId = propertyId.toString(),
+                        sdkOsVersion = device.osVersion,
+                        deviceFamily = device.deviceFamily,
+                        scriptVersion = BuildConfig.Version,
+                        code = error.code,
+                        legislation = error.campaignType
+                    )
+                )
+            }
+        } catch (_: Exception) {}
     }
 
     private suspend fun reportErrorAndThrow(error: SPError): SPError {
@@ -393,7 +388,7 @@ internal suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSu
     try {
         body()
     } catch (_: Exception) {
-        throw loggingFunction(SPUnableToParseBodyError(bodyName = T::class.qualifiedName))
+        throw loggingFunction(SPUnableToParseBodyError(bodyName = T::class.simpleName))
     }
 
 // Maps a Serializable class into query params using toQueryParams function
