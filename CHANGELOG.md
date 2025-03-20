@@ -1,3 +1,8 @@
+## 0.1.1 (March, 20, 2025)
+* [DIA-5293](https://sourcepoint.atlassian.net/browse/DIA-5293) fixed an issue causing the `SourcePointClient` to throw an error when calling `/custom-metrics`
+* implement a test for resetting sampling status when sampling rate changes
+* applies default request query params to `deleteCustomConsentTo`
+
 ## 0.1.0 (March, 19, 2025)
 * [DIA-4943](https://sourcepoint.atlassian.net/browse/DIA-4943) implemented `SPCoordinator.reportAction`
 * [DIA-4948](https://sourcepoint.atlassian.net/browse/DIA-4948) implemented `SPCoordinator.loadMessages`

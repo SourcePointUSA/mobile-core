@@ -1,8 +1,8 @@
 Pod::Spec.new do |spec|
     spec.name                     = 'SPMobileCore'
-    spec.version                  = '0.1.0'
+    spec.version                  = '0.1.1'
     spec.homepage                 = 'https://github.com/SourcePointUSA/mobile-core.git'
-    spec.source                   = { :git => 'https://github.com/SourcePointUSA/mobile-core.git', :tag => '0.1.0' }
+    spec.source                   = { :git => 'https://github.com/SourcePointUSA/mobile-core.git', :tag => '0.1.1' }
     spec.authors                  = 'André Herculano'
     spec.license                  = { :type => 'APACHE 2' }
     spec.summary                  = 'The internal Network & Data layers used by our mobile SDKs'
