@@ -388,7 +388,7 @@ internal suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSu
     try {
         body()
     } catch (_: Exception) {
-        throw loggingFunction(SPUnableToParseBodyError(bodyName = T::class.qualifiedName))
+        throw loggingFunction(SPUnableToParseBodyError(bodyName = T::class.simpleName))
     }
 
 // Maps a Serializable class into query params using toQueryParams function
