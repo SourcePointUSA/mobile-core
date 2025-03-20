@@ -389,6 +389,34 @@ class CoordinatorTest {
     }
 
     @Test
+    fun resetsSamplingStatusWhenSampleRateChanges() = runTestWithRetries {
+        val coordinator = getCoordinator(campaigns = SPCampaigns(gdpr = SPCampaign()))
+        coordinator.loadMessages()
+        assertEquals(1f, coordinator.state.gdpr.metaData.sampleRate, "sampleRate")
+        assertEquals(1f, coordinator.state.gdpr.metaData.wasSampledAt, "wasSampledAt")
+        assertTrue(coordinator.state.gdpr.metaData.wasSampled)
+
+        val spClientMock = SPClientMock(
+            original = spClient,
+            getMetaData = {
+                spClient.getMetaData(
+                    campaigns = MetaDataRequest.Campaigns(gdpr = MetaDataRequest.Campaigns.Campaign())
+                ).run {
+                    copy(gdpr = gdpr?.copy(sampleRate = 0.05f))
+                }
+            }
+        )
+        val secondCoordinator = getCoordinator(
+            campaigns = SPCampaigns(gdpr = SPCampaign()),
+            spClient = spClientMock,
+            state = coordinator.state
+        )
+        secondCoordinator.loadMessages()
+        assertEquals(0.05f, secondCoordinator.state.gdpr.metaData.sampleRate, "sampleRate")
+        assertEquals(0.05f, secondCoordinator.state.gdpr.metaData.wasSampledAt, "wasSampledAt")
+    }
+
+    @Test
     fun reconsentWorksWhenVendorsAreAddedToTheVendorList() = runTestWithRetries {
         val campaigns = SPCampaigns(gdpr = SPCampaign())
         val consents = getCoordinator(campaigns = campaigns).reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
