@@ -390,30 +390,31 @@ class CoordinatorTest {
 
     @Test
     fun resetsSamplingStatusWhenSampleRateChanges() = runTestWithRetries {
-        val coordinator = getCoordinator(campaigns = SPCampaigns(gdpr = SPCampaign()))
-        coordinator.loadMessages()
-        assertEquals(1f, coordinator.state.gdpr.metaData.sampleRate, "sampleRate")
-        assertEquals(1f, coordinator.state.gdpr.metaData.wasSampledAt, "wasSampledAt")
-        assertTrue(coordinator.state.gdpr.metaData.wasSampled)
-
+        val campaigns = SPCampaigns(gdpr = SPCampaign())
         val spClientMock = SPClientMock(
             original = spClient,
             getMetaData = {
                 spClient.getMetaData(
                     campaigns = MetaDataRequest.Campaigns(gdpr = MetaDataRequest.Campaigns.Campaign())
                 ).run {
-                    copy(gdpr = gdpr?.copy(sampleRate = 0.05f))
+                    copy(gdpr = gdpr?.copy(sampleRate = 0f))
                 }
             }
         )
-        val secondCoordinator = getCoordinator(
+        val coordinator = getCoordinator(
             campaigns = SPCampaigns(gdpr = SPCampaign()),
-            spClient = spClientMock,
-            state = coordinator.state
+            spClient = spClientMock
         )
+        coordinator.loadMessages()
+        assertEquals(0f, coordinator.state.gdpr.metaData.sampleRate, "sampleRate")
+        assertEquals(0f, coordinator.state.gdpr.metaData.wasSampledAt, "wasSampledAt")
+        assertFalse(coordinator.state.gdpr.metaData.wasSampled)
+
+        val secondCoordinator = getCoordinator(campaigns = campaigns, state = coordinator.state)
         secondCoordinator.loadMessages()
-        assertEquals(0.05f, secondCoordinator.state.gdpr.metaData.sampleRate, "sampleRate")
-        assertEquals(0.05f, secondCoordinator.state.gdpr.metaData.wasSampledAt, "wasSampledAt")
+        assertEquals(1f, secondCoordinator.state.gdpr.metaData.sampleRate, "sampleRate")
+        assertEquals(1f, secondCoordinator.state.gdpr.metaData.wasSampledAt, "wasSampledAt")
+        assertTrue(secondCoordinator.state.gdpr.metaData.wasSampled)
     }
 
     @Test
