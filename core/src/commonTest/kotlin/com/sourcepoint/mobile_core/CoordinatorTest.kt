@@ -73,7 +73,6 @@ class CoordinatorTest {
     private val spClient = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
-        propertyName = propertyName,
         httpEngine = PlatformHttpClient.create().engine
     )
     private val saveAndExitActionUsnat = SPAction.init(

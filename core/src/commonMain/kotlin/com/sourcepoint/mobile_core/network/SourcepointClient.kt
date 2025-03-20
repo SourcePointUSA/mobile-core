@@ -8,7 +8,6 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPNetworkError
-import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
@@ -129,7 +128,6 @@ interface SPClient {
 class SourcepointClient(
     private val accountId: Int,
     private val propertyId: Int,
-    private val propertyName: SPPropertyName,
     httpEngine: HttpClientEngine?,
     private val device: DeviceInformation,
     private val version: String,
@@ -165,12 +163,10 @@ class SourcepointClient(
     constructor(
         accountId: Int,
         propertyId: Int,
-        propertyName: SPPropertyName,
         requestTimeoutInSeconds: Int = 5
     ) : this(
         accountId,
         propertyId,
-        propertyName,
         httpEngine = null,
         device = DeviceInformation(),
         version = BuildConfig.Version,
@@ -180,13 +176,11 @@ class SourcepointClient(
     constructor(
         accountId: Int,
         propertyId: Int,
-        propertyName: SPPropertyName,
         httpEngine: HttpClientEngine,
         requestTimeoutInSeconds: Int = 5,
     ) : this(
         accountId,
         propertyId,
-        propertyName,
         httpEngine = httpEngine,
         device = DeviceInformation(),
         version = BuildConfig.Version,
