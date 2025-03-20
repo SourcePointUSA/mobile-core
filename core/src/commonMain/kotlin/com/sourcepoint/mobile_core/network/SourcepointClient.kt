@@ -16,6 +16,7 @@ import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
+import com.sourcepoint.mobile_core.network.requests.DeleteCustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
@@ -350,9 +351,8 @@ class SourcepointClient(
         legIntCategories: List<String>
     ): GDPRConsent =
         http.delete(URLBuilder(baseWrapperUrl).apply {
-            path("consent", "tcfv2", "consent", "v3", "custom")
-            appendPathSegments(propertyId.toString())
-            withParams(mapOf("consentUUID" to consentUUID))
+            path("consent", "tcfv2", "consent", "v3", "custom", propertyId.toString())
+            withParams(DeleteCustomConsentRequest(consentUUID))
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(
