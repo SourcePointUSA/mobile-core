@@ -130,7 +130,6 @@ class SourcepointClient(
     private val propertyId: Int,
     httpEngine: HttpClientEngine?,
     private val device: DeviceInformation,
-    private val version: String,
     private val requestTimeoutInSeconds: Int
 ): SPClient {
     private val config:  HttpClientConfig<*>.() -> Unit = {
@@ -169,7 +168,6 @@ class SourcepointClient(
         propertyId,
         httpEngine = null,
         device = DeviceInformation(),
-        version = BuildConfig.Version,
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
@@ -183,7 +181,6 @@ class SourcepointClient(
         propertyId,
         httpEngine = httpEngine,
         device = DeviceInformation(),
-        version = BuildConfig.Version,
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
@@ -371,7 +368,7 @@ class SourcepointClient(
                         propertyId = propertyId.toString(),
                         sdkOsVersion = device.osVersion,
                         deviceFamily = device.deviceFamily,
-                        scriptVersion = version,
+                        scriptVersion = BuildConfig.Version,
                         code = error.code,
                         legislation = error.campaignType
                     )
