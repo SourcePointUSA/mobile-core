@@ -51,7 +51,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.URLBuilder
-import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
@@ -366,20 +365,25 @@ class SourcepointClient(
         }.bodyOr(::reportErrorAndThrow)
 
     override suspend fun errorMetrics(error: SPError) {
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "metrics", "v1", "custom-metrics")
-            withParams(ErrorMetricsRequest(
-                accountId = accountId.toString(),
-                propertyId = propertyId.toString(),
-                propertyName = propertyName,
-                osVersion = device.osVersion,
-                deviceFamily = device.deviceFamily,
-                sdkVersion = version,
-                code = error.code,
-                description = error.description,
-                campaignType = error.campaignType
-            ))
-        }.build())
+        try {
+            http.post(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "metrics", "v1", "custom-metrics")
+                withParams(DefaultRequest())
+            }.build()) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    ErrorMetricsRequest(
+                        accountId = accountId.toString(),
+                        propertyId = propertyId.toString(),
+                        sdkOsVersion = device.osVersion,
+                        deviceFamily = device.deviceFamily,
+                        scriptVersion = version,
+                        code = error.code,
+                        legislation = error.campaignType
+                    )
+                )
+            }
+        } catch (_: Exception) {}
     }
 
     private suspend fun reportErrorAndThrow(error: SPError): SPError {
