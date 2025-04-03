@@ -38,6 +38,7 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import com.sourcepoint.mobile_core.utils.now
 import com.sourcepoint.mobile_core.utils.runTestWithRetries
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
@@ -555,5 +556,21 @@ class CoordinatorTest {
         assertFailsWith<LoadMessagesException> { getCoordinator(accountId = -1).loadMessages() }
         assertFailsWith<LoadMessagesException> { getCoordinator(propertyId = -1).loadMessages() }
         assertFailsWith<LoadMessagesException> { getCoordinator(propertyName = "foo").loadMessages() }
+    }
+
+    @Test
+    fun propertyWithPreferencesCampaign() = runTest {
+        val coordinator = getCoordinator(
+            accountId = 22,
+            propertyId = 38984,
+            propertyName = "dmytro.tests.mobile.preferences",
+            campaigns = SPCampaigns(preferences = SPCampaign()),
+            spClient = SourcepointClient(
+                accountId = 22,
+                propertyId = 38984
+            )
+        )
+        assertEquals(0, coordinator.loadMessages().size) //change to 1 when `messages` will work
+        assertEquals("67ee726a0ca4ef1d52c34563", coordinator.state.preferences.configurationId)
     }
 }
