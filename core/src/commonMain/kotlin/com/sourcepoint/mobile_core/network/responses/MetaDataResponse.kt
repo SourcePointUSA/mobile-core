@@ -1,5 +1,6 @@
 package com.sourcepoint.mobile_core.network.responses
 
+import com.sourcepoint.mobile_core.models.consents.IABData
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,7 +9,8 @@ import kotlinx.serialization.Serializable
 data class MetaDataResponse (
     val gdpr: MetaDataResponseGDPR? = null,
     val usnat: MetaDataResponseUSNat? = null,
-    val ccpa: MetaDataResponseCCPA? = null
+    val ccpa: MetaDataResponseCCPA? = null,
+    val preferences: MetaDataResponsePreferences? = null
 ){
     @Serializable
     data class MetaDataResponseGDPR (
@@ -33,5 +35,11 @@ data class MetaDataResponse (
     data class MetaDataResponseCCPA (
         val applies: Boolean,
         val sampleRate: Float
+    )
+
+    @Serializable
+    data class MetaDataResponsePreferences (
+        val configurationId: String,
+        val legalDocLiveDate: IABData?
     )
 }

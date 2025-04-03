@@ -218,6 +218,12 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
+        response.preferences?.let {
+            state.preferences = state.preferences.copy(
+                configurationId = it.configurationId,
+                legalDocLiveDate = it.legalDocLiveDate
+            )
+        }
         persistState()
     }
 
@@ -225,7 +231,8 @@ class Coordinator(
         handleMetaDataResponse(spClient.getMetaData(MetaDataRequest.Campaigns(
             gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
             ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) }
+            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+            preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
         )))
         next()
     }
