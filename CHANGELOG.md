@@ -1,3 +1,6 @@
+## 0.1.2 (April, 04, 2025)
+* added `Coordinator` secondary constructor with optional State.
+
 ## 0.1.1 (March, 20, 2025)
 * [DIA-5293](https://sourcepoint.atlassian.net/browse/DIA-5293) fixed an issue causing the `SourcePointClient` to throw an error when calling `/custom-metrics`
 * implement a test for resetting sampling status when sampling rate changes
