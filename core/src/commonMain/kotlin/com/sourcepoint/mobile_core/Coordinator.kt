@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
 import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
 import com.sourcepoint.mobile_core.models.SPCampaignType.IOS14
 import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
+import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
@@ -86,7 +87,8 @@ class Coordinator(
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
                 campaigns.ccpa != null ||
                 (campaigns.ios14 != null && state.ios14.status != SPIDFAStatus.Accepted) ||
-                campaigns.usnat != null
+                campaigns.usnat != null ||
+                campaigns.preferences != null
 
     override val userData: SPUserData
         get() = SPUserData(
@@ -345,6 +347,11 @@ class Coordinator(
                         partitionUUID = it.messageMetaData?.messagePartitionUUID
                     )
                 }
+                Preferences -> {
+                    state.preferences = state.preferences.copy(
+                        messageId = it.messageMetaData?.messageId
+                    )
+                }
                 SPCampaignType.Unknown -> return@forEach
             }
         }
@@ -384,6 +391,17 @@ class Coordinator(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasUSNatLocalData,
                                 consentStatus = state.usNat.consents.consentStatus
+                            )
+                        },
+                        preferences = campaigns.preferences?.let { 
+                            MessagesRequest.Body.Campaigns.Preferences(
+                                targetingParams = mapOf(
+                                    Pair("_sp_lt_AI-POLICY_a","true"),
+                                    Pair("_sp_lt_PRIVACY-POLICY_na","true"),
+                                    Pair("_sp_lt_TERMS-AND-CONDITIONS_na","true")
+                                ),
+                                hasLocalData = false,
+                                consentStatus = state.preferences.consentStatus
                             )
                         }
                     ),
@@ -714,7 +732,7 @@ class Coordinator(
                 Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
                 Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
                 UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
-                IOS14, SPCampaignType.Unknown -> {}
+                IOS14, Preferences, SPCampaignType.Unknown -> {}
             }
         } catch (error: SPError) {
             throw ReportActionException(causedBy = error, actionType = action.type, campaignType = action.campaignType)
