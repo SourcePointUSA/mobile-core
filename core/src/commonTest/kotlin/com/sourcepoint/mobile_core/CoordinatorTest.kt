@@ -570,7 +570,7 @@ class CoordinatorTest {
                 propertyId = 38984
             )
         )
-        assertEquals(0, coordinator.loadMessages().size) //change to 1 when `messages` will work
+        assertEquals(1, coordinator.loadMessages().size)
         assertEquals("67ee726a0ca4ef1d52c34563", coordinator.state.preferences.configurationId)
     }
 }
