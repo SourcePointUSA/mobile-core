@@ -1,14 +1,20 @@
 @file:Suppress("unused")
 package com.sourcepoint.mobile_core.models
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind.STRING
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 /**
  * List of languages supported by the TCF
  * https://register.consensu.org/translations/translationsEu
  */
-@Serializable
+@Serializable(with = SPMessageLanguage.Serializer::class)
 enum class SPMessageLanguage(val shortCode: String) {
    @SerialName("sq") ALBANIAN("sq"),
    @SerialName("ar") ARABIC("ar"),
@@ -60,5 +66,20 @@ enum class SPMessageLanguage(val shortCode: String) {
    @SerialName("tr") TURKISH("tr"),
    @SerialName("uk") UKRAINIAN("uk"),
    @SerialName("vi") VIETNAMESE("vi"),
-   @SerialName("cy") WELSH("cy")
+   @SerialName("cy") WELSH("cy");
+
+   // Case insensitive deserialization
+   companion object Serializer : KSerializer<SPMessageLanguage> {
+      override val descriptor = PrimitiveSerialDescriptor("SPMessageLanguage", STRING)
+
+      override fun serialize(encoder: Encoder, value: SPMessageLanguage) {
+          encoder.encodeString(value.shortCode)
+      }
+
+      override fun deserialize(decoder: Decoder): SPMessageLanguage {
+          val code = decoder.decodeString().lowercase()
+          return SPMessageLanguage.entries.firstOrNull { it.shortCode.lowercase() == code }
+              ?: throw SerializationException("Unknown language code: $code")
+      }
+   }
 }
