@@ -4,6 +4,10 @@ package com.sourcepoint.mobile_core.models
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * List of languages supported by the TCF
+ * https://register.consensu.org/translations/translationsEu
+ */
 @Serializable
 enum class SPMessageLanguage(val shortCode: String) {
    @SerialName("sq") ALBANIAN("sq"),
