@@ -102,7 +102,7 @@ kotlin {
 
 android {
     namespace = "com.sourcepoint.mobile_core"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
     }
