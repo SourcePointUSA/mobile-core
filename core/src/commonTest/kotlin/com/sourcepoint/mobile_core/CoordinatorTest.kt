@@ -569,6 +569,7 @@ class CoordinatorTest {
         }))
         coordinator.loadMessages()
         assertTrue(pvDataCalled)
+    }
 
     @Test
     fun propertyWithPreferencesCampaign() = runTest {
