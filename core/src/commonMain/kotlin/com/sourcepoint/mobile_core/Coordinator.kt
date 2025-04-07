@@ -126,6 +126,21 @@ class Coordinator(
         repository = Repository()
     )
 
+    @Suppress("Unused")
+    constructor(
+        accountId: Int,
+        propertyId: Int,
+        propertyName: SPPropertyName,
+        campaigns: SPCampaigns,
+        state: State? = null
+    ): this(
+        accountId = accountId,
+        propertyId = propertyId,
+        propertyName = propertyName,
+        campaigns = campaigns,
+        state = state ?: Repository().state ?: State(accountId = accountId, propertyId = propertyId)
+    )
+
     init {
         resetStateIfPropertyDetailsChanged()
         persistState()

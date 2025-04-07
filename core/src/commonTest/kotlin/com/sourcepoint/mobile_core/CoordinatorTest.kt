@@ -35,6 +35,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
+import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import com.sourcepoint.mobile_core.utils.now
 import com.sourcepoint.mobile_core.utils.runTestWithRetries
@@ -557,6 +558,17 @@ class CoordinatorTest {
         assertFailsWith<LoadMessagesException> { getCoordinator(propertyId = -1).loadMessages() }
         assertFailsWith<LoadMessagesException> { getCoordinator(propertyName = "foo").loadMessages() }
     }
+
+    // TODO: add tests for the pvData payload in different circumstances (1st call vs subsequent calls)
+    @Test
+    fun pvDataIsCalledOnLoadMessage() = runTestWithRetries {
+        var pvDataCalled = false
+        val coordinator = getCoordinator(spClient = SPClientMock(postPvData = {
+            pvDataCalled = true
+            PvDataResponse()
+        }))
+        coordinator.loadMessages()
+        assertTrue(pvDataCalled)
 
     @Test
     fun propertyWithPreferencesCampaign() = runTest {
