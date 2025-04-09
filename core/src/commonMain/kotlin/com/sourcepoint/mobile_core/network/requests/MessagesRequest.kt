@@ -32,7 +32,8 @@ data class MessagesRequest(
             val gdpr: GDPR?,
             val ios14: IOS14?,
             val ccpa: CCPA?,
-            val usnat: USNat?
+            val usnat: USNat?,
+            val preferences: Preferences?
         ) {
             @Serializable
             data class GDPR(
@@ -59,6 +60,13 @@ data class MessagesRequest(
                 val targetingParams: SPTargetingParams?,
                 val hasLocalData: Boolean,
                 val status: CCPAConsent.CCPAConsentStatus?
+            )
+
+            @Serializable
+            data class Preferences(
+                val targetingParams: SPTargetingParams?,
+                val hasLocalData: Boolean,
+                val consentStatus: ConsentStatus?
             )
         }
     }

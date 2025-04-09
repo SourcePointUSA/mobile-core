@@ -7,6 +7,7 @@ import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
+import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
@@ -124,6 +125,7 @@ class SourcepointClientTest {
             is MessagesResponse.USNat -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.CCPA -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.Ios14 -> assertNull(campaign.derivedConsents)
+            is MessagesResponse.Preferences -> assertNull(campaign.derivedConsents)
         }
     }
 
@@ -186,6 +188,15 @@ class SourcepointClientTest {
                             targetingParams = null,
                             hasLocalData = false,
                             status = CCPAConsent.CCPAConsentStatus.RejectedNone
+                        ),
+                        preferences = MessagesRequest.Body.Campaigns.Preferences(
+                            targetingParams = mapOf(
+                                Pair("_sp_lt_AI-POLICY_a","true"),
+                                Pair("_sp_lt_PRIVACY-POLICY_na","true"),
+                                Pair("_sp_lt_TERMS-AND-CONDITIONS_na","true")
+                            ),
+                            hasLocalData = false,
+                            consentStatus = ConsentStatus()
                         )
                     ),
                     idfaStatus = SPIDFAStatus.Unknown,
@@ -202,9 +213,11 @@ class SourcepointClientTest {
             )
         )
 
-        assertEquals(4, response.campaigns.size)
+        assertEquals(5, response.campaigns.size)
 
-        response.campaigns.forEach { campaign ->
+        response.campaigns
+            .filter { it.type != SPCampaignType.Preferences }  //TODO remove this when `preferences` will be there
+            .forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
             assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")

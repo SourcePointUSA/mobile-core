@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
 import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
 import com.sourcepoint.mobile_core.models.SPCampaignType.IOS14
 import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
+import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
@@ -91,7 +92,8 @@ class Coordinator(
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
                 campaigns.ccpa != null ||
                 (campaigns.ios14 != null && state.ios14.status != SPIDFAStatus.Accepted) ||
-                campaigns.usnat != null
+                campaigns.usnat != null ||
+                campaigns.preferences != null
 
     override val userData: SPUserData
         get() = SPUserData(
@@ -242,6 +244,12 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
+        response.preferences?.let {
+            state.preferences = state.preferences.copy(
+                configurationId = it.configurationId,
+                legalDocLiveDate = it.legalDocLiveDate
+            )
+        }
         persistState()
     }
 
@@ -249,7 +257,8 @@ class Coordinator(
         handleMetaDataResponse(spClient.getMetaData(MetaDataRequest.Campaigns(
             gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
             ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) }
+            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+            preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
         )))
         next()
     }
@@ -340,6 +349,11 @@ class Coordinator(
                             uuid = state.ccpa.consents.uuid,
                             idfaStatus = idfaStatus
                         )
+                    },
+                    preferences = campaigns.preferences?.let {
+                        ConsentStatusRequest.MetaData.PreferencesCampaign(
+                            configurationId = state.preferences.configurationId
+                        )
                     }
                 )
             ))
@@ -360,6 +374,11 @@ class Coordinator(
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
                         partitionUUID = it.messageMetaData?.messagePartitionUUID
+                    )
+                }
+                Preferences -> {
+                    state.preferences = state.preferences.copy(
+                        messageId = it.messageMetaData?.messageId
                     )
                 }
                 SPCampaignType.Unknown -> return@forEach
@@ -401,6 +420,13 @@ class Coordinator(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasUSNatLocalData,
                                 consentStatus = state.usNat.consents.consentStatus
+                            )
+                        },
+                        preferences = campaigns.preferences?.let { 
+                            MessagesRequest.Body.Campaigns.Preferences(
+                                targetingParams = emptyMap(),
+                                hasLocalData = false,
+                                consentStatus = state.preferences.consentStatus
                             )
                         }
                     ),
@@ -731,7 +757,7 @@ class Coordinator(
                 Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
                 Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
                 UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
-                IOS14, SPCampaignType.Unknown -> {}
+                IOS14, Preferences, SPCampaignType.Unknown -> {}
             }
         } catch (error: SPError) {
             throw ReportActionException(causedBy = error, actionType = action.type, campaignType = action.campaignType)

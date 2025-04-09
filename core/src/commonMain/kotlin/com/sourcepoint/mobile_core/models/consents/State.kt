@@ -10,6 +10,7 @@ data class State (
     var ccpa: CCPAState = CCPAState(),
     var usNat: USNatState = USNatState(),
     var ios14: AttCampaign = AttCampaign(),
+    var preferences: PreferencesCampaign = PreferencesCampaign(),
     var authId: String? = null,
     val propertyId: Int,
     val accountId: Int,
