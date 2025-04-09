@@ -340,6 +340,11 @@ class Coordinator(
                             uuid = state.ccpa.consents.uuid,
                             idfaStatus = idfaStatus
                         )
+                    },
+                    preferences = campaigns.preferences?.let {
+                        ConsentStatusRequest.MetaData.PreferencesCampaign(
+                            configurationId = state.preferences.configurationId
+                        )
                     }
                 )
             ))
@@ -410,11 +415,7 @@ class Coordinator(
                         },
                         preferences = campaigns.preferences?.let { 
                             MessagesRequest.Body.Campaigns.Preferences(
-                                targetingParams = mapOf(
-                                    Pair("_sp_lt_AI-POLICY_a","true"),
-                                    Pair("_sp_lt_PRIVACY-POLICY_na","true"),
-                                    Pair("_sp_lt_TERMS-AND-CONDITIONS_na","true")
-                                ),
+                                targetingParams = emptyMap(),
                                 hasLocalData = false,
                                 consentStatus = state.preferences.consentStatus
                             )

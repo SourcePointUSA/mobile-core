@@ -4,6 +4,7 @@ import com.sourcepoint.mobile_core.models.consents.IABData
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
 data class MetaDataResponse (
@@ -40,6 +41,6 @@ data class MetaDataResponse (
     @Serializable
     data class MetaDataResponsePreferences (
         val configurationId: String,
-        val legalDocLiveDate: IABData?
+        val legalDocLiveDate: Map<String, JsonPrimitive>?
     )
 }
