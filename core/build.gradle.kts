@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeOutputKind
+
 plugins {
     kotlin("multiplatform") version "2.0.21"
     kotlin("native.cocoapods") version "2.0.21"
@@ -54,9 +57,17 @@ kotlin {
         ios.deploymentTarget = "10.0"
         tvos.deploymentTarget = "10.0"
         framework {
+            isStatic = true
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
             transitiveExport = true
+        }
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.FatFrameworkTask>().configureEach {
+        doFirst {
+            println("Setting up BUILD_LIBRARY_FOR_DISTRIBUTION")
+            frameworkOptions.add("-Xbuild-settings=BUILD_LIBRARY_FOR_DISTRIBUTION=YES")
         }
     }
 
