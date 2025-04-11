@@ -54,6 +54,7 @@ kotlin {
         ios.deploymentTarget = "10.0"
         tvos.deploymentTarget = "10.0"
         framework {
+            isStatic = true
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
             transitiveExport = true
