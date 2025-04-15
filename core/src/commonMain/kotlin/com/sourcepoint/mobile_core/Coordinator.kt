@@ -36,6 +36,7 @@ import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
@@ -734,6 +735,29 @@ class Coordinator(
         persistState()
     }
 
+    private suspend fun postChoicePreferences(action: SPAction) = spClient.postChoicePreferencesAction(
+        actionType = action.type,
+        request = PreferencesChoiceRequest(
+            accountId = accountId,
+            authId = authId,
+            uuid = state.usNat.consents.uuid,
+            messageId = action.messageId,
+            pmSaveAndExitVariables = action.pmPayload,
+            sendPVData = state.usNat.metaData.wasSampled ?: false,
+            propertyId = propertyId,
+            sampleRate = state.usNat.metaData.sampleRate,
+            includeData = includeData
+        )
+    )
+
+    private suspend fun reportPreferencesAction(action: SPAction) {
+        val postResponse = postChoicePreferences(action = action)
+        state.preferences = state.preferences.copy(
+            configurationId = postResponse.configurationId ?: state.preferences.configurationId,
+        )
+        persistState()
+    }
+
     override suspend fun reportAction(action: SPAction): SPUserData {
         try {
             val getResponse = getChoiceAll(
@@ -748,7 +772,8 @@ class Coordinator(
                 Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
                 Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
                 UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
-                IOS14, Preferences, SPCampaignType.Unknown -> {}
+                Preferences -> reportPreferencesAction(action = action)
+                IOS14, SPCampaignType.Unknown -> {}
             }
         } catch (error: SPError) {
             throw ReportActionException(causedBy = error, actionType = action.type, campaignType = action.campaignType)

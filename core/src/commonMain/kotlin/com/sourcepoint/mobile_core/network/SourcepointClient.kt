@@ -20,6 +20,7 @@ import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.toQueryParams
@@ -29,6 +30,7 @@ import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
+import com.sourcepoint.mobile_core.network.responses.PreferencesChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 import io.ktor.client.HttpClient
@@ -83,6 +85,12 @@ interface SPClient {
         actionType: SPActionType,
         request: USNatChoiceRequest
     ): USNatChoiceResponse
+
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun postChoicePreferencesAction(
+        actionType: SPActionType,
+        request: PreferencesChoiceRequest
+    ): PreferencesChoiceResponse
 
     @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
     suspend fun getChoiceAll(
@@ -184,7 +192,7 @@ class SourcepointClient(
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
-    private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
+    private val baseWrapperUrl = "https://preprod-cdn.privacy-mgmt.com/"
 
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse = http.get(
         URLBuilder(baseWrapperUrl).apply {
@@ -239,6 +247,18 @@ class SourcepointClient(
     ): USNatChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoicePreferencesAction(
+        actionType: SPActionType,
+        request: PreferencesChoiceRequest
+    ): PreferencesChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "preferences", actionType.type.toString())
             withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
