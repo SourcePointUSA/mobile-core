@@ -308,6 +308,15 @@ class Coordinator(
                 )
             )
         }
+        response.consentStatusData.preferences?.let {
+            state.preferences = state.preferences.copy(
+                configurationId = it.configurationId,
+                messageId = it.messageId,
+                status = it.status,
+                rejectedStatus = it.rejectedStatus,
+                uuid = it.uuid
+            )
+        }
         persistState()
     }
 
@@ -418,7 +427,7 @@ class Coordinator(
                             MessagesRequest.Body.Campaigns.Preferences(
                                 targetingParams = emptyMap(),
                                 hasLocalData = false,
-                                consentStatus = state.preferences.consentStatus
+                                consentStatus = ConsentStatus()
                             )
                         }
                     ),
@@ -754,6 +763,8 @@ class Coordinator(
         val postResponse = postChoicePreferences(action = action)
         state.preferences = state.preferences.copy(
             configurationId = postResponse.configurationId ?: state.preferences.configurationId,
+            status = postResponse.status,
+            rejectedStatus = postResponse.rejectedStatus
         )
         persistState()
     }
