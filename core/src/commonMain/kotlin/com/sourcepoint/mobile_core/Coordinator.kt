@@ -238,8 +238,11 @@ class Coordinator(
         }
         response.preferences?.let {
             state.preferences = state.preferences.copy(
-                configurationId = it.configurationId,
-                legalDocLiveDate = it.legalDocLiveDate
+                metaData = state.preferences.metaData.copy(
+                    configurationId = it.configurationId,
+                    additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
+                    legalDocLiveDate = it.legalDocLiveDate
+                )
             )
         }
         persistState()
@@ -310,11 +313,13 @@ class Coordinator(
         }
         response.consentStatusData.preferences?.let {
             state.preferences = state.preferences.copy(
-                configurationId = it.configurationId,
-                messageId = it.messageId,
-                status = it.status,
-                rejectedStatus = it.rejectedStatus,
-                uuid = it.uuid
+                consents = state.preferences.consents.copy(
+                    dateCreated = it.dateCreated,
+                    messageId = it.messageId,
+                    status = it.status,
+                    rejectedStatus = it.rejectedStatus,
+                    uuid = it.uuid
+                )
             )
         }
         persistState()
@@ -353,7 +358,7 @@ class Coordinator(
                     },
                     preferences = campaigns.preferences?.let {
                         ConsentStatusRequest.MetaData.PreferencesCampaign(
-                            configurationId = state.preferences.configurationId
+                            configurationId = state.preferences.metaData.configurationId
                         )
                     }
                 )
@@ -379,7 +384,7 @@ class Coordinator(
                 }
                 Preferences -> {
                     state.preferences = state.preferences.copy(
-                        messageId = it.messageMetaData?.messageId
+                        consents = state.preferences.consents.copy(messageId = it.messageMetaData?.messageId)
                     )
                 }
                 SPCampaignType.Unknown -> return@forEach
@@ -678,6 +683,21 @@ class Coordinator(
         )
     )
 
+    private suspend fun postChoicePreferences(action: SPAction) = spClient.postChoicePreferencesAction(
+        actionType = action.type,
+        request = PreferencesChoiceRequest(
+            accountId = accountId,
+            authId = authId,
+            uuid = state.usNat.consents.uuid,
+            messageId = action.messageId,
+            pmSaveAndExitVariables = action.pmPayload,
+            sendPVData = state.usNat.metaData.wasSampled ?: false,
+            propertyId = propertyId,
+            sampleRate = state.usNat.metaData.sampleRate,
+            includeData = includeData
+        )
+    )
+
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?) {
         val postResponse = postChoiceGDPR(action = action, postPayloadFromGetCall = getResponse?.gdpr?.postPayload)
         state.gdpr = state.gdpr.copy(
@@ -744,27 +764,14 @@ class Coordinator(
         persistState()
     }
 
-    private suspend fun postChoicePreferences(action: SPAction) = spClient.postChoicePreferencesAction(
-        actionType = action.type,
-        request = PreferencesChoiceRequest(
-            accountId = accountId,
-            authId = authId,
-            uuid = state.usNat.consents.uuid,
-            messageId = action.messageId,
-            pmSaveAndExitVariables = action.pmPayload,
-            sendPVData = state.usNat.metaData.wasSampled ?: false,
-            propertyId = propertyId,
-            sampleRate = state.usNat.metaData.sampleRate,
-            includeData = includeData
-        )
-    )
-
     private suspend fun reportPreferencesAction(action: SPAction) {
         val postResponse = postChoicePreferences(action = action)
         state.preferences = state.preferences.copy(
-            configurationId = postResponse.configurationId ?: state.preferences.configurationId,
-            status = postResponse.status,
-            rejectedStatus = postResponse.rejectedStatus
+            consents = state.preferences.consents.copy(
+                dateCreated = postResponse.dateCreated,
+                status = postResponse.status,
+                rejectedStatus = postResponse.rejectedStatus
+            )
         )
         persistState()
     }

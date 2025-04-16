@@ -584,6 +584,6 @@ class CoordinatorTest {
             )
         )
         assertEquals(1, coordinator.loadMessages().size)
-        assertEquals("67ee726a0ca4ef1d52c34563", coordinator.state.preferences.configurationId)
+        assertEquals("67ee726a0ca4ef1d52c34563", coordinator.state.preferences.metaData.configurationId)
     }
 }

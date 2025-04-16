@@ -8,7 +8,7 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
-import com.sourcepoint.mobile_core.models.consents.PreferencesCampaign
+import com.sourcepoint.mobile_core.models.consents.PreferencesConsent
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageCategory
@@ -259,8 +259,8 @@ data class MessagesResponse(
     data class Preferences(
         override val type: SPCampaignType = SPCampaignType.Preferences,
         override val derivedConsents: Nothing? = null
-    ): Campaign<PreferencesCampaign>() {
-        override fun toConsent(default: PreferencesCampaign?): PreferencesCampaign? = null
+    ): Campaign<PreferencesConsent>() {
+        override fun toConsent(default: PreferencesConsent?): PreferencesConsent? = null
     }
 
     @Serializable
