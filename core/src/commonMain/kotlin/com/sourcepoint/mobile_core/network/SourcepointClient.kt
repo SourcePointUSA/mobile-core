@@ -192,7 +192,7 @@ class SourcepointClient(
         requestTimeoutInSeconds = requestTimeoutInSeconds
     )
 
-    private val baseWrapperUrl = "https://preprod-cdn.privacy-mgmt.com/"
+    private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
 
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse = http.get(
         URLBuilder(baseWrapperUrl).apply {

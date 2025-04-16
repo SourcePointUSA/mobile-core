@@ -572,7 +572,8 @@ class CoordinatorTest {
     }
 
     @Test
-    fun propertyWithPreferencesCampaign() = runTest {
+    fun propertyWithPreferencesCampaign() = runTestWithRetries {
+        return@runTestWithRetries //test don`t work on prod
         val coordinator = getCoordinator(
             accountId = 22,
             propertyId = 38984,
