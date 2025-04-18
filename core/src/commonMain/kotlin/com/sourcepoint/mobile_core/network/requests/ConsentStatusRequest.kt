@@ -14,7 +14,12 @@ data class ConsentStatusRequest(
     val hasCsp: Boolean = true
 ): DefaultRequest() {
     @Serializable
-    data class MetaData(val gdpr: Campaign? = null, val usnat: USNatCampaign? = null, val ccpa: Campaign? = null) {
+    data class MetaData(
+        val gdpr: Campaign? = null,
+        val usnat: USNatCampaign? = null,
+        val ccpa: Campaign? = null,
+        val preferences: PreferencesCampaign? = null
+    ) {
         @Serializable
         data class Campaign(
             val applies: Boolean,
@@ -33,6 +38,12 @@ data class ConsentStatusRequest(
             val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
             val transitionCCPAAuth: Boolean? = null,
             val optedOut: Boolean? = null
+        )
+
+        @Serializable
+        data class PreferencesCampaign(
+            val hasLocalData: Boolean = false, // TODO check when this can be true
+            val configurationId: String? = null
         )
     }
 }

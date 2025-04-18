@@ -10,6 +10,7 @@ data class State (
     var ccpa: CCPAState = CCPAState(),
     var usNat: USNatState = USNatState(),
     var ios14: AttCampaign = AttCampaign(),
+    var preferences: PreferencesState = PreferencesState(),
     var authId: String? = null,
     val propertyId: Int,
     val accountId: Int,
@@ -103,6 +104,19 @@ data class State (
             } else {
                 this
             }
+    }
+
+    @Serializable
+    data class PreferencesState(
+        val metaData: PreferencesMetaData = PreferencesMetaData(),
+        val consents: PreferencesConsent = PreferencesConsent(),
+    ) {
+        @Serializable
+        data class PreferencesMetaData(
+            val configurationId: String = "",
+            val additionsChangeDate: Instant = Instant.DISTANT_PAST,
+            val legalDocLiveDate: Map<PreferencesConsent.PreferencesSubType, Instant>? = null
+        )
     }
 
     private fun expireStateBasedOnExpiryDates() {

@@ -12,7 +12,7 @@ data class GDPRChoiceRequest (
     val messageId: String? = null,
     val consentAllRef: String? = null,
     val vendorListId: String? = null,
-    val pubData : JsonObject = JsonObject(emptyMap()),
+    val pubData: JsonObject = JsonObject(emptyMap()),
     val pmSaveAndExitVariables: JsonObject = JsonObject(emptyMap()),
     val sendPVData: Boolean,
     val propertyId: Int,

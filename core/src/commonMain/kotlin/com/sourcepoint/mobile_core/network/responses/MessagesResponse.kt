@@ -8,6 +8,7 @@ import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
+import com.sourcepoint.mobile_core.models.consents.PreferencesConsent
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageCategory
@@ -254,6 +255,15 @@ data class MessagesResponse(
     }
 
     @Serializable
+    @SerialName("preferences")
+    data class Preferences(
+        override val type: SPCampaignType = SPCampaignType.Preferences,
+        override val derivedConsents: Nothing? = null
+    ): Campaign<PreferencesConsent>() {
+        override fun toConsent(default: PreferencesConsent?): PreferencesConsent? = null
+    }
+
+    @Serializable
     data class MessageMetaData(
         val categoryId: MessageCategory,
         val subCategoryId: MessageSubCategory,
@@ -268,6 +278,7 @@ data class MessagesResponse(
             IOS14(4),
             Custom(rawValue = 5),
             UsNat(6),
+            Preferences(7),
             Unknown(0);
 
             object Serializer : IntEnumSerializer<MessageCategory>(entries, default = Unknown)

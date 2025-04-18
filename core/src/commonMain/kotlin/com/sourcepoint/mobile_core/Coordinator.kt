@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
 import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
 import com.sourcepoint.mobile_core.models.SPCampaignType.IOS14
 import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
+import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
@@ -35,6 +36,7 @@ import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
@@ -91,7 +93,8 @@ class Coordinator(
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
                 campaigns.ccpa != null ||
                 (campaigns.ios14 != null && state.ios14.status != SPIDFAStatus.Accepted) ||
-                campaigns.usnat != null
+                campaigns.usnat != null ||
+                campaigns.preferences != null
 
     override val userData: SPUserData
         get() = SPUserData(
@@ -242,6 +245,15 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
+        response.preferences?.let {
+            state.preferences = state.preferences.copy(
+                metaData = state.preferences.metaData.copy(
+                    configurationId = it.configurationId,
+                    additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
+                    legalDocLiveDate = it.legalDocLiveDate
+                )
+            )
+        }
         persistState()
     }
 
@@ -249,7 +261,8 @@ class Coordinator(
         handleMetaDataResponse(spClient.getMetaData(MetaDataRequest.Campaigns(
             gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
             ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) }
+            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+            preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
         )))
         next()
     }
@@ -307,6 +320,17 @@ class Coordinator(
                 )
             )
         }
+        response.consentStatusData.preferences?.let {
+            state.preferences = state.preferences.copy(
+                consents = state.preferences.consents.copy(
+                    dateCreated = it.dateCreated,
+                    messageId = it.messageId,
+                    status = it.status,
+                    rejectedStatus = it.rejectedStatus,
+                    uuid = it.uuid
+                )
+            )
+        }
         persistState()
     }
 
@@ -340,6 +364,11 @@ class Coordinator(
                             uuid = state.ccpa.consents.uuid,
                             idfaStatus = idfaStatus
                         )
+                    },
+                    preferences = campaigns.preferences?.let {
+                        ConsentStatusRequest.MetaData.PreferencesCampaign(
+                            configurationId = state.preferences.metaData.configurationId
+                        )
                     }
                 )
             ))
@@ -360,6 +389,11 @@ class Coordinator(
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
                         partitionUUID = it.messageMetaData?.messagePartitionUUID
+                    )
+                }
+                Preferences -> {
+                    state.preferences = state.preferences.copy(
+                        consents = state.preferences.consents.copy(messageId = it.messageMetaData?.messageId)
                     )
                 }
                 SPCampaignType.Unknown -> return@forEach
@@ -401,6 +435,12 @@ class Coordinator(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasUSNatLocalData,
                                 consentStatus = state.usNat.consents.consentStatus
+                            )
+                        },
+                        preferences = campaigns.preferences?.let { 
+                            MessagesRequest.Body.Campaigns.Preferences(
+                                targetingParams = emptyMap(),
+                                hasLocalData = false
                             )
                         }
                     ),
@@ -651,6 +691,19 @@ class Coordinator(
         )
     )
 
+    private suspend fun postChoicePreferences(action: SPAction) = spClient.postChoicePreferencesAction(
+        actionType = action.type,
+        request = PreferencesChoiceRequest(
+            accountId = accountId,
+            authId = authId,
+            uuid = state.usNat.consents.uuid,
+            messageId = action.messageId,
+            pmSaveAndExitVariables = action.pmPayload,
+            propertyId = propertyId,
+            includeData = includeData
+        )
+    )
+
     private suspend fun reportGDPRAction(action: SPAction, getResponse: ChoiceAllResponse?) {
         val postResponse = postChoiceGDPR(action = action, postPayloadFromGetCall = getResponse?.gdpr?.postPayload)
         state.gdpr = state.gdpr.copy(
@@ -717,6 +770,18 @@ class Coordinator(
         persistState()
     }
 
+    private suspend fun reportPreferencesAction(action: SPAction) {
+        val postResponse = postChoicePreferences(action = action)
+        state.preferences = state.preferences.copy(
+            consents = state.preferences.consents.copy(
+                dateCreated = postResponse.dateCreated,
+                status = postResponse.status,
+                rejectedStatus = postResponse.rejectedStatus
+            )
+        )
+        persistState()
+    }
+
     override suspend fun reportAction(action: SPAction): SPUserData {
         try {
             val getResponse = getChoiceAll(
@@ -731,6 +796,7 @@ class Coordinator(
                 Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
                 Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
                 UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
+                Preferences -> reportPreferencesAction(action = action)
                 IOS14, SPCampaignType.Unknown -> {}
             }
         } catch (error: SPError) {
