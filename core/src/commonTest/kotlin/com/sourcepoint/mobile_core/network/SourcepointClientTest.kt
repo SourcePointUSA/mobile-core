@@ -195,8 +195,7 @@ class SourcepointClientTest {
                                 Pair("_sp_lt_PRIVACY-POLICY_na","true"),
                                 Pair("_sp_lt_TERMS-AND-CONDITIONS_na","true")
                             ),
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
+                            hasLocalData = false
                         )
                     ),
                     idfaStatus = SPIDFAStatus.Unknown,

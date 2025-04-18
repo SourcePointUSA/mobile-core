@@ -431,8 +431,7 @@ class Coordinator(
                         preferences = campaigns.preferences?.let { 
                             MessagesRequest.Body.Campaigns.Preferences(
                                 targetingParams = emptyMap(),
-                                hasLocalData = false,
-                                consentStatus = ConsentStatus()
+                                hasLocalData = false
                             )
                         }
                     ),

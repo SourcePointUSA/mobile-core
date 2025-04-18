@@ -66,7 +66,7 @@ data class MessagesRequest(
             data class Preferences(
                 val targetingParams: SPTargetingParams?,
                 val hasLocalData: Boolean,
-                val consentStatus: ConsentStatus?
+                val consentStatus: Map<String, Boolean> = emptyMap()
             )
         }
     }
