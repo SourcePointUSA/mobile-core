@@ -691,9 +691,7 @@ class Coordinator(
             uuid = state.usNat.consents.uuid,
             messageId = action.messageId,
             pmSaveAndExitVariables = action.pmPayload,
-            sendPVData = state.usNat.metaData.wasSampled ?: false,
             propertyId = propertyId,
-            sampleRate = state.usNat.metaData.sampleRate,
             includeData = includeData
         )
     )

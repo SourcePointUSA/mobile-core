@@ -31,11 +31,11 @@ data class PreferencesConsent(
     @Serializable
     enum class PreferencesSubType{
         Unknown,
-        @SerialName("AI-POLICY") AI_POLICY,
-        @SerialName("TERMS-AND-CONDITIONS") TERMS_AND_CONDITIONS,
-        @SerialName("PRIVACY-POLICY") PRIVACY_POLICY,
-        @SerialName("LEGAL-POLICY") LEGAL_POLICY,
-        @SerialName("TERMS-OF-SALE") TERMS_OF_SALE
+        @SerialName("AI-POLICY") AIPolicy,
+        @SerialName("TERMS-AND-CONDITIONS") TermsAndConditions,
+        @SerialName("PRIVACY-POLICY") PrivacyPolicy,
+        @SerialName("LEGAL-POLICY") LegalPolicy,
+        @SerialName("TERMS-OF-SALE") TermsOfSale
     }
 }
 
