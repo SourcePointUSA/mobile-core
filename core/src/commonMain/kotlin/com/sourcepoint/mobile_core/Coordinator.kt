@@ -430,7 +430,7 @@ class Coordinator(
                         },
                         preferences = campaigns.preferences?.let { 
                             MessagesRequest.Body.Campaigns.Preferences(
-                                targetingParams = emptyMap(),
+                                targetingParams = state.preferences.consents.collectTargetingParams(state.preferences.metaData),
                                 hasLocalData = false
                             )
                         }
