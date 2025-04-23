@@ -14,6 +14,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.PvDataRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
@@ -22,6 +23,7 @@ import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
+import com.sourcepoint.mobile_core.network.responses.PreferencesChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
 
@@ -72,6 +74,10 @@ class SPClientMock(
                 consentStrings = emptyList(),
                 userConsents = USNatConsent.USNatUserConsents()
             )
+
+    override suspend fun postChoicePreferencesAction(actionType: SPActionType, request: PreferencesChoiceRequest) =
+        original?.postChoicePreferencesAction(actionType, request) ?:
+        PreferencesChoiceResponse()
 
     override suspend fun getChoiceAll(actionType: SPActionType, campaigns: ChoiceAllRequest.ChoiceAllCampaigns) =
         getChoiceAll?.invoke() ?:
