@@ -9,7 +9,7 @@ class PreferencesConsentTest {
     @Test
     fun targetingParamsWhenConsentNotPresent() {
         val state = State(propertyId = 1, accountId = 1)
-        val targetingParams = state.preferences.consents.collectTargetingParams(state.preferences.metaData)
+        val targetingParams = collectTargetingParams(state.preferences.consents, state.preferences.metaData)
         assertTrue(targetingParams.containsKey("_sp_lt_AI-POLICY_na"))
         assertTrue(targetingParams.containsKey("_sp_lt_TERMS-AND-CONDITIONS_na"))
         assertTrue(targetingParams.containsKey("_sp_lt_PRIVACY-POLICY_na"))
@@ -52,7 +52,7 @@ class PreferencesConsentTest {
                 )
             )
         ))
-        val targetingParams = state.preferences.consents.collectTargetingParams(state.preferences.metaData)
+        val targetingParams = collectTargetingParams(state.preferences.consents, state.preferences.metaData)
         assertTrue(targetingParams.containsKey("_sp_lt_AI-POLICY_a"))
         assertTrue(targetingParams.containsKey("_sp_lt_TERMS-OF-SALE_od"))
         assertTrue(targetingParams.containsKey("_sp_lt_LEGAL-POLICY_r"))
