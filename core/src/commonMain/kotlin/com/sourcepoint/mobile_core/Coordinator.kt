@@ -59,9 +59,14 @@ class Coordinator(
     private val propertyName: SPPropertyName,
     private val campaigns: SPCampaigns,
     private val repository: Repository = Repository(),
-    private val spClient: SPClient = SourcepointClient(accountId = accountId, propertyId = propertyId),
+    private val timeoutInSeconds: Int = 5,
+    private val spClient: SPClient = SourcepointClient(
+        accountId = accountId,
+        propertyId = propertyId,
+        requestTimeoutInSeconds = timeoutInSeconds
+    ),
     private var authId: String? = null,
-    internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId)
+    internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId),
 ): ICoordinator {
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
     // TODO: implement using expect/actual
@@ -119,13 +124,15 @@ class Coordinator(
         accountId: Int,
         propertyId: Int,
         propertyName: SPPropertyName,
-        campaigns: SPCampaigns
+        campaigns: SPCampaigns,
+        timeoutInSeconds: Int = 5,
     ): this(
         accountId = accountId,
         propertyId = propertyId,
         propertyName = propertyName,
         campaigns = campaigns,
-        repository = Repository()
+        repository = Repository(),
+        timeoutInSeconds = timeoutInSeconds
     )
 
     @Suppress("Unused")
@@ -134,13 +141,15 @@ class Coordinator(
         propertyId: Int,
         propertyName: SPPropertyName,
         campaigns: SPCampaigns,
+        timeoutInSeconds: Int = 5,
         state: State? = null
     ): this(
         accountId = accountId,
         propertyId = propertyId,
         propertyName = propertyName,
         campaigns = campaigns,
-        state = state ?: Repository().state ?: State(accountId = accountId, propertyId = propertyId)
+        state = state ?: Repository().state ?: State(accountId = accountId, propertyId = propertyId),
+        timeoutInSeconds = timeoutInSeconds
     )
 
     init {

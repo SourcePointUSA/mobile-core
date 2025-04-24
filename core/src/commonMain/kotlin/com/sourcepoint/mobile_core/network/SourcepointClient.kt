@@ -167,11 +167,7 @@ class SourcepointClient(
     }
     private val http = if (httpEngine != null) HttpClient(httpEngine, config) else HttpClient(config)
 
-    constructor(
-        accountId: Int,
-        propertyId: Int,
-        requestTimeoutInSeconds: Int = 5
-    ) : this(
+    constructor(accountId: Int, propertyId: Int, requestTimeoutInSeconds: Int = 5) : this(
         accountId,
         propertyId,
         httpEngine = null,

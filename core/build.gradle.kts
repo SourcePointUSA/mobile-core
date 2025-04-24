@@ -9,7 +9,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.1.2"
+val coreVersion = "0.1.4"
 group = "com.sourcepoint"
 version = coreVersion
 
@@ -102,7 +102,7 @@ kotlin {
 
 android {
     namespace = "com.sourcepoint.mobile_core"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
     }

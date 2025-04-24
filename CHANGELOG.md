@@ -1,3 +1,10 @@
+## 0.1.4 (April, 08, 2025)
+* expanded list of message languages `SPMessageLanguage`
+
+## 0.1.3 (April, 07, 2025)
+* added `requestTimeout` to `Coordinator`'s constructor
+* bumped android compileSdk from 34 to 35
+
 ## 0.1.2 (April, 04, 2025)
 * added `Coordinator` secondary constructor with optional State.
 
