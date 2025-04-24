@@ -27,6 +27,7 @@ import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.models.consents.collectTargetingParams
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.SourcepointClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
@@ -315,7 +316,6 @@ class Coordinator(
             state.preferences = state.preferences.copy(
                 consents = state.preferences.consents.copy(
                     dateCreated = it.dateCreated,
-                    messageId = it.messageId,
                     status = it.status,
                     rejectedStatus = it.rejectedStatus,
                     uuid = it.uuid
@@ -430,7 +430,7 @@ class Coordinator(
                         },
                         preferences = campaigns.preferences?.let { 
                             MessagesRequest.Body.Campaigns.Preferences(
-                                targetingParams = state.preferences.consents.collectTargetingParams(state.preferences.metaData),
+                                targetingParams = it.targetingParams + collectTargetingParams(state.preferences.consents, state.preferences.metaData),
                                 hasLocalData = false
                             )
                         }
