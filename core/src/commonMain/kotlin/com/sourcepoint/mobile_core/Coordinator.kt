@@ -116,6 +116,11 @@ class Coordinator(
                     consents = state.usNat.consents,
                     childPmId = state.usNat.childPmId
                 )
+            },
+            preferences = campaigns.preferences?.let {
+                SPUserData.SPConsent(
+                    consents = state.preferences.consents
+                )
             }
         )
 
