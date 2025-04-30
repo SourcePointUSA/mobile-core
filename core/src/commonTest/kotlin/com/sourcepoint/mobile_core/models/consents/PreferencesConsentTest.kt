@@ -1,61 +1,121 @@
 package com.sourcepoint.mobile_core.models.consents
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import com.sourcepoint.mobile_core.utils.now
+import com.sourcepoint.mobile_core.utils.yesterday
 import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 class PreferencesConsentTest {
-    @Test
-    fun targetingParamsWhenConsentNotPresent() {
-        val state = State(propertyId = 1, accountId = 1)
-        val targetingParams = collectTargetingParams(state.preferences.consents, state.preferences.metaData)
-        assertTrue(targetingParams.containsKey("_sp_lt_AI-POLICY_na"))
-        assertTrue(targetingParams.containsKey("_sp_lt_TERMS-AND-CONDITIONS_na"))
-        assertTrue(targetingParams.containsKey("_sp_lt_PRIVACY-POLICY_na"))
-        assertTrue(targetingParams.containsKey("_sp_lt_LEGAL-POLICY_na"))
-        assertTrue(targetingParams.containsKey("_sp_lt_TERMS-OF-SALE_na"))
-    }
+    private val subType = PreferencesConsent.PreferencesSubType.AIPolicy
 
     @Test
-    fun targetingParamsForEachScenario() {
-        val state = State(propertyId = 1, accountId = 1, preferences = State.PreferencesState(
-            metaData = State.PreferencesState.PreferencesMetaData(legalDocLiveDate = mapOf(
-                Pair(PreferencesConsent.PreferencesSubType.AIPolicy, Instant.DISTANT_PAST),
-                Pair(PreferencesConsent.PreferencesSubType.TermsOfSale, Instant.DISTANT_FUTURE),
-                Pair(PreferencesConsent.PreferencesSubType.LegalPolicy, Instant.DISTANT_PAST)
-            )),
+    fun testUpToDateAcceptedConsent() {
+        val date = now()
+        val preferencesState = State.PreferencesState(
             consents = PreferencesConsent(
                 status = listOf(
                     PreferencesConsent.PreferencesStatus(
                         categoryId = 0,
-                        channels = emptyList(),
-                        changed = true,
-                        dateConsented = Clock.System.now(),
-                        subType = PreferencesConsent.PreferencesSubType.AIPolicy
-                    ),
-                    PreferencesConsent.PreferencesStatus(
-                        categoryId = 0,
-                        channels = emptyList(),
-                        changed = true,
-                        dateConsented = Clock.System.now(),
-                        subType = PreferencesConsent.PreferencesSubType.TermsOfSale
-                    )),
+                        subType = subType,
+                        dateConsented = date
+                    )
+                )
+            ),
+            metaData = State.PreferencesState.PreferencesMetaData(
+                legalDocLiveDate = mapOf(subType to date)
+            )
+        )
+        assertEquals(
+            mapOf("_sp_lt_${subType.value}_a" to "1"),
+            preferencesTargetingParams(preferencesState)
+        )
+    }
+
+    @Test
+    fun testUpToDateRejectedConsent() {
+        val date = now()
+        val preferencesState = State.PreferencesState(
+            consents = PreferencesConsent(
                 rejectedStatus = listOf(
                     PreferencesConsent.PreferencesStatus(
                         categoryId = 0,
-                        channels = emptyList(),
-                        changed = true,
-                        dateConsented = Clock.System.now(),
-                        subType = PreferencesConsent.PreferencesSubType.LegalPolicy
+                        subType = subType,
+                        dateConsented = date
                     )
                 )
+            ),
+            metaData = State.PreferencesState.PreferencesMetaData(
+                legalDocLiveDate = mapOf(subType to date)
             )
-        ))
-        val targetingParams = collectTargetingParams(state.preferences.consents, state.preferences.metaData)
-        assertTrue(targetingParams.containsKey("_sp_lt_AI-POLICY_a"))
-        assertTrue(targetingParams.containsKey("_sp_lt_TERMS-OF-SALE_od"))
-        assertTrue(targetingParams.containsKey("_sp_lt_LEGAL-POLICY_r"))
-        assertTrue(targetingParams.containsKey("_sp_lt_PRIVACY-POLICY_na"))
+        )
+
+        assertEquals(
+            mapOf("_sp_lt_${subType.value}_r" to "1"),
+            preferencesTargetingParams(preferencesState)
+        )
+    }
+
+    @Test
+    fun testNoAction() {
+        val preferencesState = State.PreferencesState(
+            metaData = State.PreferencesState.PreferencesMetaData(
+                legalDocLiveDate = mapOf(subType to now())
+            )
+        )
+        assertEquals(
+            mapOf("_sp_lt_${subType.value}_na" to "1"),
+            preferencesTargetingParams(preferencesState)
+        )
+    }
+
+    @Test
+    fun testOutdatedAcceptedConsent() {
+        val preferencesState = State.PreferencesState(
+            consents = PreferencesConsent(
+                status = listOf(
+                    PreferencesConsent.PreferencesStatus(
+                        categoryId = 0,
+                        subType = subType,
+                        dateConsented = yesterday()
+                    )
+                )
+            ),
+            metaData = State.PreferencesState.PreferencesMetaData(
+                legalDocLiveDate = mapOf(subType to now())
+            )
+        )
+        assertEquals(
+            mapOf(
+                "_sp_lt_${subType.value}_a" to "1",
+                "_sp_lt_${subType.value}_od" to "1"
+            ),
+            preferencesTargetingParams(preferencesState)
+        )
+    }
+
+    @Test
+    fun testOutdatedRejectedStatus() {
+        val preferencesState = State.PreferencesState(
+            consents = PreferencesConsent(
+                rejectedStatus = listOf(
+                    PreferencesConsent.PreferencesStatus(
+                        categoryId = 0,
+                        subType = subType,
+                        dateConsented = yesterday()
+                    )
+                )
+            ),
+            metaData = State.PreferencesState.PreferencesMetaData(
+                legalDocLiveDate = mapOf(subType to now())
+            )
+        )
+
+        assertEquals(
+            mapOf(
+                "_sp_lt_${subType.value}_r" to "1",
+                "_sp_lt_${subType.value}_od" to "1"
+            ),
+            preferencesTargetingParams(preferencesState)
+        )
     }
 }

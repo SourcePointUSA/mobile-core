@@ -16,16 +16,13 @@ data class PreferencesConsent(
     @Serializable
     data class PreferencesStatus(
         val categoryId: Int,
-        val channels: List<PreferencesChannels>?,
-        val changed: Boolean?,
-        val dateConsented: Instant?,
+        val channels: List<PreferencesChannels>? = null,
+        val changed: Boolean? = null,
+        val dateConsented: Instant? = null,
         val subType: PreferencesSubType? = PreferencesSubType.Unknown
     ) {
         @Serializable
-        data class PreferencesChannels(
-            val channelId: Int,
-            val status: Boolean
-        )
+        data class PreferencesChannels(val channelId: Int, val status: Boolean)
     }
 
     @Serializable
@@ -38,4 +35,3 @@ data class PreferencesConsent(
         @SerialName("TERMS-OF-SALE") TermsOfSale("TERMS-OF-SALE")
     }
 }
-

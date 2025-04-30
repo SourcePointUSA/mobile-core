@@ -6,6 +6,8 @@ import kotlin.time.Duration.Companion.days
 
 fun now(): Instant = Clock.System.now()
 
+fun yesterday(): Instant = Clock.System.now().minus(1.days)
+
 fun Instant.inOneYear() = plus(365.days)
 
 fun Instant.instantToString() = this.toString()
