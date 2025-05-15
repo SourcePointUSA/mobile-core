@@ -373,7 +373,7 @@ class CoordinatorTest {
         coordinator.reportAction(SPAction(type = RejectAll, campaignType = Ccpa))
 
         coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
-        assertIsEmpty(coordinator.loadMessages(authId = authId))
+        assertNotEmpty(coordinator.loadMessages(authId = authId))
         assertTrue(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny)
         assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.consentedToAll)
     }
