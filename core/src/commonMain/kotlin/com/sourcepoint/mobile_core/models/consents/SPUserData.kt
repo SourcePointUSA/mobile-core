@@ -8,7 +8,8 @@ import kotlinx.serialization.json.JsonObject
 data class SPUserData(
     val gdpr: SPConsent<GDPRConsent>? = null,
     val ccpa: SPConsent<CCPAConsent>? = null,
-    val usnat: SPConsent<USNatConsent>? = null
+    val usnat: SPConsent<USNatConsent>? = null,
+    val preferences: SPConsent<PreferencesConsent>? = null
 ) {
     val webConsents: SPWebConsents get() = SPWebConsents(
         gdpr = gdpr?.consents?.uuid?.let {

@@ -16,26 +16,22 @@ data class PreferencesConsent(
     @Serializable
     data class PreferencesStatus(
         val categoryId: Int,
-        val channels: List<PreferencesChannels>?,
-        val changed: Boolean?,
-        val dateConsented: Instant?,
+        val channels: List<PreferencesChannels>? = null,
+        val changed: Boolean? = null,
+        val dateConsented: Instant? = null,
         val subType: PreferencesSubType? = PreferencesSubType.Unknown
     ) {
         @Serializable
-        data class PreferencesChannels(
-            val channelId: Int,
-            val status: Boolean
-        )
+        data class PreferencesChannels(val channelId: Int, val status: Boolean)
     }
 
     @Serializable
-    enum class PreferencesSubType{
-        Unknown,
-        @SerialName("AI-POLICY") AIPolicy,
-        @SerialName("TERMS-AND-CONDITIONS") TermsAndConditions,
-        @SerialName("PRIVACY-POLICY") PrivacyPolicy,
-        @SerialName("LEGAL-POLICY") LegalPolicy,
-        @SerialName("TERMS-OF-SALE") TermsOfSale
+    enum class PreferencesSubType(val value: String) {
+        Unknown("Unknown"),
+        @SerialName("AI-POLICY") AIPolicy("AI-POLICY"),
+        @SerialName("TERMS-AND-CONDITIONS") TermsAndConditions("TERMS-AND-CONDITIONS"),
+        @SerialName("PRIVACY-POLICY") PrivacyPolicy("PRIVACY-POLICY"),
+        @SerialName("LEGAL-POLICY") LegalPolicy("LEGAL-POLICY"),
+        @SerialName("TERMS-OF-SALE") TermsOfSale("TERMS-OF-SALE")
     }
 }
-
