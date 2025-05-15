@@ -26,7 +26,7 @@ class PreferencesConsentTest {
             )
         )
         assertEquals(
-            mapOf("_sp_lt_${subType.value}_a" to "1"),
+            mapOf("_sp_lt_${subType.value}_a" to "true"),
             preferencesTargetingParams(preferencesState)
         )
     }
@@ -50,7 +50,7 @@ class PreferencesConsentTest {
         )
 
         assertEquals(
-            mapOf("_sp_lt_${subType.value}_r" to "1"),
+            mapOf("_sp_lt_${subType.value}_r" to "true"),
             preferencesTargetingParams(preferencesState)
         )
     }
@@ -63,7 +63,7 @@ class PreferencesConsentTest {
             )
         )
         assertEquals(
-            mapOf("_sp_lt_${subType.value}_na" to "1"),
+            mapOf("_sp_lt_${subType.value}_na" to "true"),
             preferencesTargetingParams(preferencesState)
         )
     }
@@ -86,8 +86,8 @@ class PreferencesConsentTest {
         )
         assertEquals(
             mapOf(
-                "_sp_lt_${subType.value}_a" to "1",
-                "_sp_lt_${subType.value}_od" to "1"
+                "_sp_lt_${subType.value}_a" to "true",
+                "_sp_lt_${subType.value}_od" to "true"
             ),
             preferencesTargetingParams(preferencesState)
         )
@@ -112,8 +112,8 @@ class PreferencesConsentTest {
 
         assertEquals(
             mapOf(
-                "_sp_lt_${subType.value}_r" to "1",
-                "_sp_lt_${subType.value}_od" to "1"
+                "_sp_lt_${subType.value}_r" to "true",
+                "_sp_lt_${subType.value}_od" to "true"
             ),
             preferencesTargetingParams(preferencesState)
         )
