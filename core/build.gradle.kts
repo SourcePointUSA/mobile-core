@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
     kotlin("multiplatform") version "2.0.21"
     kotlin("native.cocoapods") version "2.0.21"
@@ -9,7 +12,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.1.4"
+val coreVersion = "0.1.5"
 group = "com.sourcepoint"
 version = coreVersion
 
@@ -43,6 +46,12 @@ kotlin {
     tvosArm64()
     tvosSimulatorArm64()
 
+    targets.withType<KotlinNativeTarget> {
+        binaries.withType<Framework> {
+            isStatic = true
+        }
+    }
+
     cocoapods {
         name = "SPMobileCore"
         summary = description
@@ -57,6 +66,7 @@ kotlin {
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
             transitiveExport = true
+            isStatic = true
         }
     }
 
@@ -94,7 +104,6 @@ kotlin {
         val appleMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktorVersion")
-
             }
         }
     }

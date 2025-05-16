@@ -1,3 +1,8 @@
+## 0.1.5 (May, 16, 2025)
+* added new campaign type `Preferences`
+* expand network requests to support preferences
+* implemented preferences gate logic via targeting params. See `preferencesTargetingParams`.
+
 ## 0.1.4 (April, 08, 2025)
 * expanded list of message languages `SPMessageLanguage`
 
