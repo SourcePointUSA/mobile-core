@@ -1,3 +1,6 @@
+## 0.1.6 (May, 22, 2025)
+* generate `SPMobileCore` XCFramework statically
+
 ## 0.1.5 (May, 16, 2025)
 * added new campaign type `Preferences`
 * expand network requests to support preferences
