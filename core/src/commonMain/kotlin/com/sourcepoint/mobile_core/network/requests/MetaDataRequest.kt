@@ -11,6 +11,7 @@ data class MetaDataRequest(
     @Serializable
     data class Campaigns(
         val gdpr: Campaign? = null,
+        val globalcmp: Campaign? = null,
         val usnat: Campaign? = null,
         val ccpa: Campaign? = null,
         val preferences: Campaign? = null
