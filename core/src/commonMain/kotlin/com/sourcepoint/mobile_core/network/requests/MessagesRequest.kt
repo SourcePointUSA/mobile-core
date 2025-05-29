@@ -32,6 +32,7 @@ data class MessagesRequest(
             val gdpr: GDPR?,
             val ios14: IOS14?,
             val ccpa: CCPA?,
+            val globalcmp: GlobalCmp?,
             val usnat: USNat?,
             val preferences: Preferences?
         ) {
@@ -46,6 +47,13 @@ data class MessagesRequest(
             data class IOS14(
                 val targetingParams: SPTargetingParams?,
                 val idfaStatus: SPIDFAStatus?
+            )
+
+            @Serializable
+            data class GlobalCmp(
+                val targetingParams: SPTargetingParams?,
+                val hasLocalData: Boolean,
+                val consentStatus: ConsentStatus?
             )
 
             @Serializable
@@ -72,7 +80,12 @@ data class MessagesRequest(
     }
 
     @Serializable
-    data class MetaData(val gdpr: Campaign?, val usnat: Campaign?, val ccpa: Campaign?) {
+    data class MetaData(
+        val gdpr: Campaign?,
+        val globalcmp: Campaign?,
+        val usnat: Campaign?,
+        val ccpa: Campaign?
+    ) {
         @Serializable
         data class Campaign(val applies: Boolean)
     }
