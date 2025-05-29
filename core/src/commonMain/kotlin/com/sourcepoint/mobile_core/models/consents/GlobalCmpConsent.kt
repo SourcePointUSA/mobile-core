@@ -4,7 +4,6 @@ import com.sourcepoint.mobile_core.utils.inOneYear
 import com.sourcepoint.mobile_core.utils.now
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class GlobalCmpConsent (
@@ -14,5 +13,5 @@ data class GlobalCmpConsent (
     val expirationDate: Instant = dateCreated.inOneYear(),
     val gpcEnabled: Boolean? = null,
     val uuid: String? = null,
-    val userConsents: JsonObject? = null//USNatConsent.USNatUserConsents
+    val userConsents: USNatConsent.USNatUserConsents
 )

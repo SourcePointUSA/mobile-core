@@ -161,7 +161,7 @@ data class MessagesResponse(
     data class GlobalCmp(
         override val type: SPCampaignType = SPCampaignType.GlobalCmp,
         private val consentStatus: ConsentStatus?,
-        private val userConsents: JsonObject?,
+        private val userConsents: USNatConsent.USNatUserConsents?,
         private val dateCreated: Instant?,
         private val expirationDate: Instant?,
         override val derivedConsents: GlobalCmpConsent? = if (
@@ -179,7 +179,10 @@ data class MessagesResponse(
                 default?.copy(
                     dateCreated = derivedConsents.dateCreated,
                     expirationDate = derivedConsents.expirationDate,
-                    userConsents = default.userConsents,
+                    userConsents = default.userConsents.copy(
+                        categories = derivedConsents.userConsents.categories,
+                        vendors = derivedConsents.userConsents.vendors
+                    ),
                     consentStatus = derivedConsents.consentStatus,
                 )
             } else {
@@ -338,6 +341,7 @@ data class MessagesResponse(
         }
     }
 }
+
 @Serializable
 data class MessageWithCategorySubCategory(
     val categoryId: MessageCategory,

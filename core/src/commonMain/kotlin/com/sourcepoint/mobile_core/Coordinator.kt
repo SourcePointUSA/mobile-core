@@ -357,7 +357,6 @@ class Coordinator(
                             applies = state.usNat.consents.applies,
                             dateCreated = state.usNat.consents.dateCreated,
                             uuid = state.usNat.consents.uuid,
-                            idfaStatus = idfaStatus,
                             transitionCCPAAuth = authTransitionCCPAUSNat,
                             optedOut = transitionCCPAOptedOut
                         )
