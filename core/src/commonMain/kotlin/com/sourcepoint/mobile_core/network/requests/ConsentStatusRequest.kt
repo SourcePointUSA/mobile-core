@@ -16,6 +16,7 @@ data class ConsentStatusRequest(
     @Serializable
     data class MetaData(
         val gdpr: Campaign? = null,
+        val globalcmp: GlobalCmpCampaign? = null,
         val usnat: USNatCampaign? = null,
         val ccpa: Campaign? = null,
         val preferences: PreferencesCampaign? = null
@@ -30,12 +31,19 @@ data class ConsentStatusRequest(
         )
 
         @Serializable
+        data class GlobalCmpCampaign(
+            val applies: Boolean,
+            val dateCreated: Instant? = null,
+            val uuid: String? = null,
+            val hasLocalData: Boolean = false, // TODO check when this can be true
+        )
+
+        @Serializable
         data class USNatCampaign(
             val applies: Boolean,
             val dateCreated: Instant? = null,
             val uuid: String? = null,
             val hasLocalData: Boolean = false, // TODO check when this can be true
-            val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
             val transitionCCPAAuth: Boolean? = null,
             val optedOut: Boolean? = null
         )
