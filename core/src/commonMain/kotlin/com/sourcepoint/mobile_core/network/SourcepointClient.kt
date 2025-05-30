@@ -17,6 +17,7 @@ import com.sourcepoint.mobile_core.network.requests.CustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.DefaultRequest
 import com.sourcepoint.mobile_core.network.requests.DeleteCustomConsentRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
+import com.sourcepoint.mobile_core.network.requests.GlobalCmpChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IDFAStatusReportRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
@@ -28,6 +29,7 @@ import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
+import com.sourcepoint.mobile_core.network.responses.GlobalCmpChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PreferencesChoiceResponse
@@ -85,6 +87,12 @@ interface SPClient {
         actionType: SPActionType,
         request: USNatChoiceRequest
     ): USNatChoiceResponse
+
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    suspend fun postChoiceGlobalCmpAction(
+        actionType: SPActionType,
+        request: GlobalCmpChoiceRequest
+    ): GlobalCmpChoiceResponse
 
     @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
     suspend fun postChoicePreferencesAction(
@@ -243,6 +251,18 @@ class SourcepointClient(
     ): USNatChoiceResponse =
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
+            withParams(DefaultRequest())
+        }.build()) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.bodyOr(::reportErrorAndThrow)
+
+    override suspend fun postChoiceGlobalCmpAction(
+        actionType: SPActionType,
+        request: GlobalCmpChoiceRequest
+    ): GlobalCmpChoiceResponse =
+        http.post(URLBuilder(baseWrapperUrl).apply {
+            path("wrapper", "v2", "choice", "global-cmp", actionType.type.toString())
             withParams(DefaultRequest())
         }.build()) {
             contentType(ContentType.Application.Json)
