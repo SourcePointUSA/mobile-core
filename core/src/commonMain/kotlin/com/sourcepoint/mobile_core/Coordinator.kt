@@ -15,6 +15,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
 import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
 import com.sourcepoint.mobile_core.models.SPCampaignType.IOS14
 import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
+import com.sourcepoint.mobile_core.models.SPCampaignType.GlobalCmp
 import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPError
@@ -24,6 +25,7 @@ import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.GlobalCmpConsent
 import com.sourcepoint.mobile_core.models.consents.SPUserData
 import com.sourcepoint.mobile_core.models.consents.State
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
@@ -34,6 +36,7 @@ import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
+import com.sourcepoint.mobile_core.network.requests.GlobalCmpChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
@@ -74,9 +77,10 @@ class Coordinator(
     private val includeData: IncludeData = IncludeData()
 
     private var needsNewUSNatData = false
+    private var needsNewGlobalCmpData = false
 
     private val needsNewConsentData: Boolean get() =
-                needsNewUSNatData || transitionCCPAOptedOut ||
+                needsNewUSNatData || needsNewGlobalCmpData || transitionCCPAOptedOut ||
                 (state.localVersion != State.VERSION &&
                         (state.gdpr.consents.uuid != null || state.ccpa.consents.uuid != null || state.usNat.consents.uuid != null))
 
@@ -251,6 +255,22 @@ class Coordinator(
                 needsNewUSNatData = true
             }
         }
+        response.globalcmp?.let {
+            val previousApplicableSections = state.globalcmp.metaData.applicableSections
+            state.globalcmp = state.globalcmp.resetStateIfVendorListChanges(it.vendorListId)
+            state.globalcmp = state.globalcmp.copy(
+                consents = state.globalcmp.consents.copy(applies = it.applies),
+                metaData = state.globalcmp.metaData.copy(
+                    vendorListId = it.vendorListId,
+                    additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
+                    applicableSections = it.applicableSections
+                )
+            )
+            state.globalcmp.metaData.updateSampleFields(it.sampleRate)
+            if (previousApplicableSections.isNotEmpty() && previousApplicableSections != state.globalcmp.metaData.applicableSections) {
+                needsNewGlobalCmpData = true
+            }
+        }
         response.preferences?.let {
             state.preferences = state.preferences.copy(
                 metaData = state.preferences.metaData.copy(
@@ -268,6 +288,7 @@ class Coordinator(
             gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
             ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
             usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+            globalcmp = campaigns.globalcmp?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
             preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
         )))
         next()
@@ -352,6 +373,13 @@ class Coordinator(
                             idfaStatus = idfaStatus
                         )
                     },
+                    globalcmp = campaigns.globalcmp?.let {
+                        ConsentStatusRequest.MetaData.GlobalCmpCampaign(
+                            applies = state.globalcmp.consents.applies,
+                            dateCreated = state.globalcmp.consents.dateCreated,
+                            uuid = state.globalcmp.consents.uuid
+                        )
+                    },
                     usnat = campaigns.usnat?.let {
                         ConsentStatusRequest.MetaData.USNatCampaign(
                             applies = state.usNat.consents.applies,
@@ -389,6 +417,7 @@ class Coordinator(
                 Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent)
                 Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent)
                 UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat.consents) as USNatConsent)
+                GlobalCmp -> state.globalcmp = state.globalcmp.copy(consents = it.toConsent(default = state.globalcmp.consents) as GlobalCmpConsent)
                 IOS14 -> {
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
@@ -427,6 +456,13 @@ class Coordinator(
                                 idfaStatus = idfaStatus
                             )
                         },
+                        globalcmp = campaigns.globalcmp?.let {
+                            MessagesRequest.Body.Campaigns.GlobalCmp(
+                                targetingParams = it.targetingParams,
+                                hasLocalData = state.hasGlobalCmpLocalData,
+                                consentStatus = state.globalcmp.consents.consentStatus
+                            )
+                        },
                         ccpa = campaigns.ccpa?.let {
                             MessagesRequest.Body.Campaigns.CCPA(
                                 targetingParams = it.targetingParams,
@@ -456,7 +492,8 @@ class Coordinator(
                 metadata = MessagesRequest.MetaData(
                     gdpr = MessagesRequest.MetaData.Campaign(state.gdpr.consents.applies),
                     usnat = MessagesRequest.MetaData.Campaign(state.usNat.consents.applies),
-                    ccpa = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies)
+                    ccpa = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies),
+                    globalcmp = MessagesRequest.MetaData.Campaign(state.globalcmp.consents.applies)
                 ),
                 nonKeyedLocalState = state.nonKeyedLocalState,
                 localState = state.localState
@@ -511,9 +548,15 @@ class Coordinator(
                 usnatPvData(pubData, messageMetaData = messages.firstOrNull { it.type == UsNat }?.metaData)
             }
         }
+        val globalCmpPvData = campaigns.globalcmp?.let {
+            launch {
+                globalcmpPvData(pubData, messageMetaData = messages.firstOrNull { it.type == GlobalCmp }?.metaData)
+            }
+        }
         gdprPvData?.join()
         ccpaPvData?.join()
         usNatPvData?.join()
+        globalCmpPvData?.join()
         persistState()
     }
 
@@ -523,6 +566,7 @@ class Coordinator(
             request = PvDataRequest(
                 ccpa = null,
                 usnat = null,
+                globalcmp = null,
                 gdpr = PvDataRequest.GDPR(
                     applies = state.gdpr.consents.applies,
                     uuid = state.gdpr.consents.uuid,
@@ -548,6 +592,7 @@ class Coordinator(
             request = PvDataRequest(
                 gdpr = null,
                 usnat = null,
+                globalcmp = null,
                 ccpa = PvDataRequest.CCPA(
                     applies = state.ccpa.consents.applies,
                     uuid = state.ccpa.consents.uuid,
@@ -574,6 +619,7 @@ class Coordinator(
             request = PvDataRequest(
                 gdpr = null,
                 ccpa = null,
+                globalcmp = null,
                 usnat = PvDataRequest.USNat(
                     applies = state.usNat.consents.applies,
                     uuid = state.usNat.consents.uuid,
@@ -590,6 +636,31 @@ class Coordinator(
             )
         )
         state.usNat = state.usNat.copy(metaData = state.usNat.metaData.copy(wasSampled = sampled))
+    }
+
+    private suspend fun globalcmpPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
+        val sampled = sampleAndPvData(
+            campaign = state.globalcmp.metaData,
+            request = PvDataRequest(
+                gdpr = null,
+                ccpa = null,
+                usnat = null,
+                globalcmp = PvDataRequest.GlobalCmp(
+                    applies = state.globalcmp.consents.applies,
+                    uuid = state.globalcmp.consents.uuid,
+                    accountId = accountId,
+                    propertyId = propertyId,
+                    consentStatus = state.globalcmp.consents.consentStatus,
+                    pubData = pubData,
+                    sampleRate = state.globalcmp.metaData.sampleRate,
+                    msgId = messageMetaData?.messageId,
+                    categoryId = messageMetaData?.categoryId?.rawValue,
+                    subCategoryId = messageMetaData?.subCategoryId?.rawValue,
+                    prtnUUID = messageMetaData?.messagePartitionUUID
+                )
+            )
+        )
+        state.globalcmp = state.globalcmp.copy(metaData = state.globalcmp.metaData.copy(wasSampled = sampled))
     }
 
     private fun handleGetChoiceAll(response: ChoiceAllResponse) {
@@ -695,6 +766,24 @@ class Coordinator(
         )
     )
 
+    private suspend fun postChoiceGlobalCmp(action: SPAction) = spClient.postChoiceGlobalCmpAction(
+        actionType = action.type,
+        request = GlobalCmpChoiceRequest(
+            authId = authId,
+            uuid = state.usNat.consents.uuid,
+            messageId = action.messageId,
+            vendorListId = state.usNat.metaData.vendorListId,
+            pubData = action.encodablePubData,
+            pmSaveAndExitVariables = action.pmPayload,
+            sendPVData = state.usNat.metaData.wasSampled ?: false,
+            propertyId = propertyId,
+            sampleRate = state.usNat.metaData.sampleRate,
+            idfaStatus = idfaStatus,
+            granularStatus = state.usNat.consents.consentStatus.granularStatus,
+            includeData = includeData
+        )
+    )
+
     private suspend fun postChoicePreferences(action: SPAction) = spClient.postChoicePreferencesAction(
         actionType = action.type,
         request = PreferencesChoiceRequest(
@@ -774,6 +863,24 @@ class Coordinator(
         persistState()
     }
 
+    private suspend fun reportGlobalCmpAction(action: SPAction) {
+        val postResponse = postChoiceGlobalCmp(action = action)
+        state.globalcmp = state.globalcmp.copy(
+            consents = state.globalcmp.consents.copy(
+                uuid = postResponse.uuid,
+                applies = state.globalcmp.consents.applies,
+                dateCreated = postResponse.dateCreated ?: now(),
+                expirationDate = postResponse.expirationDate ?: postResponse.dateCreated?.inOneYear() ?: now().inOneYear(),
+                consentStatus = postResponse.consentStatus,
+                userConsents = state.globalcmp.consents.userConsents.copy(
+                    categories = postResponse.userConsents.categories,
+                    vendors = postResponse.userConsents.vendors
+                )
+            )
+        )
+        persistState()
+    }
+
     private suspend fun reportPreferencesAction(action: SPAction) {
         val postResponse = postChoicePreferences(action = action)
         state.preferences = state.preferences.copy(
@@ -800,6 +907,7 @@ class Coordinator(
                 Gdpr -> reportGDPRAction(action = action, getResponse = getResponse)
                 Ccpa -> reportCCPAAction(action = action, getResponse = getResponse)
                 UsNat -> reportUSNatAction(action = action, getResponse = getResponse)
+                GlobalCmp -> reportGlobalCmpAction(action = action)
                 Preferences -> reportPreferencesAction(action = action)
                 IOS14, SPCampaignType.Unknown -> {}
             }
