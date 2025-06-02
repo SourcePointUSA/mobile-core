@@ -232,7 +232,8 @@ class SourcepointClient(
             )
         }.build()
         ).bodyOr(::reportErrorAndThrow)
-
+    
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
     private suspend inline fun <reified ChoiceRequest, reified ChoiceResponse> genericPostChoiceAction(
         actionType: SPActionType,
         fromCampaign: String,
