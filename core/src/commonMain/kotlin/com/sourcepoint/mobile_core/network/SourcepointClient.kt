@@ -233,65 +233,32 @@ class SourcepointClient(
         }.build()
         ).bodyOr(::reportErrorAndThrow)
 
-    override suspend fun postChoiceGDPRAction(
+    private suspend inline fun <reified ChoiceRequest, reified ChoiceResponse> genericPostChoiceAction(
         actionType: SPActionType,
-        request: GDPRChoiceRequest
-    ): GDPRChoiceResponse =
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "choice", "gdpr", actionType.type.toString())
-            withParams(DefaultRequest())
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.bodyOr(::reportErrorAndThrow)
+        fromCampaign: String,
+        request: ChoiceRequest
+    ): ChoiceResponse = http.post(URLBuilder(baseWrapperUrl).apply {
+        path("wrapper", "v2", "choice", fromCampaign, actionType.type.toString())
+        withParams(DefaultRequest())
+    }.build()) {
+        contentType(ContentType.Application.Json)
+        setBody(request)
+    }.bodyOr(::reportErrorAndThrow)
 
-    override suspend fun postChoiceUSNatAction(
-        actionType: SPActionType,
-        request: USNatChoiceRequest
-    ): USNatChoiceResponse =
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "choice", "usnat", actionType.type.toString())
-            withParams(DefaultRequest())
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.bodyOr(::reportErrorAndThrow)
+    override suspend fun postChoiceGDPRAction(actionType: SPActionType, request: GDPRChoiceRequest): GDPRChoiceResponse =
+        genericPostChoiceAction(actionType, "gdpr", request)
 
-    override suspend fun postChoiceGlobalCmpAction(
-        actionType: SPActionType,
-        request: GlobalCmpChoiceRequest
-    ): GlobalCmpChoiceResponse =
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "choice", "global-cmp", actionType.type.toString())
-            withParams(DefaultRequest())
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.bodyOr(::reportErrorAndThrow)
+    override suspend fun postChoiceUSNatAction(actionType: SPActionType, request: USNatChoiceRequest): USNatChoiceResponse =
+        genericPostChoiceAction(actionType, "usnat", request)
 
-    override suspend fun postChoicePreferencesAction(
-        actionType: SPActionType,
-        request: PreferencesChoiceRequest
-    ): PreferencesChoiceResponse =
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "choice", "preferences", actionType.type.toString())
-            withParams(DefaultRequest())
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.bodyOr(::reportErrorAndThrow)
+    override suspend fun postChoiceGlobalCmpAction(actionType: SPActionType, request: GlobalCmpChoiceRequest): GlobalCmpChoiceResponse =
+        genericPostChoiceAction(actionType, "global-cmp", request)
 
-    override suspend fun postChoiceCCPAAction(
-        actionType: SPActionType,
-        request: CCPAChoiceRequest
-    ): CCPAChoiceResponse =
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "choice", "ccpa", actionType.type.toString())
-            withParams(DefaultRequest())
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.bodyOr(::reportErrorAndThrow)
+    override suspend fun postChoicePreferencesAction(actionType: SPActionType, request: PreferencesChoiceRequest): PreferencesChoiceResponse =
+        genericPostChoiceAction(actionType, "preferences", request)
+
+    override suspend fun postChoiceCCPAAction(actionType: SPActionType, request: CCPAChoiceRequest): CCPAChoiceResponse =
+        genericPostChoiceAction(actionType, "ccpa", request)
 
     override suspend fun getChoiceAll(
         actionType: SPActionType,
