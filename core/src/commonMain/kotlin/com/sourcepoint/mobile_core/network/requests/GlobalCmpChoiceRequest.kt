@@ -16,7 +16,6 @@ class GlobalCmpChoiceRequest(
     val sendPVData: Boolean,
     val propertyId: Int,
     val sampleRate: Float,
-    val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
     val granularStatus: ConsentStatus.ConsentStatusGranularStatus? = null,
     val includeData: IncludeData = IncludeData()
 )

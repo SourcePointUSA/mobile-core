@@ -760,7 +760,6 @@ class Coordinator(
             sendPVData = state.usNat.metaData.wasSampled ?: false,
             propertyId = propertyId,
             sampleRate = state.usNat.metaData.sampleRate,
-            idfaStatus = idfaStatus,
             granularStatus = state.usNat.consents.consentStatus.granularStatus,
             includeData = includeData
         )
@@ -770,16 +769,15 @@ class Coordinator(
         actionType = action.type,
         request = GlobalCmpChoiceRequest(
             authId = authId,
-            uuid = state.usNat.consents.uuid,
+            uuid = state.globalcmp.consents.uuid,
             messageId = action.messageId,
-            vendorListId = state.usNat.metaData.vendorListId,
+            vendorListId = state.globalcmp.metaData.vendorListId,
             pubData = action.encodablePubData,
             pmSaveAndExitVariables = action.pmPayload,
-            sendPVData = state.usNat.metaData.wasSampled ?: false,
+            sendPVData = state.globalcmp.metaData.wasSampled ?: false,
             propertyId = propertyId,
-            sampleRate = state.usNat.metaData.sampleRate,
-            idfaStatus = idfaStatus,
-            granularStatus = state.usNat.consents.consentStatus.granularStatus,
+            sampleRate = state.globalcmp.metaData.sampleRate,
+            granularStatus = state.globalcmp.consents.consentStatus.granularStatus,
             includeData = includeData
         )
     )
