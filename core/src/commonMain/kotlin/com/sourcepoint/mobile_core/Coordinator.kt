@@ -125,6 +125,11 @@ class Coordinator(
                 SPUserData.SPConsent(
                     consents = state.preferences.consents
                 )
+            },
+            globalcmp = campaigns.globalcmp?.let {
+                SPUserData.SPConsent(
+                    consents = state.globalcmp.consents
+                )
             }
         )
 
