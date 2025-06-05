@@ -98,8 +98,7 @@ class Coordinator(
                 (campaigns.gdpr != null && state.gdpr.consents.consentStatus.consentedAll != true) ||
                 campaigns.ccpa != null ||
                 (campaigns.ios14 != null && state.ios14.status != SPIDFAStatus.Accepted) ||
-                campaigns.usnat != null ||
-                campaigns.preferences != null
+                campaigns.usnat != null || campaigns.preferences != null || campaigns.globalcmp != null
 
     override val userData: SPUserData
         get() = SPUserData(
