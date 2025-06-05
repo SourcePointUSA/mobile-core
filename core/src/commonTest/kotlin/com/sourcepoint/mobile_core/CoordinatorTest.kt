@@ -580,7 +580,8 @@ class CoordinatorTest {
             campaigns = SPCampaigns(preferences = SPCampaign()),
             spClient = SourcepointClient(
                 accountId = 22,
-                propertyId = 38984
+                propertyId = 38984,
+                PlatformHttpClient.create().engine
             )
         )
         assertEquals(1, coordinator.loadMessages().size)
