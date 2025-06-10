@@ -765,8 +765,8 @@ class Coordinator(
             sendPVData = state.usNat.metaData.wasSampled ?: false,
             propertyId = propertyId,
             sampleRate = state.usNat.metaData.sampleRate,
-            granularStatus = state.usNat.consents.consentStatus.granularStatus,
             idfaStatus = idfaStatus,
+            granularStatus = state.usNat.consents.consentStatus.granularStatus,
             includeData = includeData
         )
     )
