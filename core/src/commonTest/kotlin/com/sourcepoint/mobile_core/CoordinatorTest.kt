@@ -573,7 +573,6 @@ class CoordinatorTest {
 
     @Test
     fun propertyWithPreferencesCampaign() = runTestWithRetries {
-        return@runTestWithRetries //TODO: this test doesn`t work on prod
         val coordinator = getCoordinator(
             accountId = 22,
             propertyId = 38984,
@@ -581,10 +580,27 @@ class CoordinatorTest {
             campaigns = SPCampaigns(preferences = SPCampaign()),
             spClient = SourcepointClient(
                 accountId = 22,
-                propertyId = 38984
+                propertyId = 38984,
+                PlatformHttpClient.create().engine
             )
         )
         assertEquals(1, coordinator.loadMessages().size)
         assertEquals("67ee726a0ca4ef1d52c34563", coordinator.state.preferences.metaData.configurationId)
+    }
+
+    @Test
+    fun propertyWithGlobalCmpCampaign() = runTestWithRetries {
+        return@runTestWithRetries //TODO: this test doesn`t work on prod
+        val coordinator = getCoordinator(
+            accountId = 22,
+            propertyId = 39494,
+            propertyName = "global.mobile.demo",
+            campaigns = SPCampaigns(globalcmp = SPCampaign()),
+            spClient = SourcepointClient(
+                accountId = 22,
+                propertyId = 39494
+            )
+        )
+        assertEquals(1, coordinator.loadMessages().size)
     }
 }

@@ -10,5 +10,6 @@ enum class SPCampaignType {
     @SerialName("usnat") UsNat,
     @SerialName("ios14") IOS14,
     @SerialName("preferences") Preferences,
+    @SerialName("globalcmp") GlobalCmp,
     @SerialName("unknown") Unknown
 }

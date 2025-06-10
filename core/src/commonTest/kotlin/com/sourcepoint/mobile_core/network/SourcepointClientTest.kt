@@ -17,6 +17,7 @@ import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.GlobalCmpConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
@@ -123,6 +124,7 @@ class SourcepointClientTest {
         when(campaign) {
             is MessagesResponse.GDPR -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.USNat -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
+            is MessagesResponse.GlobalCmp -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.CCPA -> assertCampaignConsentsFromMessages(campaign.derivedConsents)
             is MessagesResponse.Ios14 -> assertNull(campaign.derivedConsents)
             is MessagesResponse.Preferences -> assertNull(campaign.derivedConsents)
@@ -148,6 +150,14 @@ class SourcepointClientTest {
         assertNotNull(consents.dateCreated)
         assertNotNull(consents.expirationDate)
         assertNotEmpty(consents.webConsentPayload)
+    }
+
+    private fun assertCampaignConsentsFromMessages(consents: GlobalCmpConsent?) {
+        assertNotNull(consents)
+        assertIsEmpty(consents.userConsents.vendors)
+        assertNotEmpty(consents.userConsents.categories)
+        assertNotNull(consents.dateCreated)
+        assertNotNull(consents.expirationDate)
     }
 
     private fun assertCampaignConsentsFromMessages(consents: CCPAConsent?) {
@@ -184,6 +194,11 @@ class SourcepointClientTest {
                             idfaStatus = SPIDFAStatus.Unknown,
                             targetingParams = null
                         ),
+                        globalcmp = MessagesRequest.Body.Campaigns.GlobalCmp(
+                            targetingParams = null,
+                            hasLocalData = false,
+                            consentStatus = ConsentStatus()
+                        ),
                         ccpa = MessagesRequest.Body.Campaigns.CCPA(
                             targetingParams = null,
                             hasLocalData = false,
@@ -205,7 +220,8 @@ class SourcepointClientTest {
                 metadata = MessagesRequest.MetaData(
                     gdpr = MessagesRequest.MetaData.Campaign(applies = true),
                     usnat = MessagesRequest.MetaData.Campaign(applies = true),
-                    ccpa = MessagesRequest.MetaData.Campaign(applies = true)
+                    ccpa = MessagesRequest.MetaData.Campaign(applies = true),
+                    globalcmp = MessagesRequest.MetaData.Campaign(applies = true)
                 ),
                 localState = null,
                 nonKeyedLocalState = null

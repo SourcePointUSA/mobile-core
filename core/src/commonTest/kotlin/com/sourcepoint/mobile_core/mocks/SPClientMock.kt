@@ -12,6 +12,7 @@ import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
 import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
+import com.sourcepoint.mobile_core.network.requests.GlobalCmpChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
@@ -21,6 +22,7 @@ import com.sourcepoint.mobile_core.network.responses.CCPAChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.ChoiceAllResponse
 import com.sourcepoint.mobile_core.network.responses.ConsentStatusResponse
 import com.sourcepoint.mobile_core.network.responses.GDPRChoiceResponse
+import com.sourcepoint.mobile_core.network.responses.GlobalCmpChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PreferencesChoiceResponse
@@ -36,6 +38,7 @@ class SPClientMock(
     var postChoiceGDPRAction: (() -> GDPRChoiceResponse?)? = null,
     var postChoiceCCPAAction: (() -> CCPAChoiceResponse?)? = null,
     var postChoiceUSNATAction: (() -> USNatChoiceResponse?)? = null,
+    var postChoiceGLOBALCMPAction: (() -> GlobalCmpChoiceResponse?)? = null,
     var getChoiceAll: (() -> ChoiceAllResponse?)? = null,
     var getMessages: (() -> MessagesResponse?)? = null,
     var customConsentGDPR: (() -> GDPRConsent?)? = null,
@@ -74,6 +77,17 @@ class SPClientMock(
                 consentStrings = emptyList(),
                 userConsents = USNatConsent.USNatUserConsents()
             )
+
+    override suspend fun postChoiceGlobalCmpAction(
+        actionType: SPActionType,
+        request: GlobalCmpChoiceRequest
+    ): GlobalCmpChoiceResponse =
+        postChoiceGLOBALCMPAction?.invoke() ?:
+        original?.postChoiceGlobalCmpAction(actionType, request) ?:
+        GlobalCmpChoiceResponse(
+            consentStatus = ConsentStatus(),
+            userConsents = USNatConsent.USNatUserConsents()
+        )
 
     override suspend fun postChoicePreferencesAction(actionType: SPActionType, request: PreferencesChoiceRequest) =
         original?.postChoicePreferencesAction(actionType, request) ?:

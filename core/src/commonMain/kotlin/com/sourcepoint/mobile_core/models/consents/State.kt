@@ -10,6 +10,7 @@ data class State (
     var ccpa: CCPAState = CCPAState(),
     var usNat: USNatState = USNatState(),
     var ios14: AttCampaign = AttCampaign(),
+    var globalcmp: GlobalCmpState = GlobalCmpState(),
     var preferences: PreferencesState = PreferencesState(),
     var authId: String? = null,
     val propertyId: Int,
@@ -25,6 +26,7 @@ data class State (
     val hasGDPRLocalData: Boolean get () = gdpr.consents.uuid != null
     val hasCCPALocalData: Boolean get () = ccpa.consents.uuid != null
     val hasUSNatLocalData: Boolean get () = usNat.consents.uuid != null
+    val hasGlobalCmpLocalData: Boolean get () = globalcmp.consents.uuid != null
 
     interface SPSampleable {
         var sampleRate: Float
@@ -101,6 +103,30 @@ data class State (
         fun resetStateIfVendorListChanges(newVendorListId: String): USNatState =
             if (metaData.vendorListId != null && metaData.vendorListId != newVendorListId) {
                 copy(consents = USNatConsent())
+            } else {
+                this
+            }
+    }
+
+    @Serializable
+    data class GlobalCmpState(
+        val metaData: GlobalCmpMetaData = GlobalCmpMetaData(),
+        val consents: GlobalCmpConsent = GlobalCmpConsent(),
+        val childPmId: String? = null
+    ) {
+        @Serializable
+        data class GlobalCmpMetaData (
+            val additionsChangeDate: Instant = Instant.DISTANT_PAST,
+            override var sampleRate:Float = 1f,
+            override var wasSampled: Boolean? = null,
+            override var wasSampledAt: Float? = null,
+            val vendorListId: String? = null,
+            val applicableSections: List<Int> = emptyList()
+        ): SPSampleable
+
+        fun resetStateIfVendorListChanges(newVendorListId: String): GlobalCmpState =
+            if (metaData.vendorListId != null && metaData.vendorListId != newVendorListId) {
+                copy(consents = GlobalCmpConsent())
             } else {
                 this
             }

@@ -7,6 +7,7 @@ import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.ConsentStrings
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.GlobalCmpConsent
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.PreferencesConsent
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
@@ -149,6 +150,40 @@ data class MessagesResponse(
                     legIntVendors = derivedConsents.legIntVendors,
                     vendors = derivedConsents.vendors,
                     categories = derivedConsents.categories
+                )
+            } else {
+                default?.copy()
+            }
+    }
+
+    @Serializable
+    @SerialName("globalcmp")
+    data class GlobalCmp(
+        override val type: SPCampaignType = SPCampaignType.GlobalCmp,
+        private val consentStatus: ConsentStatus?,
+        private val userConsents: USNatConsent.USNatUserConsents?,
+        private val dateCreated: Instant?,
+        private val expirationDate: Instant?,
+        override val derivedConsents: GlobalCmpConsent? = if (
+            userConsents != null &&
+            consentStatus != null
+        ) GlobalCmpConsent(
+            dateCreated = dateCreated ?: now(),
+            expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
+            consentStatus = consentStatus,
+            userConsents = userConsents
+        ) else null
+    ): Campaign<GlobalCmpConsent?>() {
+        override fun toConsent(default: GlobalCmpConsent?): GlobalCmpConsent? =
+            if (derivedConsents != null){
+                default?.copy(
+                    dateCreated = derivedConsents.dateCreated,
+                    expirationDate = derivedConsents.expirationDate,
+                    userConsents = default.userConsents.copy(
+                        categories = derivedConsents.userConsents.categories,
+                        vendors = derivedConsents.userConsents.vendors
+                    ),
+                    consentStatus = derivedConsents.consentStatus,
                 )
             } else {
                 default?.copy()
