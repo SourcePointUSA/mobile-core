@@ -389,6 +389,7 @@ class Coordinator(
                             applies = state.usNat.consents.applies,
                             dateCreated = state.usNat.consents.dateCreated,
                             uuid = state.usNat.consents.uuid,
+                            idfaStatus = idfaStatus,
                             transitionCCPAAuth = authTransitionCCPAUSNat,
                             optedOut = transitionCCPAOptedOut
                         )
@@ -765,6 +766,7 @@ class Coordinator(
             propertyId = propertyId,
             sampleRate = state.usNat.metaData.sampleRate,
             granularStatus = state.usNat.consents.consentStatus.granularStatus,
+            idfaStatus = idfaStatus,
             includeData = includeData
         )
     )

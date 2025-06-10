@@ -44,6 +44,7 @@ data class ConsentStatusRequest(
             val dateCreated: Instant? = null,
             val uuid: String? = null,
             val hasLocalData: Boolean = false, // TODO check when this can be true
+            val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
             val transitionCCPAAuth: Boolean? = null,
             val optedOut: Boolean? = null
         )

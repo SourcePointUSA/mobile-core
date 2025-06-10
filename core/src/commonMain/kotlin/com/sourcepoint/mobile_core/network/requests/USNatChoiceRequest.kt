@@ -17,5 +17,6 @@ data class USNatChoiceRequest (
     val propertyId: Int,
     val sampleRate: Float,
     val granularStatus: ConsentStatus.ConsentStatusGranularStatus? = null,
+    val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
     val includeData: IncludeData = IncludeData()
 )
