@@ -1,3 +1,6 @@
+## 0.1.7 (Jun, 13, 2025)
+* fixed an issue preventing preferences.uuid from being persisted
+
 ## 0.1.6 (May, 22, 2025)
 * generate `SPMobileCore` XCFramework statically
 
