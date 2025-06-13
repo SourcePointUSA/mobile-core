@@ -889,6 +889,7 @@ class Coordinator(
         val postResponse = postChoicePreferences(action = action)
         state.preferences = state.preferences.copy(
             consents = state.preferences.consents.copy(
+                uuid = postResponse.uuid,
                 dateCreated = postResponse.dateCreated,
                 status = postResponse.status,
                 rejectedStatus = postResponse.rejectedStatus
