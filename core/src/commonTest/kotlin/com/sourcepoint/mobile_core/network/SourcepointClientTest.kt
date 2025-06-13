@@ -7,7 +7,6 @@ import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignEnv
-import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
@@ -25,6 +24,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
+import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.USNatChoiceRequest
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse
 import com.sourcepoint.mobile_core.utils.runTestWithRetries
@@ -39,7 +39,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -47,6 +46,8 @@ class SourcepointClientTest {
     private val accountId = 22
     private val propertyId = 16893
     private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
+    private val preferencesConfigId = "67e14cda9efe9bd2a90fa84a"
+    private val preferencesMessageId = "1306779"
     private val api = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
@@ -68,7 +69,8 @@ class SourcepointClientTest {
             MetaDataRequest.Campaigns(
                 gdpr = MetaDataRequest.Campaigns.Campaign(groupPmId = "123"),
                 usnat = MetaDataRequest.Campaigns.Campaign(),
-                ccpa = MetaDataRequest.Campaigns.Campaign()
+                ccpa = MetaDataRequest.Campaigns.Campaign(),
+                preferences = MetaDataRequest.Campaigns.Campaign()
             )
         )
         assertTrue(response.gdpr?.applies)
@@ -83,6 +85,10 @@ class SourcepointClientTest {
 
         assertTrue(response.ccpa?.applies)
         assertEquals(1.0f, response.ccpa?.sampleRate)
+
+        assertNotEmpty(response.preferences?.configurationId)
+        assertNotEmpty(response.preferences?.legalDocLiveDate)
+        assertNotNull(response.preferences?.additionsChangeDate)
     }
 
     @Test
@@ -105,7 +111,7 @@ class SourcepointClientTest {
             )
         )
 
-        assertNotEquals("", response.localState)
+        assertNotEmpty(response.localState)
         assertEquals(
             "7acd0bf7-41fb-4d26-b12b-de5e2605ef81",
             response.consentStatusData.gdpr?.uuid
@@ -118,6 +124,24 @@ class SourcepointClientTest {
             "ebf53e4d-e0da-4f47-95f0-7e286e8124c3",
             response.consentStatusData.ccpa?.uuid
         )
+    }
+
+    @Test
+    fun getConsentStatusForPreferences() = runTestWithRetries {
+        val preferences = api.getConsentStatus(
+            authId = "preferences_auth_id_test_mobile-core",
+            metadata = ConsentStatusRequest.MetaData(
+                preferences = ConsentStatusRequest.MetaData.PreferencesCampaign(
+                    hasLocalData = false,
+                    configurationId = preferencesConfigId
+                )
+            )
+        ).consentStatusData.preferences
+        assertNotNull(preferences)
+        assertNotEmpty(preferences.uuid)
+        assertNotEmpty(preferences.status)
+        assertNotEmpty(preferences.rejectedStatus)
+        assertNotNull(preferences.dateCreated)
     }
 
     private fun assertCampaignConsentsFromMessages(campaign: MessagesResponse.Campaign<*>) {
@@ -205,11 +229,7 @@ class SourcepointClientTest {
                             status = CCPAConsent.CCPAConsentStatus.RejectedNone
                         ),
                         preferences = MessagesRequest.Body.Campaigns.Preferences(
-                            targetingParams = mapOf(
-                                Pair("_sp_lt_AI-POLICY_a","true"),
-                                Pair("_sp_lt_PRIVACY-POLICY_na","true"),
-                                Pair("_sp_lt_TERMS-AND-CONDITIONS_na","true")
-                            ),
+                            targetingParams = mapOf("_sp_lt_AI-POLICY_na" to "true"),
                             hasLocalData = false
                         )
                     ),
@@ -221,7 +241,7 @@ class SourcepointClientTest {
                     gdpr = MessagesRequest.MetaData.Campaign(applies = true),
                     usnat = MessagesRequest.MetaData.Campaign(applies = true),
                     ccpa = MessagesRequest.MetaData.Campaign(applies = true),
-                    globalcmp = MessagesRequest.MetaData.Campaign(applies = true)
+                    globalcmp = MessagesRequest.MetaData.Campaign(applies = true),
                 ),
                 localState = null,
                 nonKeyedLocalState = null
@@ -231,7 +251,6 @@ class SourcepointClientTest {
         assertEquals(5, response.campaigns.size)
 
         response.campaigns
-            .filter { it.type != SPCampaignType.Preferences }  //TODO remove this when `preferences` will be there
             .forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
@@ -459,5 +478,24 @@ class SourcepointClientTest {
         )
         assertTrue(response.consentStatus.rejectedAny)
         assertTrue(response.consentStatus.consentedToAny)
+    }
+
+    @Test
+    fun postPreferencesChoiceActionSaveExitContainCorrectResponse() = runTestWithRetries {
+        api.postChoicePreferencesAction(
+            actionType = SPActionType.SaveAndExit,
+            request = PreferencesChoiceRequest(
+                accountId = accountId,
+                propertyId = propertyId,
+                messageId =  preferencesMessageId,
+                pmSaveAndExitVariables = """{"configurationId":$preferencesConfigId,"email":null,"globalOptOut":false,"shownCategories":[{"categoryId":0,"channels":[]}],"status":[{"categoryId":2,"channels":[]},{"categoryId":3,"channels":[]}]}""".encodeToJsonObject()!!
+            )
+        ).apply {
+            assertNotEmpty(uuid)
+            assertNotEmpty(status)
+            assertNotEmpty(rejectedStatus)
+            assertNotEmpty(configurationId)
+            assertNotNull(dateCreated)
+        }
     }
 }

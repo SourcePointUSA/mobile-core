@@ -22,6 +22,7 @@ import com.sourcepoint.mobile_core.models.SPCampaign
 import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
 import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
 import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
+import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPMessageLanguage.ENGLISH
@@ -39,13 +40,13 @@ import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.storage.Repository
 import com.sourcepoint.mobile_core.utils.now
 import com.sourcepoint.mobile_core.utils.runTestWithRetries
-import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertNull
 import kotlin.test.assertSame
@@ -59,6 +60,8 @@ class CoordinatorTest {
     private val accountId = 22
     private val propertyId = 16893
     private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
+    private val preferencesConfigId = "67e14cda9efe9bd2a90fa84a"
+    private val preferencesMessageId = "1306779"
     private val customVendorId = "5ff4d000a228633ac048be41" // "Game Accounts"
     private val categoriesUsedByVendorId = listOf(
         "608bad95d08d3112188e0e36", // "Create profiles for personalised advertising",
@@ -70,6 +73,7 @@ class CoordinatorTest {
         ccpa = SPCampaign(),
         usnat = SPCampaign(),
         ios14 = SPCampaign(),
+        preferences = SPCampaign(),
     )
     private val state = State(accountId = accountId, propertyId = propertyId)
     private val spClient = SourcepointClient(
@@ -88,6 +92,23 @@ class CoordinatorTest {
             "privacyManagerId": "943890",
             "vendors": []
         }
+        """
+    )
+    private val saveAndExitActionPreferences = SPAction.init(
+        type = SaveAndExit,
+        campaignType = Preferences,
+        messageId = preferencesMessageId,
+        pmPayload = """
+            {
+                "configurationId":$preferencesConfigId,
+                "email":null,
+                "globalOptOut":false,
+                "shownCategories": [{"categoryId":0,"channels":[]}],
+                "status": [
+                    {"categoryId":2,"channels":[]},
+                    {"categoryId":3,"channels":[]}
+                ]
+            }
         """
     )
 
@@ -115,6 +136,7 @@ class CoordinatorTest {
         reportAction(SPAction(AcceptAll, Gdpr))
         reportAction(SPAction(AcceptAll, Ccpa))
         reportAction(SPAction(AcceptAll, UsNat))
+        reportAction(saveAndExitActionPreferences)
     }
 
     @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
@@ -193,6 +215,15 @@ class CoordinatorTest {
     }
 
     @Test
+    fun reportActionReturnsPreferences() = runTestWithRetries {
+        val consents = getCoordinator().reportAction(saveAndExitActionPreferences)
+        assertNotEmpty(consents.preferences?.consents?.uuid)
+        assertNotEmpty(consents.preferences?.consents?.status)
+        assertNotEmpty(consents.preferences?.consents?.rejectedStatus)
+        assertNotNull(consents.preferences?.consents?.dateCreated)
+    }
+
+    @Test
     fun clearLocalDataResetsRepositoryAndInMemoryState() {
         val coordinator = getCoordinator()
         val previousState = coordinator.state
@@ -237,7 +268,7 @@ class CoordinatorTest {
     fun consentIsStoredAfterCallingLoadMessagesAndNoMessagesShouldAppearAfterAcceptingAll() = runTestWithRetries {
         val localStorage = repository
         val coordinator = getCoordinator(repository = localStorage)
-        assertEquals(3, coordinator.loadMessages().size)
+        assertEquals(4, coordinator.loadMessages().size)
         assertNotEmpty(localStorage.gppData)
         assertNotEmpty(localStorage.tcData)
         assertNotEmpty(localStorage.uspString)
@@ -569,23 +600,6 @@ class CoordinatorTest {
         }))
         coordinator.loadMessages()
         assertTrue(pvDataCalled)
-    }
-
-    @Test
-    fun propertyWithPreferencesCampaign() = runTestWithRetries {
-        val coordinator = getCoordinator(
-            accountId = 22,
-            propertyId = 38984,
-            propertyName = "dmytro.tests.mobile.preferences",
-            campaigns = SPCampaigns(preferences = SPCampaign()),
-            spClient = SourcepointClient(
-                accountId = 22,
-                propertyId = 38984,
-                PlatformHttpClient.create().engine
-            )
-        )
-        assertEquals(1, coordinator.loadMessages().size)
-        assertEquals("67ee726a0ca4ef1d52c34563", coordinator.state.preferences.metaData.configurationId)
     }
 
     @Test

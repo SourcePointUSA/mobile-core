@@ -793,7 +793,7 @@ class Coordinator(
         request = PreferencesChoiceRequest(
             accountId = accountId,
             authId = authId,
-            uuid = state.usNat.consents.uuid,
+            uuid = state.preferences.consents.uuid,
             messageId = action.messageId,
             pmSaveAndExitVariables = action.pmPayload,
             propertyId = propertyId,
@@ -889,6 +889,7 @@ class Coordinator(
         val postResponse = postChoicePreferences(action = action)
         state.preferences = state.preferences.copy(
             consents = state.preferences.consents.copy(
+                uuid = postResponse.uuid,
                 dateCreated = postResponse.dateCreated,
                 status = postResponse.status,
                 rejectedStatus = postResponse.rejectedStatus
