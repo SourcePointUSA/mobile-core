@@ -793,7 +793,7 @@ class Coordinator(
         request = PreferencesChoiceRequest(
             accountId = accountId,
             authId = authId,
-            uuid = state.usNat.consents.uuid,
+            uuid = state.preferences.consents.uuid,
             messageId = action.messageId,
             pmSaveAndExitVariables = action.pmPayload,
             propertyId = propertyId,
