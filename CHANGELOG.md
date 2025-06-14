@@ -1,3 +1,6 @@
+## 0.1.8 (Jun, 14, 2025)
+* migrated to new Maven Central repository
+
 ## 0.1.7 (Jun, 13, 2025)
 * fixed an issue preventing preferences.uuid from being persisted
 
