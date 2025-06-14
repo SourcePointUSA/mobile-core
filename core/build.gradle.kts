@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -8,18 +9,18 @@ plugins {
     id("com.github.ben-manes.versions") version "0.51.0"
     id("com.android.library") version "8.7.3"
     id("com.github.gmazzo.buildconfig") version "5.5.0"
-    id("maven-publish")
+    id("com.vanniktech.maven.publish") version "0.32.0"
     id("signing")
 }
 
-val coreVersion = "0.1.7"
+val coreVersion = "0.1.8"
 group = "com.sourcepoint"
 version = coreVersion
 
 val description = "The internal Network & Data layers used by our mobile SDKs"
 val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
 val gitRepoUrl = "https://github.com/SourcePointUSA/mobile-core.git"
-val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 15"
+val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 16"
 
 // this generates a kotlin file with constants that can be used inside the project
 buildConfig {
@@ -124,62 +125,35 @@ tasks.withType<Test> {
     maxParallelForks = Runtime.getRuntime().availableProcessors()
 }
 
-fun fromProjectOrEnv(key: String): String? = findProperty(key) as String? ?: System.getenv(key)
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 
-publishing {
-    // These values should not be checked in to GitHub.
-    // They should be stored in your ~/.gradle/gradle.properties
-    // They can also be passed as environment variables
-    val signingKey = fromProjectOrEnv("SIGNING_KEY")
-    val signingPassword = fromProjectOrEnv("SIGNING_PASSWORD")
-    val ossrhUsername = fromProjectOrEnv("OSSRH_USERNAME")
-    val ossrhPassword = fromProjectOrEnv("OSSRH_PASSWORD")
+    signAllPublications()
 
-    publications {
-        withType<MavenPublication>().configureEach {
-            pom {
-                name = "SP Core Module"
-                description = "The internal Network & Data layers used by our mobile SDKs"
-                url = "https://github.com/SourcePointUSA/mobile-core"
+    coordinates(group.toString(), "core", version.toString())
 
-                licenses {
-                    license {
-                        name = "The Apache License, Version 2.0"
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                    }
-                }
-                developers {
-                    developer {
-                        id = "andresilveirah"
-                        name = "Andre Herculano"
-                        email = "andresilveirah@gmail.com"
-                    }
-                }
-                scm {
-                    connection = "scm:git:github.com/SourcePointUSA/mobile-core.git"
-                    developerConnection = "scm:git:ssh://github.com/SourcePointUSA/mobile-core.git"
-                    url = "https://github.com/SourcePointUSA/mobile-core/tree/main"
-                }
-            }
-            signing {
-                useInMemoryPgpKeys(signingKey, signingPassword)
-                sign(this@configureEach)
+    pom {
+        name = "SP Core Module"
+        description = "The internal Network & Data layers used by our mobile SDKs"
+        url = "https://github.com/SourcePointUSA/mobile-core"
+
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
             }
         }
-    }
-
-    repositories {
-        maven {
-            name = "sonatype"
-
-            val releasesRepoUrl = uri(project.findProperty("releasesRepoUrl") as String)
-            val snapshotsRepoUrl = uri(findProperty("snapshotsRepoUrl") as String)
-            url = if (coreVersion.contains("beta")) snapshotsRepoUrl else releasesRepoUrl
-
-            credentials {
-                username = ossrhUsername
-                password = ossrhPassword
+        developers {
+            developer {
+                id = "andresilveirah"
+                name = "Andre Herculano"
+                email = "andresilveirah@gmail.com"
             }
+        }
+        scm {
+            connection = "scm:git:github.com/SourcePointUSA/mobile-core.git"
+            developerConnection = "scm:git:ssh://github.com/SourcePointUSA/mobile-core.git"
+            url = "https://github.com/SourcePointUSA/mobile-core/tree/main"
         }
     }
 }
