@@ -520,6 +520,9 @@ class Coordinator(
         response.usnat?.let {
             state.usNat = state.usNat.copy(consents = state.usNat.consents.copy(uuid = response.usnat.uuid))
         }
+        response.globalcmp?.let {
+            state.globalcmp = state.globalcmp.copy(consents = state.globalcmp.consents.copy(uuid = response.globalcmp.uuid))
+        }
     }
 
     private suspend fun sampleAndPvData(campaign: State.SPSampleable, request: PvDataRequest) =
