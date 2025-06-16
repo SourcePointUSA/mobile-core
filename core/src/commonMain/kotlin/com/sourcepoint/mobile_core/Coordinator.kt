@@ -127,7 +127,8 @@ class Coordinator(
             },
             globalcmp = campaigns.globalcmp?.let {
                 SPUserData.SPConsent(
-                    consents = state.globalcmp.consents
+                    consents = state.globalcmp.consents,
+                    childPmId = state.globalcmp.childPmId
                 )
             }
         )
@@ -268,7 +269,8 @@ class Coordinator(
                     vendorListId = it.vendorListId,
                     additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
                     applicableSections = it.applicableSections
-                )
+                ),
+                childPmId = it.childPmId
             )
             state.globalcmp.metaData.updateSampleFields(it.sampleRate)
             if (previousApplicableSections.isNotEmpty() && previousApplicableSections != state.globalcmp.metaData.applicableSections) {
@@ -519,6 +521,9 @@ class Coordinator(
         }
         response.usnat?.let {
             state.usNat = state.usNat.copy(consents = state.usNat.consents.copy(uuid = response.usnat.uuid))
+        }
+        response.globalcmp?.let {
+            state.globalcmp = state.globalcmp.copy(consents = state.globalcmp.consents.copy(uuid = response.globalcmp.uuid))
         }
     }
 

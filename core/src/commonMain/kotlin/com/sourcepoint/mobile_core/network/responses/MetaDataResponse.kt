@@ -29,6 +29,7 @@ data class MetaDataResponse (
         val sampleRate: Float,
         val additionsChangeDate: Instant? = null,
         val applicableSections: List<Int>,
+        val childPmId: String? = null,
         @SerialName("_id") val vendorListId: String
     )
 
