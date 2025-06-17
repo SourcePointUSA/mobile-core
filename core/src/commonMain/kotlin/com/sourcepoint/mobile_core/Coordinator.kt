@@ -708,6 +708,17 @@ class Coordinator(
                 )
             )
         }
+        response.globalcmp?.let {
+            state.globalcmp = state.globalcmp.copy(
+                consents = state.globalcmp.consents.copy(
+                    dateCreated = it.dateCreated ?: now(),
+                    expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
+                    gpcEnabled = it.gpcEnabled,
+                    categories = it.categories,
+                    consentStatus = it.consentStatus
+                )
+            )
+        }
         persistState()
     }
 
@@ -910,7 +921,8 @@ class Coordinator(
                 campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
                     gdpr = if (action.campaignType == Gdpr) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.gdpr.consents.applies) else null,
                     ccpa = if (action.campaignType == Ccpa) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.ccpa.consents.applies) else null,
-                    usnat = if (action.campaignType == UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null
+                    usnat = if (action.campaignType == UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null,
+                    globalcmp = if (action.campaignType == GlobalCmp) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.globalcmp.consents.applies) else null
                 )
             )
             when (action.campaignType) {
