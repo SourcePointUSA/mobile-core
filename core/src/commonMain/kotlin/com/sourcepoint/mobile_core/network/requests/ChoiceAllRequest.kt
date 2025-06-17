@@ -19,7 +19,8 @@ data class ChoiceAllRequest (
     data class ChoiceAllCampaigns(
         val gdpr: Campaign? = null,
         val ccpa: Campaign? = null,
-        val usnat: Campaign? = null
+        val usnat: Campaign? = null,
+        val globalcmp: Campaign? = null
     ) {
         @Serializable
         data class Campaign (val applies: Boolean)
