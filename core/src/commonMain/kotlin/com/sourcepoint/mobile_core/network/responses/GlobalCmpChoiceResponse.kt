@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GlobalCmpChoiceResponse(
-    val uuid: String,
+    val uuid: String?,
     val consentStatus: ConsentStatus = ConsentStatus(),
     val dateCreated: Instant? = null,
     val expirationDate: Instant? = null,

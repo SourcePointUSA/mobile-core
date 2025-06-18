@@ -184,8 +184,8 @@ class SourcepointClientTest {
 
     private fun assertCampaignConsentsFromMessages(consents: GlobalCmpConsent?) {
         assertNotNull(consents)
-        assertIsEmpty(consents.userConsents.vendors)
-        // assertNotEmpty(consents.userConsents.categories) TODO: this is probably a bug in the backend, categories should not be empty
+        assertNotEmpty(consents.userConsents.vendors)
+        assertNotEmpty(consents.userConsents.categories)
         assertNotNull(consents.dateCreated)
         assertNotNull(consents.expirationDate)
     }
