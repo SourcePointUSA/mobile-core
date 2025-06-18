@@ -6,15 +6,12 @@ import com.sourcepoint.mobile_core.asserters.assertIsEmpty
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
-import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
-import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
-import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.GlobalCmpConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
@@ -227,8 +224,6 @@ class SourcepointClientTest {
 
         assertEquals(5, response.campaigns.size)
 
-        response.campaigns
-            .forEach { campaign ->
         response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")

@@ -26,6 +26,7 @@ data class State (
     val hasGDPRLocalData: Boolean get () = gdpr.consents.uuid != null
     val hasCCPALocalData: Boolean get () = ccpa.consents.uuid != null
     val hasUSNatLocalData: Boolean get () = usNat.consents.uuid != null
+    val hasPreferencesLocalData: Boolean get () = preferences.consents.uuid != null
     val hasGlobalCmpLocalData: Boolean get () = globalcmp.consents.uuid != null
 
     interface SPSampleable {

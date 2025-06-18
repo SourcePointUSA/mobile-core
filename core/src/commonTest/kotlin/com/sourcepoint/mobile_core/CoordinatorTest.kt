@@ -15,14 +15,9 @@ import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.LoadMessagesException
 import com.sourcepoint.mobile_core.models.SPAction
-import com.sourcepoint.mobile_core.models.SPActionType.AcceptAll
-import com.sourcepoint.mobile_core.models.SPActionType.RejectAll
-import com.sourcepoint.mobile_core.models.SPActionType.SaveAndExit
+import com.sourcepoint.mobile_core.models.SPActionType.*
 import com.sourcepoint.mobile_core.models.SPCampaign
-import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
-import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
-import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
-import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
+import com.sourcepoint.mobile_core.models.SPCampaignType.*
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPMessageLanguage.ENGLISH

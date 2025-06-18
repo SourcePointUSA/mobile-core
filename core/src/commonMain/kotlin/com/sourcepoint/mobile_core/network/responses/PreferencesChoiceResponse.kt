@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PreferencesChoiceResponse (
-    val uuid: String? = null,
+    val uuid: String,
     val configurationId: String? = null,
     val dateCreated: Instant? = null,
     val status: List<PreferencesConsent.PreferencesStatus>? = null,

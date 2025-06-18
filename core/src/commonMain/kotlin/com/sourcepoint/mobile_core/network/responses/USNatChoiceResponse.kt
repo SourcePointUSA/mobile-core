@@ -11,9 +11,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class USNatChoiceResponse (
-    val uuid: String? = null,
-    val consentStatus: ConsentStatus,
-    val consentStrings: ConsentStrings,
+    val uuid: String,
+    val consentStatus: ConsentStatus = ConsentStatus(),
+    val consentStrings: ConsentStrings = emptyList(),
     val dateCreated: Instant? = null,
     val expirationDate: Instant? = null,
     val gpcEnabled: Boolean? = null,
