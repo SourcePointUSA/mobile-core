@@ -213,6 +213,7 @@ class Coordinator(
                 consentStatus {
                     state.updateGDPRStatusForVendorListChanges()
                     state.updateUSNatStatusForVendorListChanges()
+                    state.updateGlobaCMPStatusForVendorListChanges()
                     messages = messages(language)
                     // TODO: maybe we should use `launch` here and not wait for pvData to return
                     pvData(pubData, messages)

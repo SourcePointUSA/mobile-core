@@ -561,6 +561,21 @@ class CoordinatorTest {
             )
         )
         coordinator.reportAction(SPAction(type = AcceptAll, campaignType = UsNat))
+    @Test
+    fun globalCmpPropertyAdditionsChangeDateBiggerThanConsentDateCreatedShowMessage() = runTestWithRetries {
+        val coordinator = getCoordinator(campaigns = SPCampaigns(globalcmp = SPCampaign()))
+        assertEquals(1, coordinator.loadMessages().size)
+        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = GlobalCmp))
+        coordinator.state = coordinator.state.copy(
+            globalcmp = coordinator.state.globalcmp.copy(
+                consents = coordinator.state.globalcmp.consents.copy(
+                    dateCreated = coordinator.state.globalcmp.metaData.additionsChangeDate.minus(1.days)
+                )
+            )
+        )
+        assertEquals(1, coordinator.loadMessages().size)
+    }
+
     }
 
     @Test

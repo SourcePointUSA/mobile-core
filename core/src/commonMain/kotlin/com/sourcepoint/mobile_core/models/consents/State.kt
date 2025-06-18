@@ -186,4 +186,18 @@ data class State (
         }
         usNat.consents.consentStatus = newConsentStatus
     }
+
+    fun updateGlobaCMPStatusForVendorListChanges() {
+        var newConsentStatus = globalcmp.consents.consentStatus
+        if (globalcmp.consents.dateCreated < globalcmp.metaData.additionsChangeDate) {
+            newConsentStatus = newConsentStatus.copy(vendorListAdditions = true)
+            if (globalcmp.consents.consentStatus.consentedAll == true) {
+                newConsentStatus = newConsentStatus.copy(
+                    consentedAll = false,
+                    granularStatus = newConsentStatus.granularStatus?.copy(previousOptInAll = true)
+                )
+            }
+        }
+        globalcmp.consents.consentStatus = newConsentStatus
+    }
 }
