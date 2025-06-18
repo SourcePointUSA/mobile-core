@@ -378,9 +378,12 @@ class CoordinatorTest {
             ),
             usNat = coordinator.state.usNat.copy(
                 consents = coordinator.state.usNat.consents.copy(expirationDate = now().minus(1.days))
+            ),
+            globalcmp = coordinator.state.globalcmp.copy(
+                consents = coordinator.state.globalcmp.consents.copy(expirationDate = now().minus(1.days))
             )
         )
-        assertEquals(3, coordinator.loadMessages().size)
+        assertEquals(4, coordinator.loadMessages().size)
     }
 
     @Test
@@ -547,7 +550,7 @@ class CoordinatorTest {
                 metaData = coordinator.state.gdpr.metaData.copy(vendorListId = "foo")
             )
         )
-        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
+        assertEquals(1, coordinator.loadMessages().size)
     }
 
     @Test
@@ -560,7 +563,9 @@ class CoordinatorTest {
                 metaData = coordinator.state.usNat.metaData.copy(vendorListId = "foo")
             )
         )
-        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = UsNat))
+        assertEquals(1, coordinator.loadMessages().size)
+    }
+
     @Test
     fun globalCmpPropertyAdditionsChangeDateBiggerThanConsentDateCreatedShowMessage() = runTestWithRetries {
         val coordinator = getCoordinator(campaigns = SPCampaigns(globalcmp = SPCampaign()))
@@ -576,6 +581,17 @@ class CoordinatorTest {
         assertEquals(1, coordinator.loadMessages().size)
     }
 
+    @Test
+    fun flushingConsentWhenGlobalCmpVendorListIdChanges() = runTestWithRetries {
+        val coordinator = getCoordinator(campaigns = SPCampaigns(globalcmp = SPCampaign()))
+        assertEquals(1, coordinator.loadMessages().size)
+        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = GlobalCmp))
+        coordinator.state = coordinator.state.copy(
+            globalcmp = coordinator.state.globalcmp.copy(
+                metaData = coordinator.state.globalcmp.metaData.copy(vendorListId = "foo")
+            )
+        )
+        assertEquals(1, coordinator.loadMessages().size)
     }
 
     @Test

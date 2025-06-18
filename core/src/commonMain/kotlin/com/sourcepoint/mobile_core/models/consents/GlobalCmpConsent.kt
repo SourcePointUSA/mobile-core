@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class GlobalCmpConsent (
     val applies: Boolean = false,
     val categories: List<String> = emptyList(),
-    val consentStatus: ConsentStatus = ConsentStatus(),
+    var consentStatus: ConsentStatus = ConsentStatus(),
     val dateCreated: Instant = now(),
     val expirationDate: Instant = dateCreated.inOneYear(),
     val gpcEnabled: Boolean? = null,

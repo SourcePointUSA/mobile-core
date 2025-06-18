@@ -151,6 +151,7 @@ data class State (
         gdpr.consents.expirationDate.let { if(it < now) gdpr = GDPRState() }
         ccpa.consents.expirationDate.let { if(it < now) ccpa = CCPAState() }
         usNat.consents.expirationDate.let { if(it < now) usNat = USNatState() }
+        globalcmp.consents.expirationDate.let { if(it < now) globalcmp = GlobalCmpState() }
     }
 
     fun updateGDPRStatusForVendorListChanges() {
