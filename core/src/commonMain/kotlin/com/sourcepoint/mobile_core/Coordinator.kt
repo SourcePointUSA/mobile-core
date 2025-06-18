@@ -451,43 +451,43 @@ class Coordinator(
                     accountId = accountId,
                     campaigns = MessagesRequest.Body.Campaigns(
                         gdpr = campaigns.gdpr?.let {
-                            MessagesRequest.Body.Campaigns.GDPR(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasGDPRLocalData,
                                 consentStatus = state.gdpr.consents.consentStatus
                             )
                         },
                         ios14 = campaigns.ios14?.let {
-                            MessagesRequest.Body.Campaigns.IOS14(
+                            MessagesRequest.Body.Campaigns.IOS14Campaign(
                                 targetingParams = it.targetingParams,
                                 idfaStatus = idfaStatus
                             )
                         },
                         globalcmp = campaigns.globalcmp?.let {
-                            MessagesRequest.Body.Campaigns.GlobalCmp(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasGlobalCmpLocalData,
                                 consentStatus = state.globalcmp.consents.consentStatus
                             )
                         },
                         ccpa = campaigns.ccpa?.let {
-                            MessagesRequest.Body.Campaigns.CCPA(
+                            MessagesRequest.Body.Campaigns.CCPACampaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasCCPALocalData,
                                 status = state.ccpa.consents.status
                             )
                         },
                         usnat = campaigns.usnat?.let {
-                            MessagesRequest.Body.Campaigns.USNat(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasUSNatLocalData,
                                 consentStatus = state.usNat.consents.consentStatus
                             )
                         },
                         preferences = campaigns.preferences?.let {
-                            MessagesRequest.Body.Campaigns.Preferences(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams + preferencesTargetingParams(state.preferences),
-                                hasLocalData = false
+                                hasLocalData = state.hasPreferencesLocalData
                             )
                         }
                     ),

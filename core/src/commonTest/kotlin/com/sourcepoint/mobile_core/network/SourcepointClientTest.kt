@@ -198,53 +198,30 @@ class SourcepointClientTest {
 
     @Test
     fun getMessages() = runTestWithRetries {
+        val campaignMetaData = MessagesRequest.MetaData.Campaign(applies = true)
+        val bodyCampaign = MessagesRequest.Body.Campaigns.Campaign()
         val response = api.getMessages(
             MessagesRequest(
                 body = MessagesRequest.Body(
                     propertyHref = propertyName,
                     accountId = accountId,
                     campaigns = MessagesRequest.Body.Campaigns(
-                        gdpr = MessagesRequest.Body.Campaigns.GDPR(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
-                        ),
-                        usnat = MessagesRequest.Body.Campaigns.USNat(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
-                        ),
-                        ios14 = MessagesRequest.Body.Campaigns.IOS14(
-                            idfaStatus = SPIDFAStatus.Unknown,
-                            targetingParams = null
-                        ),
-                        globalcmp = MessagesRequest.Body.Campaigns.GlobalCmp(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
-                        ),
-                        ccpa = MessagesRequest.Body.Campaigns.CCPA(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            status = CCPAConsent.CCPAConsentStatus.RejectedNone
-                        ),
-                        preferences = MessagesRequest.Body.Campaigns.Preferences(
+                        gdpr = bodyCampaign,
+                        usnat = bodyCampaign,
+                        ios14 = MessagesRequest.Body.Campaigns.IOS14Campaign(),
+                        globalcmp = bodyCampaign,
+                        preferences = MessagesRequest.Body.Campaigns.Campaign(
                             targetingParams = mapOf("_sp_lt_AI-POLICY_na" to "true"),
                             hasLocalData = false
                         )
                     ),
-                    idfaStatus = SPIDFAStatus.Unknown,
-                    consentLanguage = SPMessageLanguage.ENGLISH,
-                    campaignEnv = SPCampaignEnv.PUBLIC
+                    idfaStatus = SPIDFAStatus.Unknown
                 ),
                 metadata = MessagesRequest.MetaData(
-                    gdpr = MessagesRequest.MetaData.Campaign(applies = true),
-                    usnat = MessagesRequest.MetaData.Campaign(applies = true),
-                    ccpa = MessagesRequest.MetaData.Campaign(applies = true),
-                    globalcmp = MessagesRequest.MetaData.Campaign(applies = true),
-                ),
-                localState = null,
-                nonKeyedLocalState = null
+                    gdpr = campaignMetaData,
+                    usnat = campaignMetaData,
+                    globalcmp = campaignMetaData,
+                )
             )
         )
 
@@ -252,6 +229,7 @@ class SourcepointClientTest {
 
         response.campaigns
             .forEach { campaign ->
+        response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
             assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")
