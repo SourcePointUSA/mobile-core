@@ -354,6 +354,18 @@ class Coordinator(
                 )
             )
         }
+        response.consentStatusData.globalcmp?.let {
+            state.globalcmp = state.globalcmp.copy(
+                consents = state.globalcmp.consents.copy(
+                    uuid = it.uuid,
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    webConsentPayload = it.webConsentPayload,
+                    userConsents = it.userConsents,
+                    consentStatus = it.consentStatus
+                )
+            )
+        }
         response.consentStatusData.preferences?.let {
             state.preferences = state.preferences.copy(
                 consents = state.preferences.consents.copy(
@@ -893,6 +905,7 @@ class Coordinator(
                 dateCreated = postResponse.dateCreated ?: now(),
                 expirationDate = postResponse.expirationDate ?: postResponse.dateCreated?.inOneYear() ?: now().inOneYear(),
                 consentStatus = postResponse.consentStatus,
+                webConsentPayload = postResponse.webConsentPayload,
                 userConsents = state.globalcmp.consents.userConsents.copy(
                     categories = postResponse.userConsents.categories,
                     vendors = postResponse.userConsents.vendors

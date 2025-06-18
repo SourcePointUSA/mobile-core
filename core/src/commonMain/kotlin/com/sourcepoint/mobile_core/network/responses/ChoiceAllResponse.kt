@@ -9,6 +9,8 @@ import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
 data class ChoiceAllResponse (
@@ -81,6 +83,9 @@ data class ChoiceAllResponse (
         val dateCreated: Instant?,
         val expirationDate: Instant?,
         val rejectedAny: Boolean,
-        val gpcEnabled: Boolean?
+        val gpcEnabled: Boolean?,
+        val webConsentPayload: String?,
+        val applicableSections: JsonElement? = null,  // TODO: change type when "REGION_undefined" is fixed on wrapper side
+        val sectionId: JsonPrimitive? = null // TODO: change type when "REGION_undefined" is fixed on wrapper side
     )
 }
