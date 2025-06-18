@@ -15,7 +15,7 @@ data class USNatConsent(
     val webConsentPayload: String? = null,
     var consentStatus: ConsentStatus = ConsentStatus(),
     val consentStrings: ConsentStrings = emptyList(),
-    var userConsents: USNatUserConsents = USNatUserConsents(),
+    var userConsents: UserConsents = UserConsents(),
     @SerialName("GPPData") val gppData: IABData = emptyMap()
 ) {
     @Serializable
@@ -23,18 +23,6 @@ data class USNatConsent(
         val sectionId: Int,
         val sectionName: String,
         val consentString: String
-    )
-
-    @Serializable
-    data class USNatUserConsents (
-        val vendors: List<USNatConsentable> = emptyList(),
-        val categories: List<USNatConsentable> = emptyList()
-    )
-
-    @Serializable
-    data class USNatConsentable (
-        @SerialName("_id") val id: String,
-        val consented: Boolean
     )
 }
 
