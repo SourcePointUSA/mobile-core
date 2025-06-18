@@ -892,6 +892,7 @@ class Coordinator(
                 dateCreated = postResponse.dateCreated ?: now(),
                 expirationDate = postResponse.expirationDate ?: postResponse.dateCreated?.inOneYear() ?: now().inOneYear(),
                 consentStatus = postResponse.consentStatus,
+                webConsentPayload = postResponse.webConsentPayload,
                 userConsents = state.globalcmp.consents.userConsents.copy(
                     categories = postResponse.userConsents.categories,
                     vendors = postResponse.userConsents.vendors

@@ -15,6 +15,7 @@ data class GlobalCmpChoiceResponse(
     val expirationDate: Instant? = null,
     val gpcEnabled: Boolean? = null,
     val userConsents: UserConsents = UserConsents(),
+    val webConsentPayload: String? = null,
     val applicableSections: JsonElement? = null,  // TODO: change type when "REGION_undefined" is fixed on wrapper side
     val sectionId: JsonPrimitive? = null // TODO: change type when "REGION_undefined" is fixed on wrapper side
 )
