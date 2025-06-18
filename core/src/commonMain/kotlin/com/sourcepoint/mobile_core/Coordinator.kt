@@ -353,6 +353,18 @@ class Coordinator(
                 )
             )
         }
+        response.consentStatusData.globalcmp?.let {
+            state.usNat = state.usNat.copy(
+                consents = state.usNat.consents.copy(
+                    uuid = it.uuid,
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    webConsentPayload = it.webConsentPayload,
+                    userConsents = it.userConsents,
+                    consentStatus = it.consentStatus
+                )
+            )
+        }
         response.consentStatusData.preferences?.let {
             state.preferences = state.preferences.copy(
                 consents = state.preferences.consents.copy(
