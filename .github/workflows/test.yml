@@ -36,7 +36,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-         name: android-test-reports
+         name: ios-test-reports
          path: '**/build/reports/tests'
   android:
     runs-on: 'macos-latest'
