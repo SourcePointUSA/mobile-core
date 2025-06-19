@@ -269,7 +269,8 @@ class Coordinator(
                 metaData = state.globalcmp.metaData.copy(
                     vendorListId = it.vendorListId,
                     additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
-                    applicableSections = it.applicableSections
+                    applicableSections = it.applicableSections ?: emptyList(),
+                    legislation = it.legislation
                 ),
                 childPmId = it.childPmId
             )
