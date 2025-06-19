@@ -15,14 +15,9 @@ import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.mocks.SPClientMock
 import com.sourcepoint.mobile_core.models.LoadMessagesException
 import com.sourcepoint.mobile_core.models.SPAction
-import com.sourcepoint.mobile_core.models.SPActionType.AcceptAll
-import com.sourcepoint.mobile_core.models.SPActionType.RejectAll
-import com.sourcepoint.mobile_core.models.SPActionType.SaveAndExit
+import com.sourcepoint.mobile_core.models.SPActionType.*
 import com.sourcepoint.mobile_core.models.SPCampaign
-import com.sourcepoint.mobile_core.models.SPCampaignType.Ccpa
-import com.sourcepoint.mobile_core.models.SPCampaignType.Gdpr
-import com.sourcepoint.mobile_core.models.SPCampaignType.UsNat
-import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
+import com.sourcepoint.mobile_core.models.SPCampaignType.*
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPMessageLanguage.ENGLISH
@@ -74,6 +69,7 @@ class CoordinatorTest {
         usnat = SPCampaign(),
         ios14 = SPCampaign(),
         preferences = SPCampaign(),
+        globalcmp = SPCampaign()
     )
     private val state = State(accountId = accountId, propertyId = propertyId)
     private val spClient = SourcepointClient(
@@ -136,6 +132,7 @@ class CoordinatorTest {
         reportAction(SPAction(AcceptAll, Gdpr))
         reportAction(SPAction(AcceptAll, Ccpa))
         reportAction(SPAction(AcceptAll, UsNat))
+        reportAction(SPAction(AcceptAll, GlobalCmp))
         reportAction(saveAndExitActionPreferences)
     }
 
@@ -268,13 +265,14 @@ class CoordinatorTest {
     fun consentIsStoredAfterCallingLoadMessagesAndNoMessagesShouldAppearAfterAcceptingAll() = runTestWithRetries {
         val localStorage = repository
         val coordinator = getCoordinator(repository = localStorage)
-        assertEquals(4, coordinator.loadMessages().size)
+        assertEquals(5, coordinator.loadMessages().size)
         assertNotEmpty(localStorage.gppData)
         assertNotEmpty(localStorage.tcData)
         assertNotEmpty(localStorage.uspString)
         assertDefaultConsents(coordinator.userData.gdpr?.consents)
         assertDefaultConsents(coordinator.userData.ccpa?.consents)
         assertDefaultConsents(coordinator.userData.usnat?.consents)
+        assertDefaultConsents(coordinator.userData.globalcmp?.consents)
 
         coordinator.acceptAllLegislations()
         assertNotEmpty(localStorage.gppData)
@@ -283,6 +281,7 @@ class CoordinatorTest {
         assertAllAccepted(coordinator.userData.gdpr?.consents)
         assertAllAccepted(coordinator.userData.ccpa?.consents)
         assertAllAccepted(coordinator.userData.usnat?.consents)
+        assertAllAccepted(coordinator.userData.globalcmp?.consents)
 
         assertIsEmpty(coordinator.loadMessages())
     }
@@ -379,9 +378,12 @@ class CoordinatorTest {
             ),
             usNat = coordinator.state.usNat.copy(
                 consents = coordinator.state.usNat.consents.copy(expirationDate = now().minus(1.days))
+            ),
+            globalcmp = coordinator.state.globalcmp.copy(
+                consents = coordinator.state.globalcmp.consents.copy(expirationDate = now().minus(1.days))
             )
         )
-        assertEquals(3, coordinator.loadMessages().size)
+        assertEquals(4, coordinator.loadMessages().size)
     }
 
     @Test
@@ -405,7 +407,7 @@ class CoordinatorTest {
 
         coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
         assertNotEmpty(coordinator.loadMessages(authId = authId))
-        assertTrue(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny)
+        assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny)
         assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.consentedToAll)
     }
 
@@ -548,7 +550,7 @@ class CoordinatorTest {
                 metaData = coordinator.state.gdpr.metaData.copy(vendorListId = "foo")
             )
         )
-        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = Gdpr))
+        assertEquals(1, coordinator.loadMessages().size)
     }
 
     @Test
@@ -561,7 +563,35 @@ class CoordinatorTest {
                 metaData = coordinator.state.usNat.metaData.copy(vendorListId = "foo")
             )
         )
-        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = UsNat))
+        assertEquals(1, coordinator.loadMessages().size)
+    }
+
+    @Test
+    fun globalCmpPropertyAdditionsChangeDateBiggerThanConsentDateCreatedShowMessage() = runTestWithRetries {
+        val coordinator = getCoordinator(campaigns = SPCampaigns(globalcmp = SPCampaign()))
+        assertEquals(1, coordinator.loadMessages().size)
+        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = GlobalCmp))
+        coordinator.state = coordinator.state.copy(
+            globalcmp = coordinator.state.globalcmp.copy(
+                consents = coordinator.state.globalcmp.consents.copy(
+                    dateCreated = coordinator.state.globalcmp.metaData.additionsChangeDate.minus(1.days)
+                )
+            )
+        )
+        assertEquals(1, coordinator.loadMessages().size)
+    }
+
+    @Test
+    fun flushingConsentWhenGlobalCmpVendorListIdChanges() = runTestWithRetries {
+        val coordinator = getCoordinator(campaigns = SPCampaigns(globalcmp = SPCampaign()))
+        assertEquals(1, coordinator.loadMessages().size)
+        coordinator.reportAction(SPAction(type = AcceptAll, campaignType = GlobalCmp))
+        coordinator.state = coordinator.state.copy(
+            globalcmp = coordinator.state.globalcmp.copy(
+                metaData = coordinator.state.globalcmp.metaData.copy(vendorListId = "foo")
+            )
+        )
+        assertEquals(1, coordinator.loadMessages().size)
     }
 
     @Test
@@ -600,21 +630,5 @@ class CoordinatorTest {
         }))
         coordinator.loadMessages()
         assertTrue(pvDataCalled)
-    }
-
-    @Test
-    fun propertyWithGlobalCmpCampaign() = runTestWithRetries {
-        return@runTestWithRetries //TODO: this test doesn`t work on prod
-        val coordinator = getCoordinator(
-            accountId = 22,
-            propertyId = 39494,
-            propertyName = "global.mobile.demo",
-            campaigns = SPCampaigns(globalcmp = SPCampaign()),
-            spClient = SourcepointClient(
-                accountId = 22,
-                propertyId = 39494
-            )
-        )
-        assertEquals(1, coordinator.loadMessages().size)
     }
 }

@@ -2,8 +2,10 @@ package com.sourcepoint.mobile_core.asserters
 
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
+import com.sourcepoint.mobile_core.models.consents.GlobalCmpConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.fail
 
 fun assertAllAccepted(gdpr: GDPRConsent?, checkIABData: Boolean = true) {
@@ -106,6 +108,23 @@ fun assertAllAccepted(usnat: USNatConsent?, checkIABData: Boolean = true) {
     if (checkIABData) assertNotEmpty(usnat?.gppData, "$prefix gppData is empty or null")
 }
 
+fun assertAllAccepted(globalcmp: GlobalCmpConsent?, checkIABData: Boolean = true) {
+    val prefix = "Expected globalcmp consent to be all accepted, but "
+    globalcmp ?: { fail("$prefix but it was null") }
+
+    globalcmp?.apply {
+        assertNotNull(consentStatus, "$prefix consentStatus is null")
+        assertTrue(
+            userConsents.categories.all { it.consented },
+            "$prefix userConsents.categories is either null or some of it are not consented"
+        )
+        assertTrue(
+            userConsents.vendors.all { it.consented },
+            "$prefix userConsents.vendors is either null or some of it are not consented"
+        )
+    }
+}
+
 fun assertAllRejected(usnat: USNatConsent?, checkIABData: Boolean = true) {
     val prefix = "Expected usnat consent to be all rejected, but "
     usnat ?: { fail("$prefix but it was null") }
@@ -126,4 +145,17 @@ fun assertDefaultConsents(usnat: USNatConsent?, checkIABData: Boolean = true) {
     usnat ?: { fail("$prefix but it was null") }
     assertNotEmpty(usnat?.consentStrings, "$prefix consentStrings is empty or null")
     if (checkIABData) assertNotEmpty(usnat?.gppData, "$prefix gppData is empty or null")
+}
+
+fun assertDefaultConsents(globalCmp: GlobalCmpConsent?) {
+    val prefix = "Expected globalcmp consent to default values, but "
+    globalCmp ?: { fail("$prefix but it was null") }
+
+    globalCmp?.apply {
+        assertNotNull(dateCreated, "$prefix dateCreated is null")
+        assertNotNull(expirationDate, "$prefix expirationDate is null")
+        assertNotNull(consentStatus, "$prefix consentStatus is null")
+        assertNotNull(userConsents, "$prefix userConsents is null")
+        assertNotEmpty(webConsentPayload, "$prefix webConsentPayload is null or empty")
+    }
 }

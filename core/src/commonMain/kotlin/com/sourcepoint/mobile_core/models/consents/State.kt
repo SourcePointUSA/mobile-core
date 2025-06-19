@@ -26,6 +26,7 @@ data class State (
     val hasGDPRLocalData: Boolean get () = gdpr.consents.uuid != null
     val hasCCPALocalData: Boolean get () = ccpa.consents.uuid != null
     val hasUSNatLocalData: Boolean get () = usNat.consents.uuid != null
+    val hasPreferencesLocalData: Boolean get () = preferences.consents.uuid != null
     val hasGlobalCmpLocalData: Boolean get () = globalcmp.consents.uuid != null
 
     interface SPSampleable {
@@ -121,7 +122,8 @@ data class State (
             override var wasSampled: Boolean? = null,
             override var wasSampledAt: Float? = null,
             val vendorListId: String? = null,
-            val applicableSections: List<Int> = emptyList()
+            val applicableSections: List<String> = emptyList(),
+            val legislation: String? = null,
         ): SPSampleable
 
         fun resetStateIfVendorListChanges(newVendorListId: String): GlobalCmpState =
@@ -150,6 +152,7 @@ data class State (
         gdpr.consents.expirationDate.let { if(it < now) gdpr = GDPRState() }
         ccpa.consents.expirationDate.let { if(it < now) ccpa = CCPAState() }
         usNat.consents.expirationDate.let { if(it < now) usNat = USNatState() }
+        globalcmp.consents.expirationDate.let { if(it < now) globalcmp = GlobalCmpState() }
     }
 
     fun updateGDPRStatusForVendorListChanges() {
@@ -184,5 +187,19 @@ data class State (
             }
         }
         usNat.consents.consentStatus = newConsentStatus
+    }
+
+    fun updateGlobaCMPStatusForVendorListChanges() {
+        var newConsentStatus = globalcmp.consents.consentStatus
+        if (globalcmp.consents.dateCreated < globalcmp.metaData.additionsChangeDate) {
+            newConsentStatus = newConsentStatus.copy(vendorListAdditions = true)
+            if (globalcmp.consents.consentStatus.consentedAll == true) {
+                newConsentStatus = newConsentStatus.copy(
+                    consentedAll = false,
+                    granularStatus = newConsentStatus.granularStatus?.copy(previousOptInAll = true)
+                )
+            }
+        }
+        globalcmp.consents.consentStatus = newConsentStatus
     }
 }

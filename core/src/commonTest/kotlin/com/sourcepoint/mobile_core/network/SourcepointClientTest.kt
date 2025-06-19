@@ -6,15 +6,12 @@ import com.sourcepoint.mobile_core.asserters.assertIsEmpty
 import com.sourcepoint.mobile_core.asserters.assertNotEmpty
 import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
-import com.sourcepoint.mobile_core.models.SPCampaignEnv
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
-import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
-import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
 import com.sourcepoint.mobile_core.models.consents.GlobalCmpConsent
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
@@ -70,6 +67,7 @@ class SourcepointClientTest {
                 gdpr = MetaDataRequest.Campaigns.Campaign(groupPmId = "123"),
                 usnat = MetaDataRequest.Campaigns.Campaign(),
                 ccpa = MetaDataRequest.Campaigns.Campaign(),
+                globalcmp = MetaDataRequest.Campaigns.Campaign(),
                 preferences = MetaDataRequest.Campaigns.Campaign()
             )
         )
@@ -89,6 +87,14 @@ class SourcepointClientTest {
         assertNotEmpty(response.preferences?.configurationId)
         assertNotEmpty(response.preferences?.legalDocLiveDate)
         assertNotNull(response.preferences?.additionsChangeDate)
+
+        assertNotNull(response.globalcmp)
+        response.globalcmp?.apply {
+            assertNotEmpty(vendorListId)
+            assertNotEmpty(applicableSections)
+            assertTrue(applies)
+            assertEquals(1.0f, sampleRate)
+        }
     }
 
     @Test
@@ -178,7 +184,7 @@ class SourcepointClientTest {
 
     private fun assertCampaignConsentsFromMessages(consents: GlobalCmpConsent?) {
         assertNotNull(consents)
-        assertIsEmpty(consents.userConsents.vendors)
+        assertNotEmpty(consents.userConsents.vendors)
         assertNotEmpty(consents.userConsents.categories)
         assertNotNull(consents.dateCreated)
         assertNotNull(consents.expirationDate)
@@ -198,60 +204,36 @@ class SourcepointClientTest {
 
     @Test
     fun getMessages() = runTestWithRetries {
+        val campaignMetaData = MessagesRequest.MetaData.Campaign(applies = true)
+        val bodyCampaign = MessagesRequest.Body.Campaigns.Campaign()
         val response = api.getMessages(
             MessagesRequest(
                 body = MessagesRequest.Body(
                     propertyHref = propertyName,
                     accountId = accountId,
                     campaigns = MessagesRequest.Body.Campaigns(
-                        gdpr = MessagesRequest.Body.Campaigns.GDPR(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
-                        ),
-                        usnat = MessagesRequest.Body.Campaigns.USNat(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
-                        ),
-                        ios14 = MessagesRequest.Body.Campaigns.IOS14(
-                            idfaStatus = SPIDFAStatus.Unknown,
-                            targetingParams = null
-                        ),
-                        globalcmp = MessagesRequest.Body.Campaigns.GlobalCmp(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            consentStatus = ConsentStatus()
-                        ),
-                        ccpa = MessagesRequest.Body.Campaigns.CCPA(
-                            targetingParams = null,
-                            hasLocalData = false,
-                            status = CCPAConsent.CCPAConsentStatus.RejectedNone
-                        ),
-                        preferences = MessagesRequest.Body.Campaigns.Preferences(
+                        gdpr = bodyCampaign,
+                        usnat = bodyCampaign,
+                        ios14 = MessagesRequest.Body.Campaigns.IOS14Campaign(),
+                        globalcmp = bodyCampaign,
+                        preferences = MessagesRequest.Body.Campaigns.Campaign(
                             targetingParams = mapOf("_sp_lt_AI-POLICY_na" to "true"),
                             hasLocalData = false
                         )
                     ),
-                    idfaStatus = SPIDFAStatus.Unknown,
-                    consentLanguage = SPMessageLanguage.ENGLISH,
-                    campaignEnv = SPCampaignEnv.PUBLIC
+                    idfaStatus = SPIDFAStatus.Unknown
                 ),
                 metadata = MessagesRequest.MetaData(
-                    gdpr = MessagesRequest.MetaData.Campaign(applies = true),
-                    usnat = MessagesRequest.MetaData.Campaign(applies = true),
-                    ccpa = MessagesRequest.MetaData.Campaign(applies = true),
-                    globalcmp = MessagesRequest.MetaData.Campaign(applies = true),
-                ),
-                localState = null,
-                nonKeyedLocalState = null
+                    gdpr = campaignMetaData,
+                    usnat = campaignMetaData,
+                    globalcmp = campaignMetaData,
+                )
             )
         )
 
         assertEquals(5, response.campaigns.size)
 
-        response.campaigns
-            .forEach { campaign ->
+        response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
             assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")

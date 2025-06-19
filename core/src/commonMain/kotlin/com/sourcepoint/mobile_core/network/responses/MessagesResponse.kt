@@ -12,6 +12,7 @@ import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.PreferencesConsent
 import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import com.sourcepoint.mobile_core.models.consents.USNatConsent
+import com.sourcepoint.mobile_core.models.consents.UserConsents
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageCategory
 import com.sourcepoint.mobile_core.network.responses.MessagesResponse.MessageMetaData.MessageSubCategory
 import com.sourcepoint.mobile_core.utils.IntEnum
@@ -161,9 +162,10 @@ data class MessagesResponse(
     data class GlobalCmp(
         override val type: SPCampaignType = SPCampaignType.GlobalCmp,
         private val consentStatus: ConsentStatus?,
-        private val userConsents: USNatConsent.USNatUserConsents?,
+        private val userConsents: UserConsents?,
         private val dateCreated: Instant?,
         private val expirationDate: Instant?,
+        private val webConsentPayload: String? = null,
         override val derivedConsents: GlobalCmpConsent? = if (
             userConsents != null &&
             consentStatus != null
@@ -171,12 +173,14 @@ data class MessagesResponse(
             dateCreated = dateCreated ?: now(),
             expirationDate = expirationDate ?: dateCreated?.inOneYear() ?: now().inOneYear(),
             consentStatus = consentStatus,
-            userConsents = userConsents
+            userConsents = userConsents,
+            webConsentPayload = webConsentPayload
         ) else null
     ): Campaign<GlobalCmpConsent?>() {
         override fun toConsent(default: GlobalCmpConsent?): GlobalCmpConsent? =
             if (derivedConsents != null){
                 default?.copy(
+                    webConsentPayload = webConsentPayload,
                     dateCreated = derivedConsents.dateCreated,
                     expirationDate = derivedConsents.expirationDate,
                     userConsents = default.userConsents.copy(
@@ -196,7 +200,7 @@ data class MessagesResponse(
         override val type: SPCampaignType = SPCampaignType.UsNat,
         private val consentStatus: ConsentStatus?,
         private val consentStrings: ConsentStrings?,
-        private val userConsents: USNatConsent.USNatUserConsents?,
+        private val userConsents: UserConsents?,
         private val dateCreated: Instant?,
         private val expirationDate: Instant?,
         private val webConsentPayload: String?,

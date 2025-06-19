@@ -32,6 +32,12 @@ jobs:
             ~/.konan/**/*
           key: kotlin-konan-${{ runner.os }}-ios
       - run: ./gradlew :core:iosSimulatorArm64Test
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+         name: ios-test-reports
+         path: '**/build/reports/tests'
   android:
     runs-on: 'macos-latest'
     steps:
@@ -51,3 +57,9 @@ jobs:
             ~/.konan/**/*
           key: kotlin-konan-${{ runner.os }}-android
       - run: ./gradlew :core:testDebugUnitTest
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-reports
+          path: '**/build/reports/tests'

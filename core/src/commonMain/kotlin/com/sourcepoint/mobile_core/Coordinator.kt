@@ -213,6 +213,7 @@ class Coordinator(
                 consentStatus {
                     state.updateGDPRStatusForVendorListChanges()
                     state.updateUSNatStatusForVendorListChanges()
+                    state.updateGlobaCMPStatusForVendorListChanges()
                     messages = messages(language)
                     // TODO: maybe we should use `launch` here and not wait for pvData to return
                     pvData(pubData, messages)
@@ -268,7 +269,8 @@ class Coordinator(
                 metaData = state.globalcmp.metaData.copy(
                     vendorListId = it.vendorListId,
                     additionsChangeDate = it.additionsChangeDate ?: Instant.DISTANT_PAST,
-                    applicableSections = it.applicableSections
+                    applicableSections = it.applicableSections ?: emptyList(),
+                    legislation = it.legislation
                 ),
                 childPmId = it.childPmId
             )
@@ -350,6 +352,18 @@ class Coordinator(
                     userConsents = it.userConsents,
                     consentStatus = it.consentStatus,
                     gppData = it.gppData
+                )
+            )
+        }
+        response.consentStatusData.globalcmp?.let {
+            state.globalcmp = state.globalcmp.copy(
+                consents = state.globalcmp.consents.copy(
+                    uuid = it.uuid,
+                    dateCreated = it.dateCreated,
+                    expirationDate = it.expirationDate,
+                    webConsentPayload = it.webConsentPayload,
+                    userConsents = it.userConsents,
+                    consentStatus = it.consentStatus
                 )
             )
         }
@@ -451,43 +465,43 @@ class Coordinator(
                     accountId = accountId,
                     campaigns = MessagesRequest.Body.Campaigns(
                         gdpr = campaigns.gdpr?.let {
-                            MessagesRequest.Body.Campaigns.GDPR(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasGDPRLocalData,
                                 consentStatus = state.gdpr.consents.consentStatus
                             )
                         },
                         ios14 = campaigns.ios14?.let {
-                            MessagesRequest.Body.Campaigns.IOS14(
+                            MessagesRequest.Body.Campaigns.IOS14Campaign(
                                 targetingParams = it.targetingParams,
                                 idfaStatus = idfaStatus
                             )
                         },
                         globalcmp = campaigns.globalcmp?.let {
-                            MessagesRequest.Body.Campaigns.GlobalCmp(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasGlobalCmpLocalData,
                                 consentStatus = state.globalcmp.consents.consentStatus
                             )
                         },
                         ccpa = campaigns.ccpa?.let {
-                            MessagesRequest.Body.Campaigns.CCPA(
+                            MessagesRequest.Body.Campaigns.CCPACampaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasCCPALocalData,
                                 status = state.ccpa.consents.status
                             )
                         },
                         usnat = campaigns.usnat?.let {
-                            MessagesRequest.Body.Campaigns.USNat(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams,
                                 hasLocalData = state.hasUSNatLocalData,
                                 consentStatus = state.usNat.consents.consentStatus
                             )
                         },
                         preferences = campaigns.preferences?.let {
-                            MessagesRequest.Body.Campaigns.Preferences(
+                            MessagesRequest.Body.Campaigns.Campaign(
                                 targetingParams = it.targetingParams + preferencesTargetingParams(state.preferences),
-                                hasLocalData = false
+                                hasLocalData = state.hasPreferencesLocalData
                             )
                         }
                     ),
@@ -708,6 +722,18 @@ class Coordinator(
                 )
             )
         }
+        response.globalcmp?.let {
+            state.globalcmp = state.globalcmp.copy(
+                consents = state.globalcmp.consents.copy(
+                    dateCreated = it.dateCreated ?: now(),
+                    expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
+                    gpcEnabled = it.gpcEnabled,
+                    categories = it.categories,
+                    consentStatus = it.consentStatus,
+                    webConsentPayload = it.webConsentPayload,
+                )
+            )
+        }
         persistState()
     }
 
@@ -881,6 +907,7 @@ class Coordinator(
                 dateCreated = postResponse.dateCreated ?: now(),
                 expirationDate = postResponse.expirationDate ?: postResponse.dateCreated?.inOneYear() ?: now().inOneYear(),
                 consentStatus = postResponse.consentStatus,
+                webConsentPayload = postResponse.webConsentPayload,
                 userConsents = state.globalcmp.consents.userConsents.copy(
                     categories = postResponse.userConsents.categories,
                     vendors = postResponse.userConsents.vendors
@@ -910,7 +937,8 @@ class Coordinator(
                 campaigns = ChoiceAllRequest.ChoiceAllCampaigns(
                     gdpr = if (action.campaignType == Gdpr) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.gdpr.consents.applies) else null,
                     ccpa = if (action.campaignType == Ccpa) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.ccpa.consents.applies) else null,
-                    usnat = if (action.campaignType == UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null
+                    usnat = if (action.campaignType == UsNat) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.usNat.consents.applies) else null,
+                    globalcmp = if (action.campaignType == GlobalCmp) ChoiceAllRequest.ChoiceAllCampaigns.Campaign(applies = state.globalcmp.consents.applies) else null
                 )
             )
             when (action.campaignType) {

@@ -9,12 +9,15 @@ import com.sourcepoint.mobile_core.models.consents.SPGDPRVendorGrants
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
 data class ChoiceAllResponse (
     val gdpr: GDPR? = null,
     val ccpa: CCPA? = null,
-    val usnat: USNAT? = null
+    val usnat: USNAT? = null,
+    val globalcmp: GLOBALCMP? = null
 ) {
     @Serializable
     data class GDPR (
@@ -70,5 +73,17 @@ data class ChoiceAllResponse (
         val gpcEnabled: Boolean?,
         val webConsentPayload: String?,
         @SerialName("GPPData") val gppData: IABData = emptyMap()
+    )
+
+    @Serializable
+    data class GLOBALCMP (
+        val categories: List<String>,
+        val consentStatus: ConsentStatus,
+        val consentedToAll: Boolean,
+        val dateCreated: Instant?,
+        val expirationDate: Instant?,
+        val rejectedAny: Boolean,
+        val gpcEnabled: Boolean?,
+        val webConsentPayload: String?,
     )
 }

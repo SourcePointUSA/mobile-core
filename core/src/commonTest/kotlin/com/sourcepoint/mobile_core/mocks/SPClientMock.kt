@@ -4,9 +4,7 @@ import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
-import com.sourcepoint.mobile_core.models.consents.ConsentStatus
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
-import com.sourcepoint.mobile_core.models.consents.USNatConsent
 import com.sourcepoint.mobile_core.network.SPClient
 import com.sourcepoint.mobile_core.network.requests.CCPAChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.ChoiceAllRequest
@@ -72,11 +70,7 @@ class SPClientMock(
     override suspend fun postChoiceUSNatAction(actionType: SPActionType, request: USNatChoiceRequest) =
         postChoiceUSNATAction?.invoke() ?:
             original?.postChoiceUSNatAction(actionType, request) ?:
-            USNatChoiceResponse(
-                consentStatus = ConsentStatus(),
-                consentStrings = emptyList(),
-                userConsents = USNatConsent.USNatUserConsents()
-            )
+            USNatChoiceResponse(uuid = "")
 
     override suspend fun postChoiceGlobalCmpAction(
         actionType: SPActionType,
@@ -84,14 +78,11 @@ class SPClientMock(
     ): GlobalCmpChoiceResponse =
         postChoiceGLOBALCMPAction?.invoke() ?:
         original?.postChoiceGlobalCmpAction(actionType, request) ?:
-        GlobalCmpChoiceResponse(
-            consentStatus = ConsentStatus(),
-            userConsents = USNatConsent.USNatUserConsents()
-        )
+        GlobalCmpChoiceResponse(uuid = "")
 
     override suspend fun postChoicePreferencesAction(actionType: SPActionType, request: PreferencesChoiceRequest) =
         original?.postChoicePreferencesAction(actionType, request) ?:
-        PreferencesChoiceResponse()
+        PreferencesChoiceResponse(uuid = "")
 
     override suspend fun getChoiceAll(actionType: SPActionType, campaigns: ChoiceAllRequest.ChoiceAllCampaigns) =
         getChoiceAll?.invoke() ?:

@@ -22,6 +22,9 @@ data class SPUserData(
         usnat = usnat?.consents?.uuid?.let {
             SPWebConsents.SPWebConsent(it, usnat.consents.webConsentPayload?.encodeToJsonObject())
         },
+        globalcmp = globalcmp?.consents?.uuid?.let {
+            SPWebConsents.SPWebConsent(it, globalcmp.consents.webConsentPayload?.encodeToJsonObject())
+        }
     )
 
     @Serializable
@@ -34,7 +37,8 @@ data class SPUserData(
     data class SPWebConsents(
         val gdpr: SPWebConsent?,
         val ccpa: SPWebConsent?,
-        val usnat: SPWebConsent?
+        val usnat: SPWebConsent?,
+        val globalcmp: SPWebConsent?
     ) {
         @Serializable
         data class SPWebConsent(val uuid: String, val webConsentPayload: JsonObject?)

@@ -13,78 +13,57 @@ import kotlinx.serialization.Serializable
 data class MessagesRequest(
     val body: Body,
     val metadata: MetaData,
-    val nonKeyedLocalState: String?,
-    val localState: String?
+    val nonKeyedLocalState: String? = null,
+    val localState: String? = null
 ): DefaultRequest() {
     @Serializable
     data class Body(
         val propertyHref: SPPropertyName,
         val accountId: Int,
         val campaigns: Campaigns,
-        val consentLanguage: SPMessageLanguage?,
+        val consentLanguage: SPMessageLanguage? = null,
         val hasCSP: Boolean = true,
-        val campaignEnv: SPCampaignEnv?,
+        val campaignEnv: SPCampaignEnv = SPCampaignEnv.PUBLIC,
         val idfaStatus: SPIDFAStatus? = SPIDFAStatus.current(),
         val includeData: IncludeData = IncludeData()
     ) {
         @Serializable
         data class Campaigns(
-            val gdpr: GDPR?,
-            val ios14: IOS14?,
-            val ccpa: CCPA?,
-            val globalcmp: GlobalCmp?,
-            val usnat: USNat?,
-            val preferences: Preferences?
+            val gdpr: Campaign? = null,
+            val ios14: IOS14Campaign? = null,
+            val ccpa: CCPACampaign? = null,
+            val globalcmp: Campaign? = null,
+            val usnat: Campaign? = null,
+            val preferences: Campaign? = null
         ) {
             @Serializable
-            data class GDPR(
-                val targetingParams: SPTargetingParams?,
-                val hasLocalData: Boolean,
-                val consentStatus: ConsentStatus?
+            data class Campaign(
+                val targetingParams: SPTargetingParams? = null,
+                val hasLocalData: Boolean = false,
+                val consentStatus: ConsentStatus = ConsentStatus()
             )
 
             @Serializable
-            data class IOS14(
-                val targetingParams: SPTargetingParams?,
-                val idfaStatus: SPIDFAStatus?
+            data class IOS14Campaign(
+                val targetingParams: SPTargetingParams? = null,
+                val idfaStatus: SPIDFAStatus? = null
             )
 
             @Serializable
-            data class GlobalCmp(
-                val targetingParams: SPTargetingParams?,
+            data class CCPACampaign(
+                val targetingParams: SPTargetingParams? = null,
                 val hasLocalData: Boolean,
-                val consentStatus: ConsentStatus?
-            )
-
-            @Serializable
-            data class USNat(
-                val targetingParams: SPTargetingParams?,
-                val hasLocalData: Boolean,
-                val consentStatus: ConsentStatus?
-            )
-
-            @Serializable
-            data class CCPA(
-                val targetingParams: SPTargetingParams?,
-                val hasLocalData: Boolean,
-                val status: CCPAConsent.CCPAConsentStatus?
-            )
-
-            @Serializable
-            data class Preferences(
-                val targetingParams: SPTargetingParams?,
-                val hasLocalData: Boolean,
-                val consentStatus: Map<String, Boolean> = emptyMap()
+                val status: CCPAConsent.CCPAConsentStatus? = null
             )
         }
     }
 
     @Serializable
     data class MetaData(
-        val gdpr: Campaign?,
-        val globalcmp: Campaign?,
-        val usnat: Campaign?,
-        val ccpa: Campaign?
+        val gdpr: Campaign? = null,
+        val globalcmp: Campaign? = null,
+        val usnat: Campaign? = null,
+        val ccpa: Campaign? = null
     ) {
         @Serializable
         data class Campaign(val applies: Boolean)
