@@ -1,3 +1,6 @@
+## 0.1.9 (Jun, 14, 2025)
+* added support to `globalcmp` campaign type
+
 ## 0.1.8 (Jun, 14, 2025)
 * migrated to new Maven Central repository
 
