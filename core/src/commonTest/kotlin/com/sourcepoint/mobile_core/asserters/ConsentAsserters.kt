@@ -109,7 +109,7 @@ fun assertAllAccepted(usnat: USNatConsent?, checkIABData: Boolean = true) {
 }
 
 fun assertAllAccepted(globalcmp: GlobalCmpConsent?, checkIABData: Boolean = true) {
-    val prefix = "Expected usnat consent to be all accepted, but "
+    val prefix = "Expected globalcmp consent to be all accepted, but "
     globalcmp ?: { fail("$prefix but it was null") }
 
     globalcmp?.apply {
@@ -156,6 +156,6 @@ fun assertDefaultConsents(globalCmp: GlobalCmpConsent?) {
         assertNotNull(expirationDate, "$prefix expirationDate is null")
         assertNotNull(consentStatus, "$prefix consentStatus is null")
         assertNotNull(userConsents, "$prefix userConsents is null")
-        assertNotEmpty(webConsentPayload, "$prefix webConsentPayload is null")
+        assertNotEmpty(webConsentPayload, "$prefix webConsentPayload is null or empty")
     }
 }
