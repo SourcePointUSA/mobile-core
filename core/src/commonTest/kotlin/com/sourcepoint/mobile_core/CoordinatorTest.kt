@@ -407,7 +407,7 @@ class CoordinatorTest {
 
         coordinator = getCoordinator(campaigns = SPCampaigns(usnat = SPCampaign(transitionCCPAAuth = true)))
         assertNotEmpty(coordinator.loadMessages(authId = authId))
-//        assertTrue(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny) TODO: this must be a bug in the backend, it should be true
+        assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.rejectedAny)
         assertFalse(coordinator.userData.usnat?.consents?.consentStatus?.consentedToAll)
     }
 

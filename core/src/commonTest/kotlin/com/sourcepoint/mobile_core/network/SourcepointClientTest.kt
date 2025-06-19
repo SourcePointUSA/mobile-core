@@ -91,8 +91,8 @@ class SourcepointClientTest {
         assertNotNull(response.globalcmp)
         response.globalcmp?.apply {
             assertNotEmpty(vendorListId)
-//            assertNotEmpty(applicableSections) TODO: this is probably a bug in the backend, applicableSections should not be empty
-//            assertTrue(applies) TODO: this is probably a bug in the backend, applies should be true
+            assertNotEmpty(applicableSections)
+            assertTrue(applies)
             assertEquals(1.0f, sampleRate)
         }
     }

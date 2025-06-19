@@ -1,6 +1,7 @@
 package com.sourcepoint.mobile_core.models.consents
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class ConsentStatus (
@@ -28,6 +29,8 @@ data class ConsentStatus (
         val sellStatus: Boolean? = null,
         val shareStatus: Boolean? = null,
         val sensitiveDataStatus: Boolean? = null,
-        var gpcStatus: Boolean? = null
+        var gpcStatus: Boolean? = null,
+        val systemCategories: JsonElement? = null,
+        val customCategories: JsonElement? = null,
     )
 }

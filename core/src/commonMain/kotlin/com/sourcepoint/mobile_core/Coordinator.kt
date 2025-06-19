@@ -729,7 +729,8 @@ class Coordinator(
                     expirationDate = it.expirationDate ?: it.dateCreated?.inOneYear() ?: now().inOneYear(),
                     gpcEnabled = it.gpcEnabled,
                     categories = it.categories,
-                    consentStatus = it.consentStatus
+                    consentStatus = it.consentStatus,
+                    webConsentPayload = it.webConsentPayload,
                 )
             )
         }

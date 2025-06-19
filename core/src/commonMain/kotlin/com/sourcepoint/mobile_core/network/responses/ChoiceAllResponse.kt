@@ -85,7 +85,5 @@ data class ChoiceAllResponse (
         val rejectedAny: Boolean,
         val gpcEnabled: Boolean?,
         val webConsentPayload: String?,
-        val applicableSections: JsonElement? = null,  // TODO: change type when "REGION_undefined" is fixed on wrapper side
-        val sectionId: JsonPrimitive? = null // TODO: change type when "REGION_undefined" is fixed on wrapper side
     )
 }
