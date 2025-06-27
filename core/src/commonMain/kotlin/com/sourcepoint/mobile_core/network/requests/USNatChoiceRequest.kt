@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class USNatChoiceRequest (
+    val accountId: Int? = null,
     val authId: String? = null,
     val uuid: String? = null,
     val messageId: String? = null,

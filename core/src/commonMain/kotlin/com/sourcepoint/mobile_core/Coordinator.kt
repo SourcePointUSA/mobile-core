@@ -787,6 +787,7 @@ class Coordinator(
     private suspend fun postChoiceUSNat(action: SPAction) = spClient.postChoiceUSNatAction(
         actionType = action.type,
         request = USNatChoiceRequest(
+            accountId = accountId,
             authId = authId,
             uuid = state.usNat.consents.uuid,
             messageId = action.messageId,
@@ -805,6 +806,7 @@ class Coordinator(
     private suspend fun postChoiceGlobalCmp(action: SPAction) = spClient.postChoiceGlobalCmpAction(
         actionType = action.type,
         request = GlobalCmpChoiceRequest(
+            accountId = accountId,
             authId = authId,
             uuid = state.globalcmp.consents.uuid,
             messageId = action.messageId,
