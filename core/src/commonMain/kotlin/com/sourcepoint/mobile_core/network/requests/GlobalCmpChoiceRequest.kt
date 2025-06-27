@@ -18,5 +18,6 @@ class GlobalCmpChoiceRequest(
     val propertyId: Int,
     val sampleRate: Float,
     val granularStatus: ConsentStatus.ConsentStatusGranularStatus? = null,
-    val includeData: IncludeData = IncludeData()
+    val includeData: IncludeData = IncludeData(),
+    val prtnUUID: String? = null
 )

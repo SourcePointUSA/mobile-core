@@ -437,8 +437,14 @@ class Coordinator(
             when (it.type) {
                 Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent)
                 Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent)
-                UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat.consents) as USNatConsent)
-                GlobalCmp -> state.globalcmp = state.globalcmp.copy(consents = it.toConsent(default = state.globalcmp.consents) as GlobalCmpConsent)
+                UsNat -> state.usNat = state.usNat.copy(
+                    consents = it.toConsent(default = state.usNat.consents) as USNatConsent,
+                    metaData = state.usNat.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
+                )
+                GlobalCmp -> state.globalcmp = state.globalcmp.copy(
+                    consents = it.toConsent(default = state.globalcmp.consents) as GlobalCmpConsent,
+                    metaData = state.globalcmp.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
+                )
                 IOS14 -> {
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
@@ -799,7 +805,8 @@ class Coordinator(
             sampleRate = state.usNat.metaData.sampleRate,
             idfaStatus = idfaStatus,
             granularStatus = state.usNat.consents.consentStatus.granularStatus,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.globalcmp.metaData.messagePartitionUUID
         )
     )
 
@@ -817,7 +824,8 @@ class Coordinator(
             propertyId = propertyId,
             sampleRate = state.globalcmp.metaData.sampleRate,
             granularStatus = state.globalcmp.consents.consentStatus.granularStatus,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.globalcmp.metaData.messagePartitionUUID
         )
     )
 

@@ -98,7 +98,8 @@ data class State (
             override var wasSampled: Boolean? = null,
             override var wasSampledAt: Float? = null,
             val vendorListId: String? = null,
-            val applicableSections: List<Int> = emptyList()
+            val applicableSections: List<Int> = emptyList(),
+            val messagePartitionUUID : String? = null
         ): SPSampleable
 
         fun resetStateIfVendorListChanges(newVendorListId: String): USNatState =
@@ -124,6 +125,7 @@ data class State (
             val vendorListId: String? = null,
             val applicableSections: List<String> = emptyList(),
             val legislation: String? = null,
+            val messagePartitionUUID : String? = null
         ): SPSampleable
 
         fun resetStateIfVendorListChanges(newVendorListId: String): GlobalCmpState =
