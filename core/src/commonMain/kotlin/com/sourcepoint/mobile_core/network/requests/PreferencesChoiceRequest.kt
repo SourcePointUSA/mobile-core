@@ -11,5 +11,6 @@ data class PreferencesChoiceRequest (
     val authId: String? = null,
     val uuid: String? = null,
     val pmSaveAndExitVariables: JsonObject = JsonObject(emptyMap()),
-    val includeData: IncludeData = IncludeData()
+    val includeData: IncludeData = IncludeData(),
+    val prtnUUID: String? = null
 )
