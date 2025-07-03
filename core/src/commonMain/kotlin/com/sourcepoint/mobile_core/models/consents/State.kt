@@ -145,11 +145,14 @@ data class State (
     ) {
         @Serializable
         data class PreferencesMetaData(
+            override var sampleRate: Float = 1f,
+            override var wasSampled: Boolean? = null,
+            override var wasSampledAt: Float? = null,
             val configurationId: String = "",
             val additionsChangeDate: Instant = Instant.DISTANT_PAST,
             val legalDocLiveDate: Map<PreferencesConsent.PreferencesSubType, Instant>? = null,
             val messagePartitionUUID : String? = null
-        )
+        ): SPSampleable
     }
 
     private fun expireStateBasedOnExpiryDates() {
