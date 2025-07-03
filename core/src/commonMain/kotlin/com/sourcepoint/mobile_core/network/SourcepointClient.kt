@@ -39,6 +39,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -61,52 +62,52 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KSuspendFunction1
 
 interface SPClient {
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun postPvData(request: PvDataRequest): PvDataResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun postChoiceGDPRAction(
         actionType: SPActionType,
         request: GDPRChoiceRequest
     ): GDPRChoiceResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun postChoiceCCPAAction(
         actionType: SPActionType,
         request: CCPAChoiceRequest
     ): CCPAChoiceResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun postChoiceUSNatAction(
         actionType: SPActionType,
         request: USNatChoiceRequest
     ): USNatChoiceResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun postChoiceGlobalCmpAction(
         actionType: SPActionType,
         request: GlobalCmpChoiceRequest
     ): GlobalCmpChoiceResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun postChoicePreferencesAction(
         actionType: SPActionType,
         request: PreferencesChoiceRequest
     ): PreferencesChoiceResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun getChoiceAll(
         actionType: SPActionType,
         campaigns: ChoiceAllRequest.ChoiceAllCampaigns
     ): ChoiceAllResponse
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
 
     suspend fun postReportIdfaStatus(
@@ -120,7 +121,7 @@ interface SPClient {
         partitionUUID: String?
     )
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun customConsentGDPR(
         consentUUID: String,
         propertyId: Int,
@@ -129,7 +130,7 @@ interface SPClient {
         legIntCategories: List<String>
     ): GDPRConsent
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun deleteCustomConsentGDPR(
         consentUUID: String,
         propertyId: Int,
@@ -233,7 +234,7 @@ class SourcepointClient(
         }.build()
         ).bodyOr(::reportErrorAndThrow)
 
-    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class)
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     private suspend inline fun <reified ChoiceRequest, reified ChoiceResponse> genericPostChoiceAction(
         actionType: SPActionType,
         fromCampaign: String,
@@ -387,7 +388,7 @@ class SourcepointClient(
     }
 }
 
-@Throws(SPUnableToParseBodyError::class, CancellationException::class)
+@Throws(SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
 internal suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T =
     try {
         body()
