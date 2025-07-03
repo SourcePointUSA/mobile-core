@@ -732,7 +732,7 @@ class Coordinator(
                 )
             )
         )
-        state.globalcmp = state.globalcmp.copy(metaData = state.globalcmp.metaData.copy(wasSampled = sampled))
+        state.preferences = state.preferences.copy(metaData = state.preferences.metaData.copy(wasSampled = sampled))
     }
 
     private fun handleGetChoiceAll(response: ChoiceAllResponse) {
