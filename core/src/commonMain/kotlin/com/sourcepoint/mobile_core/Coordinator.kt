@@ -435,10 +435,22 @@ class Coordinator(
 
         response.campaigns.forEach {
             when (it.type) {
-                Gdpr -> state.gdpr = state.gdpr.copy(consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent)
-                Ccpa -> state.ccpa = state.ccpa.copy(consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent)
-                UsNat -> state.usNat = state.usNat.copy(consents = it.toConsent(default = state.usNat.consents) as USNatConsent)
-                GlobalCmp -> state.globalcmp = state.globalcmp.copy(consents = it.toConsent(default = state.globalcmp.consents) as GlobalCmpConsent)
+                Gdpr -> state.gdpr = state.gdpr.copy(
+                    consents = it.toConsent(default = state.gdpr.consents) as GDPRConsent,
+                    metaData = state.gdpr.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
+                )
+                Ccpa -> state.ccpa = state.ccpa.copy(
+                    consents = it.toConsent(default = state.ccpa.consents) as CCPAConsent,
+                    metaData = state.ccpa.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
+                )
+                UsNat -> state.usNat = state.usNat.copy(
+                    consents = it.toConsent(default = state.usNat.consents) as USNatConsent,
+                    metaData = state.usNat.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
+                )
+                GlobalCmp -> state.globalcmp = state.globalcmp.copy(
+                    consents = it.toConsent(default = state.globalcmp.consents) as GlobalCmpConsent,
+                    metaData = state.globalcmp.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
+                )
                 IOS14 -> {
                     state.ios14 = state.ios14.copy(
                         messageId = it.messageMetaData?.messageId,
@@ -447,7 +459,8 @@ class Coordinator(
                 }
                 Preferences -> {
                     state.preferences = state.preferences.copy(
-                        consents = state.preferences.consents.copy(messageId = it.messageMetaData?.messageId)
+                        consents = state.preferences.consents.copy(messageId = it.messageMetaData?.messageId),
+                        metaData = state.preferences.metaData.copy(messagePartitionUUID = it.messageMetaData?.messagePartitionUUID)
                     )
                 }
                 SPCampaignType.Unknown -> return@forEach
@@ -765,7 +778,8 @@ class Coordinator(
             sampleRate = state.gdpr.metaData.sampleRate,
             idfaStatus = idfaStatus,
             granularStatus = postPayloadFromGetCall?.granularStatus,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.gdpr.metaData.messagePartitionUUID
         )
     )
 
@@ -780,13 +794,15 @@ class Coordinator(
             sendPVData = state.ccpa.metaData.wasSampled ?: false,
             propertyId = propertyId,
             sampleRate = state.ccpa.metaData.sampleRate,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.ccpa.metaData.messagePartitionUUID
         )
     )
 
     private suspend fun postChoiceUSNat(action: SPAction) = spClient.postChoiceUSNatAction(
         actionType = action.type,
         request = USNatChoiceRequest(
+            accountId = accountId,
             authId = authId,
             uuid = state.usNat.consents.uuid,
             messageId = action.messageId,
@@ -798,13 +814,15 @@ class Coordinator(
             sampleRate = state.usNat.metaData.sampleRate,
             idfaStatus = idfaStatus,
             granularStatus = state.usNat.consents.consentStatus.granularStatus,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.usNat.metaData.messagePartitionUUID
         )
     )
 
     private suspend fun postChoiceGlobalCmp(action: SPAction) = spClient.postChoiceGlobalCmpAction(
         actionType = action.type,
         request = GlobalCmpChoiceRequest(
+            accountId = accountId,
             authId = authId,
             uuid = state.globalcmp.consents.uuid,
             messageId = action.messageId,
@@ -815,7 +833,8 @@ class Coordinator(
             propertyId = propertyId,
             sampleRate = state.globalcmp.metaData.sampleRate,
             granularStatus = state.globalcmp.consents.consentStatus.granularStatus,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.globalcmp.metaData.messagePartitionUUID
         )
     )
 
@@ -828,7 +847,8 @@ class Coordinator(
             messageId = action.messageId,
             pmSaveAndExitVariables = action.pmPayload,
             propertyId = propertyId,
-            includeData = includeData
+            includeData = includeData,
+            prtnUUID = state.preferences.metaData.messagePartitionUUID
         )
     )
 

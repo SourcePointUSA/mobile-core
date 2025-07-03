@@ -7,6 +7,7 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable
 class GlobalCmpChoiceRequest(
+    val accountId: Int? = null,
     val authId: String? = null,
     val uuid: String? = null,
     val messageId: String? = null,
@@ -17,5 +18,6 @@ class GlobalCmpChoiceRequest(
     val propertyId: Int,
     val sampleRate: Float,
     val granularStatus: ConsentStatus.ConsentStatusGranularStatus? = null,
-    val includeData: IncludeData = IncludeData()
+    val includeData: IncludeData = IncludeData(),
+    val prtnUUID: String? = null
 )

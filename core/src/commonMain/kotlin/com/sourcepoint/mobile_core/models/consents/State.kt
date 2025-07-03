@@ -60,7 +60,8 @@ data class State (
             override var sampleRate: Float = 1f,
             override var wasSampled: Boolean? = null,
             override var wasSampledAt: Float? = null,
-            val vendorListId: String? = null
+            val vendorListId: String? = null,
+            val messagePartitionUUID : String? = null
         ): SPSampleable
 
         fun resetStateIfVendorListChanges(newVendorListId: String): GDPRState =
@@ -81,7 +82,8 @@ data class State (
         data class CCPAMetaData (
             override var sampleRate: Float = 1f,
             override var wasSampled: Boolean? = null,
-            override var wasSampledAt: Float? = null
+            override var wasSampledAt: Float? = null,
+            val messagePartitionUUID : String? = null
         ): SPSampleable
     }
 
@@ -98,7 +100,8 @@ data class State (
             override var wasSampled: Boolean? = null,
             override var wasSampledAt: Float? = null,
             val vendorListId: String? = null,
-            val applicableSections: List<Int> = emptyList()
+            val applicableSections: List<Int> = emptyList(),
+            val messagePartitionUUID : String? = null
         ): SPSampleable
 
         fun resetStateIfVendorListChanges(newVendorListId: String): USNatState =
@@ -124,6 +127,7 @@ data class State (
             val vendorListId: String? = null,
             val applicableSections: List<String> = emptyList(),
             val legislation: String? = null,
+            val messagePartitionUUID : String? = null
         ): SPSampleable
 
         fun resetStateIfVendorListChanges(newVendorListId: String): GlobalCmpState =
@@ -143,7 +147,8 @@ data class State (
         data class PreferencesMetaData(
             val configurationId: String = "",
             val additionsChangeDate: Instant = Instant.DISTANT_PAST,
-            val legalDocLiveDate: Map<PreferencesConsent.PreferencesSubType, Instant>? = null
+            val legalDocLiveDate: Map<PreferencesConsent.PreferencesSubType, Instant>? = null,
+            val messagePartitionUUID : String? = null
         )
     }
 
