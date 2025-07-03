@@ -595,7 +595,7 @@ class Coordinator(
         }
         val preferencesPvData = campaigns.preferences?.let {
             launch {
-                preferencesPvData(pubData, messageMetaData = messages.firstOrNull { it.type == GlobalCmp }?.metaData)
+                preferencesPvData(pubData, messageMetaData = messages.firstOrNull { it.type == Preferences }?.metaData)
             }
         }
         gdprPvData?.join()
@@ -722,11 +722,11 @@ class Coordinator(
                 usnat = null,
                 globalcmp = null,
                 preferences = PvDataRequest.Preferences(
-                    uuid = state.globalcmp.consents.uuid,
+                    uuid = state.preferences.consents.uuid,
                     accountId = accountId,
                     propertyId = propertyId,
                     pubData = pubData,
-                    sampleRate = state.globalcmp.metaData.sampleRate,
+                    sampleRate = state.preferences.metaData.sampleRate,
                     msgId = messageMetaData?.messageId,
                     prtnUUID = messageMetaData?.messagePartitionUUID
                 )
