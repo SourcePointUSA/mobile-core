@@ -287,6 +287,7 @@ class Coordinator(
                     legalDocLiveDate = it.legalDocLiveDate
                 )
             )
+            state.preferences.metaData.updateSampleFields(it.sampleRate ?: 1f)
         }
         persistState()
     }

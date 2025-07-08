@@ -51,6 +51,7 @@ data class MetaDataResponse (
 
     @Serializable
     data class MetaDataResponsePreferences (
+        val sampleRate: Float? = null,
         val configurationId: String,
         val additionsChangeDate: Instant? = null,
         val legalDocLiveDate: Map<PreferencesConsent.PreferencesSubType, Instant>?
