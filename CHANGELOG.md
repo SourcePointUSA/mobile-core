@@ -1,8 +1,17 @@
+## 0.1.9 (Jul, 10, 2025)
+* Update Gradle version from 8.9 to 8.14.2
+* Upload test reports on GitHub Test Action run
+* Fixes of `pv-data` and `get-choice` requests & response for globalcmp 
+* Add `childPmId` feature support to globalcmp
+* Add `prtnUUID` to all campaigns `/choice` requests
+* Add `pv-data` request for preferences
+* Add `HttpRequestTimeoutException` to all `@Throws` to improve iOS exception handling on timeout
+
 ## 0.1.8 (Jun, 14, 2025)
 * migrated to new Maven Central repository
 
 ## 0.1.7 (Jun, 13, 2025)
-* fixed an issue preventing preferences.uuid from being persisted
+* fixed an issue preventing preferences UUID from being persisted
 
 ## 0.1.6 (May, 22, 2025)
 * generate `SPMobileCore` XCFramework statically
