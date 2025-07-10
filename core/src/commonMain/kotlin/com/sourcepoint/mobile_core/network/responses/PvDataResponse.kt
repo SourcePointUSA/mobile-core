@@ -7,7 +7,8 @@ data class PvDataResponse (
     val gdpr: Campaign? = null,
     val ccpa: Campaign? = null,
     val usnat: Campaign? = null,
-    val globalcmp: Campaign? = null
+    val globalcmp: Campaign? = null,
+    val preferences: Campaign? = null
 ) {
     @Serializable
     data class Campaign (

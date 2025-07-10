@@ -287,6 +287,7 @@ class Coordinator(
                     legalDocLiveDate = it.legalDocLiveDate
                 )
             )
+            state.preferences.metaData.updateSampleFields(it.sampleRate ?: 1f)
         }
         persistState()
     }
@@ -552,6 +553,9 @@ class Coordinator(
         response.globalcmp?.let {
             state.globalcmp = state.globalcmp.copy(consents = state.globalcmp.consents.copy(uuid = response.globalcmp.uuid))
         }
+        response.preferences?.let {
+            state.preferences = state.preferences.copy(consents = state.preferences.consents.copy(uuid = response.preferences.uuid))
+        }
     }
 
     private suspend fun sampleAndPvData(campaign: State.SPSampleable, request: PvDataRequest) =
@@ -590,10 +594,16 @@ class Coordinator(
                 globalcmpPvData(pubData, messageMetaData = messages.firstOrNull { it.type == GlobalCmp }?.metaData)
             }
         }
+        val preferencesPvData = campaigns.preferences?.let {
+            launch {
+                preferencesPvData(pubData, messageMetaData = messages.firstOrNull { it.type == Preferences }?.metaData)
+            }
+        }
         gdprPvData?.join()
         ccpaPvData?.join()
         usNatPvData?.join()
         globalCmpPvData?.join()
+        preferencesPvData?.join()
         persistState()
     }
 
@@ -604,6 +614,7 @@ class Coordinator(
                 ccpa = null,
                 usnat = null,
                 globalcmp = null,
+                preferences = null,
                 gdpr = PvDataRequest.GDPR(
                     applies = state.gdpr.consents.applies,
                     uuid = state.gdpr.consents.uuid,
@@ -630,6 +641,7 @@ class Coordinator(
                 gdpr = null,
                 usnat = null,
                 globalcmp = null,
+                preferences = null,
                 ccpa = PvDataRequest.CCPA(
                     applies = state.ccpa.consents.applies,
                     uuid = state.ccpa.consents.uuid,
@@ -657,6 +669,7 @@ class Coordinator(
                 gdpr = null,
                 ccpa = null,
                 globalcmp = null,
+                preferences = null,
                 usnat = PvDataRequest.USNat(
                     applies = state.usNat.consents.applies,
                     uuid = state.usNat.consents.uuid,
@@ -682,6 +695,7 @@ class Coordinator(
                 gdpr = null,
                 ccpa = null,
                 usnat = null,
+                preferences = null,
                 globalcmp = PvDataRequest.GlobalCmp(
                     applies = state.globalcmp.consents.applies,
                     uuid = state.globalcmp.consents.uuid,
@@ -698,6 +712,28 @@ class Coordinator(
             )
         )
         state.globalcmp = state.globalcmp.copy(metaData = state.globalcmp.metaData.copy(wasSampled = sampled))
+    }
+
+    private suspend fun preferencesPvData(pubData: JsonObject?, messageMetaData: MessagesResponse.MessageMetaData?) {
+        val sampled = sampleAndPvData(
+            campaign = state.preferences.metaData,
+            request = PvDataRequest(
+                gdpr = null,
+                ccpa = null,
+                usnat = null,
+                globalcmp = null,
+                preferences = PvDataRequest.Preferences(
+                    uuid = state.preferences.consents.uuid,
+                    accountId = accountId,
+                    propertyId = propertyId,
+                    pubData = pubData,
+                    sampleRate = state.preferences.metaData.sampleRate,
+                    msgId = messageMetaData?.messageId,
+                    prtnUUID = messageMetaData?.messagePartitionUUID
+                )
+            )
+        )
+        state.preferences = state.preferences.copy(metaData = state.preferences.metaData.copy(wasSampled = sampled))
     }
 
     private fun handleGetChoiceAll(response: ChoiceAllResponse) {

@@ -11,7 +11,8 @@ data class PvDataRequest (
     val gdpr: GDPR?,
     val ccpa: CCPA?,
     val usnat: USNat?,
-    val globalcmp: GlobalCmp?
+    val globalcmp: GlobalCmp?,
+    val preferences: Preferences?
 ) {
     @Serializable
     data class GDPR (
@@ -68,6 +69,17 @@ data class PvDataRequest (
         val msgId: Int?,
         val categoryId: Int?,
         val subCategoryId: Int?,
+        val prtnUUID : String?
+    )
+
+    @Serializable
+    data class Preferences (
+        val uuid: String?,
+        val accountId: Int,
+        @SerialName("siteId") val propertyId: Int,
+        val pubData: JsonObject?,
+        val sampleRate: Float?,
+        val msgId: Int?,
         val prtnUUID : String?
     )
 }
