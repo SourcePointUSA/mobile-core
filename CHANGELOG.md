@@ -1,4 +1,4 @@
-## 0.1.10 (Jul, 10, 2025)
+## 0.1.10 (Jul, 11, 2025)
 * Update Gradle version from 8.9 to 8.14.2
 * Upload test reports on GitHub Test Action run
 * Fixes of `pv-data` and `get-choice` requests & response for globalcmp 

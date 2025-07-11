@@ -554,7 +554,7 @@ class Coordinator(
             state.globalcmp = state.globalcmp.copy(consents = state.globalcmp.consents.copy(uuid = response.globalcmp.uuid))
         }
         response.preferences?.let {
-            state.preferences = state.preferences.copy(consents = state.preferences.consents.copy(uuid = response.preferences.uuid))
+            state.preferences = state.preferences.copy(consents = state.preferences.consents.copy(uuid = response.preferences.uuid ?: state.preferences.consents.uuid)) // TODO: Preferences pvData response causes error, change type to Campaign? when preferences pvData returns uuid
         }
     }
 
