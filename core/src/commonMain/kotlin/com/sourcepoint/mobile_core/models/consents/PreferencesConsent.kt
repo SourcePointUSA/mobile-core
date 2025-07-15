@@ -1,6 +1,5 @@
 package com.sourcepoint.mobile_core.models.consents
 
-import com.sourcepoint.mobile_core.utils.now
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,7 +18,8 @@ data class PreferencesConsent(
         val channels: List<PreferencesChannels>? = null,
         val changed: Boolean? = null,
         val dateConsented: Instant? = null,
-        val subType: PreferencesSubType? = PreferencesSubType.Unknown
+        val subType: PreferencesSubType? = PreferencesSubType.Unknown,
+        val versionId: String? = null,
     ) {
         @Serializable
         data class PreferencesChannels(val channelId: Int, val status: Boolean)
