@@ -1,3 +1,6 @@
+## 0.1.11 (Jul, 20, 2025)
+* add `versionId: String?` to `PreferencesConsent.PreferencesStatus`
+
 ## 0.1.10 (Jul, 11, 2025)
 * Update Gradle version from 8.9 to 8.14.2
 * Upload test reports on GitHub Test Action run
