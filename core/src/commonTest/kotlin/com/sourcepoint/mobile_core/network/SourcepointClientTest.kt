@@ -148,6 +148,14 @@ class SourcepointClientTest {
         assertNotEmpty(preferences.status)
         assertNotEmpty(preferences.rejectedStatus)
         assertNotNull(preferences.dateCreated)
+        preferences.status!!.first().apply {
+            assertNotNull(categoryId)
+            assertNotNull(channels)
+            assertNotNull(changed)
+            assertNotNull(dateConsented)
+            assertNotNull(subType)
+            assertNotEmpty(versionId)
+        }
     }
 
     private fun assertCampaignConsentsFromMessages(campaign: MessagesResponse.Campaign<*>) {
@@ -478,6 +486,14 @@ class SourcepointClientTest {
             assertNotEmpty(rejectedStatus)
             assertNotEmpty(configurationId)
             assertNotNull(dateCreated)
+            status!!.first().apply {
+                assertNotNull(categoryId)
+                assertNotNull(channels)
+                assertNotNull(changed)
+                assertNotNull(dateConsented)
+                assertNotNull(subType)
+                assertNotEmpty(versionId)
+            }
         }
     }
 }
