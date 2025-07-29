@@ -1,15 +1,14 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
-    kotlin("multiplatform") version "2.0.21"
-    kotlin("native.cocoapods") version "2.0.21"
-    kotlin("plugin.serialization") version "2.0.21"
-    id("com.github.ben-manes.versions") version "0.51.0"
-    id("com.android.library") version "8.7.3"
-    id("com.github.gmazzo.buildconfig") version "5.5.0"
-    id("com.vanniktech.maven.publish") version "0.32.0"
+    kotlin("multiplatform") version "2.2.0"
+    kotlin("native.cocoapods") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.0"
+    id("com.github.ben-manes.versions") version "0.52.0"
+    id("com.android.library") version "8.11.1"
+    id("com.github.gmazzo.buildconfig") version "5.6.7"
+    id("com.vanniktech.maven.publish") version "0.34.0"
     id("signing")
 }
 
@@ -20,7 +19,6 @@ version = coreVersion
 val description = "The internal Network & Data layers used by our mobile SDKs"
 val generatedSourcesPath = layout.buildDirectory.dir("generated").get()
 val gitRepoUrl = "https://github.com/SourcePointUSA/mobile-core.git"
-val deviceName = project.findProperty("iosDevice") as? String ?: "iPhone 16"
 
 // this generates a kotlin file with constants that can be used inside the project
 buildConfig {
@@ -37,7 +35,7 @@ kotlin {
     androidTarget {
         publishLibraryVariants("release", "debug")
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
     iosX64()
@@ -72,10 +70,10 @@ kotlin {
     }
 
     sourceSets {
-        val ktorVersion = "3.0.0"
-        val coroutinesVersion = "1.9.0"
-        val settingsVersion = "1.2.0"
-        val dataTimeVersion = "0.6.1"
+        val ktorVersion = "3.2.2"
+        val coroutinesVersion = "1.10.2"
+        val settingsVersion = "1.3.0"
+        val dataTimeVersion = "0.6.2"
         val commonMain by getting {
             dependencies {
                 implementation("com.russhwolf:multiplatform-settings-no-arg:$settingsVersion")
@@ -112,7 +110,11 @@ kotlin {
 
 android {
     namespace = "com.sourcepoint.mobile_core"
-    compileSdk = 35
+    compileSdk = 36
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     defaultConfig {
         minSdk = 21
     }
@@ -126,7 +128,7 @@ tasks.withType<Test> {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    publishToMavenCentral(automaticRelease = true)
 
     signAllPublications()
 
