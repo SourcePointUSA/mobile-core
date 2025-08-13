@@ -12,7 +12,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.1.11"
+val coreVersion = "0.1.12-beta-1"
 group = "com.sourcepoint"
 version = coreVersion
 
@@ -64,7 +64,7 @@ kotlin {
         framework {
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
-            transitiveExport = true
+            transitiveExport = false
             isStatic = true
         }
     }
