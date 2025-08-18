@@ -18,8 +18,10 @@ jobs:
         run: xcrun simctl list devices
       - name: List available SDK versions
         run: xcodebuild -showsdks
-      - name: Show Xcode version
+      - name: Show used Xcode version
         run: xcodebuild -version
+      - name: Show available Xcode versions
+        run: ls /Applications | grep Xcode
       - uses: actions/checkout@v4
       - run: pod trunk push --allow-warnings --verbose
         env:
