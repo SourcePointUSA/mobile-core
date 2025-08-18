@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: List available simulators
         run: xcrun simctl list devices
+      - name: List available XCode versions
+        run: xcodebuild -showsdks
       - uses: actions/checkout@v4
       - run: pod trunk push --allow-warnings --verbose
         env:
