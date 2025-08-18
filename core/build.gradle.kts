@@ -12,7 +12,7 @@ plugins {
     id("signing")
 }
 
-val coreVersion = "0.1.12-beta-1"
+val coreVersion = "0.1.12-beta-2"
 group = "com.sourcepoint"
 version = coreVersion
 
@@ -45,12 +45,6 @@ kotlin {
     tvosArm64()
     tvosSimulatorArm64()
 
-    targets.withType<KotlinNativeTarget> {
-        binaries.withType<Framework> {
-            isStatic = true
-        }
-    }
-
     cocoapods {
         name = "SPMobileCore"
         summary = description
@@ -64,8 +58,7 @@ kotlin {
         framework {
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
-            transitiveExport = false
-            isStatic = true
+            transitiveExport = true
         }
     }
 
