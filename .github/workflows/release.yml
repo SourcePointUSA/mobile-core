@@ -14,8 +14,10 @@ jobs:
   ios:
     runs-on: 'macos-latest'
     steps:
+      - name: List available simulators
+        run: xcrun simctl list devices
       - uses: actions/checkout@v4
-      - run: pod trunk push --allow-warnings
+      - run: pod trunk push --allow-warnings --verbose
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
   android:
