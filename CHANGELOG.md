@@ -1,4 +1,4 @@
-## 0.1.12-beta-1 (Aug, 13, 2025)
+## 0.1.12-beta-2 (Aug, 18, 2025)
 * `transitiveExport` set back to `true` for iOS target
 * `isStatic` set to default value `false`
 
