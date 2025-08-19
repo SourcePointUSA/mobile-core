@@ -45,6 +45,12 @@ kotlin {
     tvosArm64()
     tvosSimulatorArm64()
 
+    targets.withType<KotlinNativeTarget> {
+        binaries.withType<Framework> {
+            isStatic = true
+        }
+    }
+
     cocoapods {
         name = "SPMobileCore"
         summary = description
@@ -58,6 +64,7 @@ kotlin {
         framework {
             binaryOptions["bundleId"] = "com.sourcepoint.SPMobileCore"
             baseName = "SPMobileCore"
+            isStatic = true
             transitiveExport = true
         }
     }
