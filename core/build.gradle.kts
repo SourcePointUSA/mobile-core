@@ -2,12 +2,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
-    kotlin("multiplatform") version "2.2.0"
-    kotlin("native.cocoapods") version "2.2.0"
-    kotlin("plugin.serialization") version "2.2.0"
+    kotlin("multiplatform") version "2.1.21"
+    kotlin("native.cocoapods") version "2.1.21"
+    kotlin("plugin.serialization") version "2.1.21"
     id("com.github.ben-manes.versions") version "0.52.0"
     id("com.android.library") version "8.11.1"
-    id("com.github.gmazzo.buildconfig") version "5.6.7"
+    id("com.github.gmazzo.buildconfig") version "5.6.8"
     id("com.vanniktech.maven.publish") version "0.34.0"
     id("signing")
 }
