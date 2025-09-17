@@ -617,7 +617,7 @@ class CoordinatorTest {
     fun throwsLoadMessagesExceptionIfTheConfigIsWrong() = runTestWithRetries {
         assertFailsWith<LoadMessagesException> { getCoordinator(accountId = -1).loadMessages() }
         assertFailsWith<LoadMessagesException> { getCoordinator(propertyId = -1).loadMessages() }
-        assertFailsWith<LoadMessagesException> { getCoordinator(propertyName = "foo").loadMessages() }
+        assertFailsWith<LoadMessagesException> { getCoordinator(propertyName = "foo-mobile-core-test").loadMessages() }
     }
 
     // TODO: add tests for the pvData payload in different circumstances (1st call vs subsequent calls)
