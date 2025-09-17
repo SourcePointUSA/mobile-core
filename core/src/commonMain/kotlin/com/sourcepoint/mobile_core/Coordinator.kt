@@ -68,8 +68,8 @@ class Coordinator(
         propertyId = propertyId,
         requestTimeoutInSeconds = timeoutInSeconds
     ),
-    private var authId: String? = null,
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId),
+    private var authId: String? = state.authId,
 ): ICoordinator {
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
     // TODO: implement using expect/actual
