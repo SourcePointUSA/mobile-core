@@ -206,6 +206,7 @@ class Coordinator(
         language: SPMessageLanguage
     ): List<MessageToDisplay> {
         this.authId = authId
+        this.includeData.gppData.uspString = campaigns.usnat?.supportLegacyUSPString
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
         try {
