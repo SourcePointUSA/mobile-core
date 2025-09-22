@@ -43,7 +43,7 @@ data class ChoiceAllResponse (
         data class PostPayload (
             val consentAllRef: String?,
             val vendorListId: String,
-            val granularStatus : ConsentStatus.ConsentStatusGranularStatus?
+            val granularStatus: ConsentStatus.ConsentStatusGranularStatus?
         )
     }
 
