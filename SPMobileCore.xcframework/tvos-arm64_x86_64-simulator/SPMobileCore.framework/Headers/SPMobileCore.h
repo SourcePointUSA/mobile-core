@@ -446,12 +446,12 @@ __attribute__((swift_name("SPActionType")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("SPCampaign")))
 @interface SPMCSPCampaign : SPMCBase
-- (instancetype)initWithTargetingParams:(NSDictionary<NSString *, NSString *> *)targetingParams groupPmId:(NSString * _Nullable)groupPmId gppConfig:(SPMCIncludeDataGPPConfig * _Nullable)gppConfig transitionCCPAAuth:(SPMCBoolean * _Nullable)transitionCCPAAuth supportLegacyUSPString:(SPMCBoolean * _Nullable)supportLegacyUSPString __attribute__((swift_name("init(targetingParams:groupPmId:gppConfig:transitionCCPAAuth:supportLegacyUSPString:)"))) __attribute__((objc_designated_initializer));
-- (SPMCSPCampaign *)doCopyTargetingParams:(NSDictionary<NSString *, NSString *> *)targetingParams groupPmId:(NSString * _Nullable)groupPmId gppConfig:(SPMCIncludeDataGPPConfig * _Nullable)gppConfig transitionCCPAAuth:(SPMCBoolean * _Nullable)transitionCCPAAuth supportLegacyUSPString:(SPMCBoolean * _Nullable)supportLegacyUSPString __attribute__((swift_name("doCopy(targetingParams:groupPmId:gppConfig:transitionCCPAAuth:supportLegacyUSPString:)")));
+- (instancetype)initWithTargetingParams:(NSDictionary<NSString *, NSString *> *)targetingParams groupPmId:(NSString * _Nullable)groupPmId supportLegacyUSPString:(SPMCBoolean * _Nullable)supportLegacyUSPString gppConfig:(SPMCIncludeDataGPPConfig *)gppConfig transitionCCPAAuth:(SPMCBoolean * _Nullable)transitionCCPAAuth __attribute__((swift_name("init(targetingParams:groupPmId:supportLegacyUSPString:gppConfig:transitionCCPAAuth:)"))) __attribute__((objc_designated_initializer));
+- (SPMCSPCampaign *)doCopyTargetingParams:(NSDictionary<NSString *, NSString *> *)targetingParams groupPmId:(NSString * _Nullable)groupPmId supportLegacyUSPString:(SPMCBoolean * _Nullable)supportLegacyUSPString gppConfig:(SPMCIncludeDataGPPConfig *)gppConfig transitionCCPAAuth:(SPMCBoolean * _Nullable)transitionCCPAAuth __attribute__((swift_name("doCopy(targetingParams:groupPmId:supportLegacyUSPString:gppConfig:transitionCCPAAuth:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
 - (NSString *)description __attribute__((swift_name("description()")));
-@property (readonly) SPMCIncludeDataGPPConfig * _Nullable gppConfig __attribute__((swift_name("gppConfig")));
+@property (readonly) SPMCIncludeDataGPPConfig *gppConfig __attribute__((swift_name("gppConfig")));
 @property (readonly) NSString * _Nullable groupPmId __attribute__((swift_name("groupPmId")));
 @property (readonly) SPMCBoolean * _Nullable supportLegacyUSPString __attribute__((swift_name("supportLegacyUSPString")));
 @property (readonly) NSDictionary<NSString *, NSString *> *targetingParams __attribute__((swift_name("targetingParams")));
@@ -2605,9 +2605,9 @@ __attribute__((swift_name("IDFAStatusReportRequest.Companion")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("IncludeData")))
 @interface SPMCIncludeData : SPMCBase
-- (instancetype)initWithTcData:(SPMCIncludeDataTypeString *)tcData webConsentPayload:(SPMCIncludeDataTypeString *)webConsentPayload localState:(SPMCIncludeDataTypeString *)localState categories:(BOOL)categories translateMessage:(SPMCBoolean * _Nullable)translateMessage gppData:(SPMCIncludeDataGPPConfig *)gppData __attribute__((swift_name("init(tcData:webConsentPayload:localState:categories:translateMessage:gppData:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithTcData:(SPMCIncludeDataTypeString *)tcData webConsentPayload:(SPMCIncludeDataTypeString *)webConsentPayload localState:(SPMCIncludeDataTypeString *)localState categories:(BOOL)categories translateMessage:(SPMCBoolean * _Nullable)translateMessage gppConfig:(SPMCIncludeDataGPPConfig *)gppConfig __attribute__((swift_name("init(tcData:webConsentPayload:localState:categories:translateMessage:gppConfig:)"))) __attribute__((objc_designated_initializer));
 @property (class, readonly, getter=companion) SPMCIncludeDataCompanion *companion __attribute__((swift_name("companion")));
-- (SPMCIncludeData *)doCopyTcData:(SPMCIncludeDataTypeString *)tcData webConsentPayload:(SPMCIncludeDataTypeString *)webConsentPayload localState:(SPMCIncludeDataTypeString *)localState categories:(BOOL)categories translateMessage:(SPMCBoolean * _Nullable)translateMessage gppData:(SPMCIncludeDataGPPConfig *)gppData __attribute__((swift_name("doCopy(tcData:webConsentPayload:localState:categories:translateMessage:gppData:)")));
+- (SPMCIncludeData *)doCopyTcData:(SPMCIncludeDataTypeString *)tcData webConsentPayload:(SPMCIncludeDataTypeString *)webConsentPayload localState:(SPMCIncludeDataTypeString *)localState categories:(BOOL)categories translateMessage:(SPMCBoolean * _Nullable)translateMessage gppConfig:(SPMCIncludeDataGPPConfig *)gppConfig __attribute__((swift_name("doCopy(tcData:webConsentPayload:localState:categories:translateMessage:gppConfig:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
 - (NSString *)description __attribute__((swift_name("description()")));
@@ -2617,7 +2617,7 @@ __attribute__((swift_name("IncludeData")))
  * @note annotations
  *   kotlinx.serialization.SerialName(value="GPPData")
 */
-@property (readonly) SPMCIncludeDataGPPConfig *gppData __attribute__((swift_name("gppData")));
+@property (readonly) SPMCIncludeDataGPPConfig *gppConfig __attribute__((swift_name("gppConfig")));
 @property (readonly) SPMCIncludeDataTypeString *localState __attribute__((swift_name("localState")));
 
 /**
@@ -2647,16 +2647,16 @@ __attribute__((swift_name("IncludeData.Companion")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("IncludeData.GPPConfig")))
 @interface SPMCIncludeDataGPPConfig : SPMCBase
-- (instancetype)initWithMspaCoveredTransaction:(SPMCIncludeDataMspaBinaryFlag * _Nullable)MspaCoveredTransaction MspaOptOutOptionMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaOptOutOptionMode MspaServiceProviderMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaServiceProviderMode uspString:(SPMCBoolean * _Nullable)uspString __attribute__((swift_name("init(MspaCoveredTransaction:MspaOptOutOptionMode:MspaServiceProviderMode:uspString:)"))) __attribute__((objc_designated_initializer));
+- (instancetype)initWithMspaCoveredTransaction:(SPMCIncludeDataMspaBinaryFlag * _Nullable)MspaCoveredTransaction MspaOptOutOptionMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaOptOutOptionMode MspaServiceProviderMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaServiceProviderMode uspString:(BOOL)uspString __attribute__((swift_name("init(MspaCoveredTransaction:MspaOptOutOptionMode:MspaServiceProviderMode:uspString:)"))) __attribute__((objc_designated_initializer));
 @property (class, readonly, getter=companion) SPMCIncludeDataGPPConfigCompanion *companion __attribute__((swift_name("companion")));
-- (SPMCIncludeDataGPPConfig *)doCopyMspaCoveredTransaction:(SPMCIncludeDataMspaBinaryFlag * _Nullable)MspaCoveredTransaction MspaOptOutOptionMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaOptOutOptionMode MspaServiceProviderMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaServiceProviderMode uspString:(SPMCBoolean * _Nullable)uspString __attribute__((swift_name("doCopy(MspaCoveredTransaction:MspaOptOutOptionMode:MspaServiceProviderMode:uspString:)")));
+- (SPMCIncludeDataGPPConfig *)doCopyMspaCoveredTransaction:(SPMCIncludeDataMspaBinaryFlag * _Nullable)MspaCoveredTransaction MspaOptOutOptionMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaOptOutOptionMode MspaServiceProviderMode:(SPMCIncludeDataMspaTernaryFlag * _Nullable)MspaServiceProviderMode uspString:(BOOL)uspString __attribute__((swift_name("doCopy(MspaCoveredTransaction:MspaOptOutOptionMode:MspaServiceProviderMode:uspString:)")));
 - (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
 - (NSUInteger)hash __attribute__((swift_name("hash()")));
 - (NSString *)description __attribute__((swift_name("description()")));
 @property (readonly) SPMCIncludeDataMspaBinaryFlag * _Nullable MspaCoveredTransaction __attribute__((swift_name("MspaCoveredTransaction")));
 @property (readonly) SPMCIncludeDataMspaTernaryFlag * _Nullable MspaOptOutOptionMode __attribute__((swift_name("MspaOptOutOptionMode")));
 @property (readonly) SPMCIncludeDataMspaTernaryFlag * _Nullable MspaServiceProviderMode __attribute__((swift_name("MspaServiceProviderMode")));
-@property (readonly) SPMCBoolean * _Nullable uspString __attribute__((swift_name("uspString")));
+@property (readonly) BOOL uspString __attribute__((swift_name("uspString")));
 @end
 
 __attribute__((objc_subclassing_restricted))
