@@ -24,7 +24,7 @@ data class IncludeData(
         val MspaCoveredTransaction: MspaBinaryFlag? = null,
         val MspaOptOutOptionMode: MspaTernaryFlag? = null,
         val MspaServiceProviderMode: MspaTernaryFlag? = null,
-        var uspString: Boolean? = false
+        val uspString: Boolean = false
     ) {
         override fun toString() = json.encodeToString(this)
     }

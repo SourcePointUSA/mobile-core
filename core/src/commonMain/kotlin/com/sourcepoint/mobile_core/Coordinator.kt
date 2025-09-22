@@ -75,10 +75,7 @@ class Coordinator(
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
     // TODO: implement using expect/actual
     var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } // workaround for ios
-    private val includeData: IncludeData = IncludeData(gppConfig =
-                                                        if(campaigns.usnat?.gppConfig != null)
-                                                            campaigns.usnat.gppConfig.copy(uspString = campaigns.usnat.supportLegacyUSPString)
-                                                        else GPPConfig(uspString = campaigns.usnat?.supportLegacyUSPString))
+    private val includeData: IncludeData = IncludeData(gppConfig = campaigns.usnat?.gppConfig ?: GPPConfig())
 
     private var needsNewUSNatData = false
     private var needsNewGlobalCmpData = false
