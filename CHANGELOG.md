@@ -1,3 +1,8 @@
+## 0.1.12 (Sep, 22, 2025)
+* [DIA-6102](https://sourcepoint.atlassian.net/browse/DIA-6102) SDKs Are Setting US Privacy String Even When supportLegacyUSPString: true Is Not Used
+* [DIA-6098](https://sourcepoint.atlassian.net/browse/DIA-6098) Fix authId not being passed to POST choice
+* Update dependencies, Kotlin version and build.gradle script. PR #77
+
 ## 0.1.12-beta-2 (Aug, 18, 2025)
 * `transitiveExport` set back to `true` for iOS target
 * `isStatic` set to default value `false`
