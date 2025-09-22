@@ -10,7 +10,7 @@ class IncludeDataTest {
     fun defaultValues() {
         val includeData = IncludeData().toString()
         assertEquals(
-            "{\"TCData\":{\"type\":\"string\"},\"webConsentPayload\":{\"type\":\"string\"},\"localState\":{\"type\":\"string\"},\"categories\":true,\"GPPData\":{\"uspString\":true}}",
+            "{\"TCData\":{\"type\":\"string\"},\"webConsentPayload\":{\"type\":\"string\"},\"localState\":{\"type\":\"string\"},\"categories\":true,\"GPPData\":{\"uspString\":false}}",
             includeData
         )
     }

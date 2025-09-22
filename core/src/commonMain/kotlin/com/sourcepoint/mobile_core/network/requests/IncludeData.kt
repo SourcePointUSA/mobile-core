@@ -12,7 +12,7 @@ data class IncludeData(
     val localState: TypeString = TypeString(),
     val categories: Boolean = true,
     var translateMessage: Boolean? = null,
-    @SerialName("GPPData") val gppData: GPPConfig = GPPConfig()
+    @SerialName("GPPData") val gppConfig: GPPConfig = GPPConfig()
 ) {
     @Serializable
     data class TypeString(val type: String = "string") {
@@ -24,7 +24,7 @@ data class IncludeData(
         val MspaCoveredTransaction: MspaBinaryFlag? = null,
         val MspaOptOutOptionMode: MspaTernaryFlag? = null,
         val MspaServiceProviderMode: MspaTernaryFlag? = null,
-        val uspString: Boolean? = true
+        val uspString: Boolean = false
     ) {
         override fun toString() = json.encodeToString(this)
     }
