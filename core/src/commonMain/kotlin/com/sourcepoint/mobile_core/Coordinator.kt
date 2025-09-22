@@ -38,6 +38,7 @@ import com.sourcepoint.mobile_core.network.requests.ConsentStatusRequest
 import com.sourcepoint.mobile_core.network.requests.GDPRChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.GlobalCmpChoiceRequest
 import com.sourcepoint.mobile_core.network.requests.IncludeData
+import com.sourcepoint.mobile_core.network.requests.IncludeData.GPPConfig
 import com.sourcepoint.mobile_core.network.requests.MessagesRequest
 import com.sourcepoint.mobile_core.network.requests.MetaDataRequest
 import com.sourcepoint.mobile_core.network.requests.PreferencesChoiceRequest
@@ -74,7 +75,10 @@ class Coordinator(
     private val idfaStatus: SPIDFAStatus? get() = getIDFAStatus()
     // TODO: implement using expect/actual
     var getIDFAStatus: (() -> SPIDFAStatus?) = { SPIDFAStatus.current() } // workaround for ios
-    private val includeData: IncludeData = IncludeData()
+    private val includeData: IncludeData = IncludeData(gppConfig =
+                                                        if(campaigns.usnat?.gppConfig != null)
+                                                            campaigns.usnat.gppConfig.copy(uspString = campaigns.usnat.supportLegacyUSPString)
+                                                        else GPPConfig(uspString = campaigns.usnat?.supportLegacyUSPString))
 
     private var needsNewUSNatData = false
     private var needsNewGlobalCmpData = false
@@ -206,7 +210,6 @@ class Coordinator(
         language: SPMessageLanguage
     ): List<MessageToDisplay> {
         this.authId = authId
-        this.includeData.gppData.uspString = campaigns.usnat?.supportLegacyUSPString
         resetStateIfAuthIdChanged()
         var messages: List<MessageToDisplay> = emptyList()
         try {
