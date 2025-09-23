@@ -2,6 +2,8 @@ package com.sourcepoint.mobile_core
 
 import com.sourcepoint.mobile_core.models.DeleteCustomConsentGDPRException
 import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
+import com.sourcepoint.mobile_core.models.InvalidResponseAPICode
+import com.sourcepoint.mobile_core.models.InvalidResponseAPIError
 import com.sourcepoint.mobile_core.models.LoadMessagesException
 import com.sourcepoint.mobile_core.models.MessageToDisplay
 import com.sourcepoint.mobile_core.models.PostCustomConsentGDPRException
@@ -294,13 +296,19 @@ class Coordinator(
     }
 
     private suspend fun metaData(next: suspend () -> Unit) {
-        handleMetaDataResponse(spClient.getMetaData(MetaDataRequest.Campaigns(
-            gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            globalcmp = campaigns.globalcmp?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
-            preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
-        )))
+        try {
+            handleMetaDataResponse(
+                spClient.getMetaData(
+                MetaDataRequest.Campaigns(
+                gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+                ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+                usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+                globalcmp = campaigns.globalcmp?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
+                preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
+            )))
+        } catch (error: Exception) {
+            throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.META_DATA)
+        }
         next()
     }
 
@@ -384,49 +392,53 @@ class Coordinator(
 
     suspend fun consentStatus(next: suspend () -> Unit) {
         if (shouldCallConsentStatus) {
-            handleConsentStatusResponse(spClient.getConsentStatus(
-                authId = authId,
-                metadata = ConsentStatusRequest.MetaData(
-                    gdpr = campaigns.gdpr?.let {
-                        ConsentStatusRequest.MetaData.Campaign(
-                            applies = state.gdpr.consents.applies,
-                            dateCreated = state.gdpr.consents.dateCreated,
-                            uuid = state.gdpr.consents.uuid,
-                            idfaStatus = idfaStatus
-                        )
-                    },
-                    globalcmp = campaigns.globalcmp?.let {
-                        ConsentStatusRequest.MetaData.GlobalCmpCampaign(
-                            applies = state.globalcmp.consents.applies,
-                            dateCreated = state.globalcmp.consents.dateCreated,
-                            uuid = state.globalcmp.consents.uuid
-                        )
-                    },
-                    usnat = campaigns.usnat?.let {
-                        ConsentStatusRequest.MetaData.USNatCampaign(
-                            applies = state.usNat.consents.applies,
-                            dateCreated = state.usNat.consents.dateCreated,
-                            uuid = state.usNat.consents.uuid,
-                            idfaStatus = idfaStatus,
-                            transitionCCPAAuth = authTransitionCCPAUSNat,
-                            optedOut = transitionCCPAOptedOut
-                        )
-                    },
-                    ccpa = campaigns.ccpa?.let {
-                        ConsentStatusRequest.MetaData.Campaign(
-                            applies = state.ccpa.consents.applies,
-                            dateCreated = state.ccpa.consents.dateCreated,
-                            uuid = state.ccpa.consents.uuid,
-                            idfaStatus = idfaStatus
-                        )
-                    },
-                    preferences = campaigns.preferences?.let {
-                        ConsentStatusRequest.MetaData.PreferencesCampaign(
-                            configurationId = state.preferences.metaData.configurationId
-                        )
-                    }
-                )
-            ))
+            try {
+                handleConsentStatusResponse(spClient.getConsentStatus(
+                    authId = authId,
+                    metadata = ConsentStatusRequest.MetaData(
+                        gdpr = campaigns.gdpr?.let {
+                            ConsentStatusRequest.MetaData.Campaign(
+                                applies = state.gdpr.consents.applies,
+                                dateCreated = state.gdpr.consents.dateCreated,
+                                uuid = state.gdpr.consents.uuid,
+                                idfaStatus = idfaStatus
+                            )
+                        },
+                        globalcmp = campaigns.globalcmp?.let {
+                            ConsentStatusRequest.MetaData.GlobalCmpCampaign(
+                                applies = state.globalcmp.consents.applies,
+                                dateCreated = state.globalcmp.consents.dateCreated,
+                                uuid = state.globalcmp.consents.uuid
+                            )
+                        },
+                        usnat = campaigns.usnat?.let {
+                            ConsentStatusRequest.MetaData.USNatCampaign(
+                                applies = state.usNat.consents.applies,
+                                dateCreated = state.usNat.consents.dateCreated,
+                                uuid = state.usNat.consents.uuid,
+                                idfaStatus = idfaStatus,
+                                transitionCCPAAuth = authTransitionCCPAUSNat,
+                                optedOut = transitionCCPAOptedOut
+                            )
+                        },
+                        ccpa = campaigns.ccpa?.let {
+                            ConsentStatusRequest.MetaData.Campaign(
+                                applies = state.ccpa.consents.applies,
+                                dateCreated = state.ccpa.consents.dateCreated,
+                                uuid = state.ccpa.consents.uuid,
+                                idfaStatus = idfaStatus
+                            )
+                        },
+                        preferences = campaigns.preferences?.let {
+                            ConsentStatusRequest.MetaData.PreferencesCampaign(
+                                configurationId = state.preferences.metaData.configurationId
+                            )
+                        }
+                    )
+                ))
+            } catch (error: Exception) {
+                throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.CONSENT_STATUS)
+            }
         }
         next()
     }
@@ -474,66 +486,74 @@ class Coordinator(
 
     private suspend fun messages(language: SPMessageLanguage): List<MessageToDisplay> =
         if (shouldCallMessages) {
-            handleMessagesResponse(spClient.getMessages(MessagesRequest(
-                body = MessagesRequest.Body(
-                    propertyHref = propertyName,
-                    accountId = accountId,
-                    campaigns = MessagesRequest.Body.Campaigns(
-                        gdpr = campaigns.gdpr?.let {
-                            MessagesRequest.Body.Campaigns.Campaign(
-                                targetingParams = it.targetingParams,
-                                hasLocalData = state.hasGDPRLocalData,
-                                consentStatus = state.gdpr.consents.consentStatus
-                            )
-                        },
-                        ios14 = campaigns.ios14?.let {
-                            MessagesRequest.Body.Campaigns.IOS14Campaign(
-                                targetingParams = it.targetingParams,
-                                idfaStatus = idfaStatus
-                            )
-                        },
-                        globalcmp = campaigns.globalcmp?.let {
-                            MessagesRequest.Body.Campaigns.Campaign(
-                                targetingParams = it.targetingParams,
-                                hasLocalData = state.hasGlobalCmpLocalData,
-                                consentStatus = state.globalcmp.consents.consentStatus
-                            )
-                        },
-                        ccpa = campaigns.ccpa?.let {
-                            MessagesRequest.Body.Campaigns.CCPACampaign(
-                                targetingParams = it.targetingParams,
-                                hasLocalData = state.hasCCPALocalData,
-                                status = state.ccpa.consents.status
-                            )
-                        },
-                        usnat = campaigns.usnat?.let {
-                            MessagesRequest.Body.Campaigns.Campaign(
-                                targetingParams = it.targetingParams,
-                                hasLocalData = state.hasUSNatLocalData,
-                                consentStatus = state.usNat.consents.consentStatus
-                            )
-                        },
-                        preferences = campaigns.preferences?.let {
-                            MessagesRequest.Body.Campaigns.Campaign(
-                                targetingParams = it.targetingParams + preferencesTargetingParams(state.preferences),
-                                hasLocalData = state.hasPreferencesLocalData
-                            )
-                        }
+            try {
+                handleMessagesResponse(
+                    spClient.getMessages(
+                        MessagesRequest(
+                            body = MessagesRequest.Body(
+                                propertyHref = propertyName,
+                        accountId = accountId,
+                        campaigns = MessagesRequest.Body.Campaigns(
+                            gdpr = campaigns.gdpr?.let {
+                                MessagesRequest.Body.Campaigns.Campaign(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasGDPRLocalData,
+                                    consentStatus = state.gdpr.consents.consentStatus
+                                )
+                            },
+                            ios14 = campaigns.ios14?.let {
+                                MessagesRequest.Body.Campaigns.IOS14Campaign(
+                                    targetingParams = it.targetingParams,
+                                    idfaStatus = idfaStatus
+                                )
+                            },
+                            globalcmp = campaigns.globalcmp?.let {
+                                MessagesRequest.Body.Campaigns.Campaign(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasGlobalCmpLocalData,
+                                    consentStatus = state.globalcmp.consents.consentStatus
+                                )
+                            },
+                            ccpa = campaigns.ccpa?.let {
+                                MessagesRequest.Body.Campaigns.CCPACampaign(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasCCPALocalData,
+                                    status = state.ccpa.consents.status
+                                )
+                            },
+                            usnat = campaigns.usnat?.let {
+                                MessagesRequest.Body.Campaigns.Campaign(
+                                    targetingParams = it.targetingParams,
+                                    hasLocalData = state.hasUSNatLocalData,
+                                    consentStatus = state.usNat.consents.consentStatus
+                                )
+                            },
+                            preferences = campaigns.preferences?.let {
+                                MessagesRequest.Body.Campaigns.Campaign(
+                                    targetingParams = it.targetingParams + preferencesTargetingParams(
+                                        state.preferences
+                                    ),
+                                    hasLocalData = state.hasPreferencesLocalData
+                                )
+                            }
+                        ),
+                        consentLanguage = language,
+                        campaignEnv = campaigns.environment,
+                        idfaStatus = idfaStatus,
+                        includeData = includeData
                     ),
-                    consentLanguage = language,
-                    campaignEnv = campaigns.environment,
-                    idfaStatus = idfaStatus,
-                    includeData = includeData
-                ),
-                metadata = MessagesRequest.MetaData(
-                    gdpr = MessagesRequest.MetaData.Campaign(state.gdpr.consents.applies),
-                    usnat = MessagesRequest.MetaData.Campaign(state.usNat.consents.applies),
-                    ccpa = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies),
-                    globalcmp = MessagesRequest.MetaData.Campaign(state.globalcmp.consents.applies)
-                ),
-                nonKeyedLocalState = state.nonKeyedLocalState,
-                localState = state.localState
-            )))
+                    metadata = MessagesRequest.MetaData(
+                        gdpr = MessagesRequest.MetaData.Campaign(state.gdpr.consents.applies),
+                        usnat = MessagesRequest.MetaData.Campaign(state.usNat.consents.applies),
+                        ccpa = MessagesRequest.MetaData.Campaign(state.ccpa.consents.applies),
+                        globalcmp = MessagesRequest.MetaData.Campaign(state.globalcmp.consents.applies)
+                    ),
+                    nonKeyedLocalState = state.nonKeyedLocalState,
+                    localState = state.localState
+                )))
+            } catch (error: Exception) {
+                throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.MESSAGES)
+            }
         } else {
             emptyList()
         }
@@ -562,13 +582,21 @@ class Coordinator(
     private suspend fun sampleAndPvData(campaign: State.SPSampleable, request: PvDataRequest) =
         if (campaign.wasSampled == null) {
             if (sample(campaign.sampleRate)) {
-                handlePvDataResponse(spClient.postPvData(request))
+                try {
+                    handlePvDataResponse(spClient.postPvData(request))
+                } catch (error: Exception) {
+                    throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.PV_DATA)
+                }
                 true
             } else {
                 false
             }
         } else if (campaign.wasSampled == true) {
-            handlePvDataResponse(spClient.postPvData(request))
+            try {
+                handlePvDataResponse(spClient.postPvData(request))
+            } catch (error: Exception) {
+                throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.PV_DATA)
+            }
             true
         } else {
             false
