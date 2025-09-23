@@ -3,9 +3,15 @@ package com.sourcepoint.mobile_core.models
 open class SPError(
     val code: String = "sp_metric_generic_mobile-core_error",
     val description: String = "Something went wrong in the Mobile Core",
-    val causedBy: SPError? = null,
+    val causedBy: Exception? = null,
     open val campaignType: SPCampaignType? = null
-): Exception(description)
+): Exception(description) {
+    companion object {
+        fun castToSPError(error: Exception): SPError =
+            error as? SPError ?:
+                SPError(causedBy = error, description = error.message ?: "Something went wrong in the Mobile Core")
+    }
+}
 
 open class SPUnknownNetworkError(path: String): SPError(
     code = "sp_metric_unknown_network_error_${path}",
@@ -76,3 +82,27 @@ open class DeleteCustomConsentGDPRException(causedBy: SPError): SPError(
     description = "Unable to delete CustomConsentGDPR due to ${causedBy.description}",
     causedBy = causedBy
 )
+
+open class InvalidResponseAPIError(causedBy: Exception, endpoint: InvalidResponseAPICode): SPError (
+    code = "sp_metric_invalid_response_api${endpoint.type}",
+    causedBy = castToSPError(causedBy)
+)
+
+enum class InvalidResponseAPICode(val type: String) {
+    META_DATA("_meta-data"),
+    CONSENT_STATUS("_consent-status"),
+    PV_DATA("_pv-data"),
+    MESSAGES("_messages"),
+    ERROR_METRICS("_error-metrics"),
+    CCPA_ACTION("_CCPA-action"),
+    GDPR_ACTION("_GDPR-action"),
+    USNAT_ACTION("_USNAT-action"),
+    IDFA_STATUS( "_IDFA-status"),
+    CCPA_PRIVACY_MANAGER("_CCPA-privacy-manager"),
+    CHOICE_ALL("_choice-all"),
+    GDPR_PRIVACY_MANAGER("_GDPR-privacy-manager"),
+    CCPA_MESSAGE("_CCPA-message"),
+    GDPR_MESSAGE("_GDPR-message"),
+    DELETE_CUSTOM_CONSENT("_delete-custom-consent-GDPR"),
+    EMPTY("")
+}
