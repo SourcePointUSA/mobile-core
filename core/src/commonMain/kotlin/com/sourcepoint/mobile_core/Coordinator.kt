@@ -3,6 +3,10 @@ package com.sourcepoint.mobile_core
 import com.sourcepoint.mobile_core.models.DeleteCustomConsentGDPRException
 import com.sourcepoint.mobile_core.models.InvalidCustomConsentUUIDError
 import com.sourcepoint.mobile_core.models.InvalidResponseAPICode
+import com.sourcepoint.mobile_core.models.InvalidResponseAPICode.META_DATA
+import com.sourcepoint.mobile_core.models.InvalidResponseAPICode.CONSENT_STATUS
+import com.sourcepoint.mobile_core.models.InvalidResponseAPICode.MESSAGES
+import com.sourcepoint.mobile_core.models.InvalidResponseAPICode.PV_DATA
 import com.sourcepoint.mobile_core.models.InvalidResponseAPIError
 import com.sourcepoint.mobile_core.models.LoadMessagesException
 import com.sourcepoint.mobile_core.models.MessageToDisplay
@@ -230,6 +234,9 @@ class Coordinator(
         return messages
     }
 
+    private suspend fun <T>executeLoadMessagesAPIRequest(endpoint: InvalidResponseAPICode, command: suspend () -> T): T =
+        try { command() } catch (error: Exception) { throw InvalidResponseAPIError(causedBy = error, endpoint = endpoint) }
+
     private fun handleMetaDataResponse(response: MetaDataResponse) {
         response.gdpr?.let {
             state.gdpr = state.gdpr.resetStateIfVendorListChanges(it.vendorListId)
@@ -296,18 +303,14 @@ class Coordinator(
     }
 
     private suspend fun metaData(next: suspend () -> Unit) {
-        try {
-            handleMetaDataResponse(
-                spClient.getMetaData(
-                MetaDataRequest.Campaigns(
+        executeLoadMessagesAPIRequest(META_DATA) {
+            handleMetaDataResponse(spClient.getMetaData(MetaDataRequest.Campaigns(
                 gdpr = campaigns.gdpr?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
                 ccpa = campaigns.ccpa?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
                 usnat = campaigns.usnat?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
                 globalcmp = campaigns.globalcmp?.let { MetaDataRequest.Campaigns.Campaign(it.groupPmId) },
                 preferences = campaigns.preferences?.let { MetaDataRequest.Campaigns.Campaign() }
             )))
-        } catch (error: Exception) {
-            throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.META_DATA)
         }
         next()
     }
@@ -392,7 +395,7 @@ class Coordinator(
 
     suspend fun consentStatus(next: suspend () -> Unit) {
         if (shouldCallConsentStatus) {
-            try {
+            executeLoadMessagesAPIRequest(CONSENT_STATUS) {
                 handleConsentStatusResponse(spClient.getConsentStatus(
                     authId = authId,
                     metadata = ConsentStatusRequest.MetaData(
@@ -436,8 +439,6 @@ class Coordinator(
                         }
                     )
                 ))
-            } catch (error: Exception) {
-                throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.CONSENT_STATUS)
             }
         }
         next()
@@ -486,7 +487,7 @@ class Coordinator(
 
     private suspend fun messages(language: SPMessageLanguage): List<MessageToDisplay> =
         if (shouldCallMessages) {
-            try {
+            executeLoadMessagesAPIRequest(MESSAGES) {
                 handleMessagesResponse(
                     spClient.getMessages(
                         MessagesRequest(
@@ -551,8 +552,6 @@ class Coordinator(
                     nonKeyedLocalState = state.nonKeyedLocalState,
                     localState = state.localState
                 )))
-            } catch (error: Exception) {
-                throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.MESSAGES)
             }
         } else {
             emptyList()
@@ -582,21 +581,13 @@ class Coordinator(
     private suspend fun sampleAndPvData(campaign: State.SPSampleable, request: PvDataRequest) =
         if (campaign.wasSampled == null) {
             if (sample(campaign.sampleRate)) {
-                try {
-                    handlePvDataResponse(spClient.postPvData(request))
-                } catch (error: Exception) {
-                    throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.PV_DATA)
-                }
+                executeLoadMessagesAPIRequest(PV_DATA) { handlePvDataResponse(spClient.postPvData(request)) }
                 true
             } else {
                 false
             }
         } else if (campaign.wasSampled == true) {
-            try {
-                handlePvDataResponse(spClient.postPvData(request))
-            } catch (error: Exception) {
-                throw InvalidResponseAPIError(causedBy = error, endpoint = InvalidResponseAPICode.PV_DATA)
-            }
+            executeLoadMessagesAPIRequest(PV_DATA) { handlePvDataResponse(spClient.postPvData(request)) }
             true
         } else {
             false
