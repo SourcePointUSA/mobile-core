@@ -227,7 +227,7 @@ class Coordinator(
                 }
             }
         } catch (error: SPError) {
-            throw LoadMessagesException(causedBy = error)
+            throw LoadMessagesException(cause = error)
         }
         storeLegislationConsent(userData = userData)
         persistState()
@@ -235,7 +235,7 @@ class Coordinator(
     }
 
     private suspend fun <T>executeLoadMessagesAPIRequest(endpoint: InvalidResponseAPICode, command: suspend () -> T): T =
-        try { command() } catch (error: Exception) { throw InvalidResponseAPIError(causedBy = error, endpoint = endpoint) }
+        try { command() } catch (error: Exception) { throw InvalidResponseAPIError(cause = error, endpoint = endpoint) }
 
     private fun handleMetaDataResponse(response: MetaDataResponse) {
         response.gdpr?.let {
@@ -1026,7 +1026,7 @@ class Coordinator(
                 IOS14, SPCampaignType.Unknown -> {}
             }
         } catch (error: SPError) {
-            throw ReportActionException(causedBy = error, actionType = action.type, campaignType = action.campaignType)
+            throw ReportActionException(cause = error, actionType = action.type, campaignType = action.campaignType)
         } finally {
             storeLegislationConsent(userData = userData)
             persistState()
@@ -1063,7 +1063,7 @@ class Coordinator(
                 legIntCategories = legIntCategories
             ))
         } catch (error: SPError) {
-            throw PostCustomConsentGDPRException(causedBy = error)
+            throw PostCustomConsentGDPRException(cause = error)
         }
     }
 
@@ -1084,7 +1084,7 @@ class Coordinator(
                 legIntCategories = legIntCategories
             ))
         } catch (error: SPError) {
-            throw DeleteCustomConsentGDPRException(causedBy = error)
+            throw DeleteCustomConsentGDPRException(cause = error)
         }
     }
 

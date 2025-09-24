@@ -3,13 +3,13 @@ package com.sourcepoint.mobile_core.models
 open class SPError(
     val code: String = "sp_metric_generic_mobile-core_error",
     val description: String = "Something went wrong in the Mobile Core",
-    val causedBy: Exception? = null,
+    override val cause: Throwable? = null,
     open val campaignType: SPCampaignType? = null
-): Exception(description) {
+): Throwable(description) {
     companion object {
         fun castToSPError(error: Exception): SPError =
             error as? SPError ?:
-                SPError(causedBy = error, description = error.message ?: "Something went wrong in the Mobile Core")
+                SPError(cause = error, description = error.message ?: "Something went wrong in the Mobile Core")
     }
 }
 
@@ -58,34 +58,35 @@ open class InvalidPropertyNameError(propertyName: String): SPError(
 open class ReportActionException(
     actionType: SPActionType,
     campaignType: SPCampaignType?,
-    causedBy: SPError
+    cause: SPError
 ): SPError(
     code = "sp_metric_report_action_exception_${campaignType?.name}_${actionType.name}",
-    description = "Unable to report ${actionType.name} action for campaign ${campaignType?.name} due to ${causedBy.description}",
-    causedBy = causedBy
+    description = "Unable to report ${actionType.name} action for campaign ${campaignType?.name} due to ${cause.description}",
+    cause = cause
 )
 
-open class LoadMessagesException(causedBy: SPError): SPError(
+open class LoadMessagesException(cause: SPError): SPError(
     code = "sp_metric_load_messages",
-    description = "Unable to loadMessages due to ${causedBy.description}",
-    causedBy = causedBy
+    description = "Unable to loadMessages due to ${cause.description}",
+    cause = cause
 )
 
-open class PostCustomConsentGDPRException(causedBy: SPError): SPError(
+open class PostCustomConsentGDPRException(cause: SPError): SPError(
     code = "sp_metric_post_custom_consent_gdpr",
-    description = "Unable to post CustomConsentGDPR due to ${causedBy.description}",
-    causedBy = causedBy
+    description = "Unable to post CustomConsentGDPR due to ${cause.description}",
+    cause = cause
 )
 
-open class DeleteCustomConsentGDPRException(causedBy: SPError): SPError(
+open class DeleteCustomConsentGDPRException(cause: SPError): SPError(
     code = "sp_metric_delete_custom_consent_gdpr",
-    description = "Unable to delete CustomConsentGDPR due to ${causedBy.description}",
-    causedBy = causedBy
+    description = "Unable to delete CustomConsentGDPR due to ${cause.description}",
+    cause = cause
 )
 
-open class InvalidResponseAPIError(causedBy: Exception, endpoint: InvalidResponseAPICode): SPError (
+open class InvalidResponseAPIError(cause: Exception, endpoint: InvalidResponseAPICode): SPError (
     code = "sp_metric_invalid_response_api${endpoint.type}",
-    causedBy = castToSPError(causedBy)
+    description = "The SDK got an unexpected response from ${endpoint.name}",
+    cause = castToSPError(cause)
 )
 
 enum class InvalidResponseAPICode(val type: String) {
