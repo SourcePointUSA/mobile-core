@@ -7,7 +7,7 @@ open class SPError(
     open val campaignType: SPCampaignType? = null
 ): Throwable(description) {
     companion object {
-        fun castToSPError(error: Exception): SPError =
+        fun castToSPError(error: Throwable): SPError =
             error as? SPError ?:
                 SPError(cause = error, description = error.message ?: "Something went wrong in the Mobile Core")
     }
@@ -83,7 +83,7 @@ open class DeleteCustomConsentGDPRException(cause: SPError): SPError(
     cause = cause
 )
 
-open class InvalidResponseAPIError(cause: Exception, endpoint: InvalidResponseAPICode): SPError (
+open class InvalidResponseAPIError(cause: Throwable, endpoint: InvalidResponseAPICode): SPError (
     code = "sp_metric_invalid_response_api${endpoint.type}",
     description = "The SDK got an unexpected response from ${endpoint.name}",
     cause = castToSPError(cause)
