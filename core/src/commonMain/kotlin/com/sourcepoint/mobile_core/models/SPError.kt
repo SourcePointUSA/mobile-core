@@ -83,13 +83,13 @@ open class DeleteCustomConsentGDPRException(cause: SPError): SPError(
     cause = cause
 )
 
-open class InvalidResponseAPIError(cause: Throwable, endpoint: InvalidResponseAPICode): SPError (
+open class InvalidRequestAPIError(cause: Throwable, endpoint: InvalidAPICode): SPError (
     code = "sp_metric_invalid_response_api${endpoint.type}",
     description = "The SDK got an unexpected response from ${endpoint.name}",
     cause = castToSPError(cause)
 )
 
-enum class InvalidResponseAPICode(val type: String) {
+enum class InvalidAPICode(val type: String) {
     META_DATA("_meta-data"),
     CONSENT_STATUS("_consent-status"),
     PV_DATA("_pv-data"),
@@ -98,12 +98,15 @@ enum class InvalidResponseAPICode(val type: String) {
     CCPA_ACTION("_CCPA-action"),
     GDPR_ACTION("_GDPR-action"),
     USNAT_ACTION("_USNAT-action"),
+    GLOBALCMP_ACTION("_GLOBALCMP-action"),
+    PREFERENCES_ACTION("_PREFERENCES-action"),
     IDFA_STATUS( "_IDFA-status"),
-    CCPA_PRIVACY_MANAGER("_CCPA-privacy-manager"),
     CHOICE_ALL("_choice-all"),
+    CUSTOM_CONSENT("custom-consent-GDPR"),
+    DELETE_CUSTOM_CONSENT("_delete-custom-consent-GDPR"),
+    CCPA_PRIVACY_MANAGER("_CCPA-privacy-manager"),
     GDPR_PRIVACY_MANAGER("_GDPR-privacy-manager"),
     CCPA_MESSAGE("_CCPA-message"),
     GDPR_MESSAGE("_GDPR-message"),
-    DELETE_CUSTOM_CONSENT("_delete-custom-consent-GDPR"),
     EMPTY("")
 }
