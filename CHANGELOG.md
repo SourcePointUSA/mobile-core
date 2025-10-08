@@ -1,3 +1,6 @@
+## 0.1.13 (Oct, 08, 2025)
+* [DIA-6040](https://sourcepoint.atlassian.net/browse/DIA-6040) Fix crashes Due to Unhandled HttpRequestTimeoutException PR #80
+
 ## 0.1.12 (Sep, 22, 2025)
 * [DIA-6102](https://sourcepoint.atlassian.net/browse/DIA-6102) SDKs Are Setting US Privacy String Even When supportLegacyUSPString: true Is Not Used
 * [DIA-6098](https://sourcepoint.atlassian.net/browse/DIA-6098) Fix authId not being passed to POST choice
