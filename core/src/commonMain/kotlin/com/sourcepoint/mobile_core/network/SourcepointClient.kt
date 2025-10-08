@@ -3,8 +3,12 @@ package com.sourcepoint.mobile_core.network
 import com.sourcepoint.core.BuildConfig
 import com.sourcepoint.mobile_core.DeviceInformation
 import com.sourcepoint.mobile_core.models.InvalidChoiceAllParamsError
+import com.sourcepoint.mobile_core.models.InvalidAPICode
+import com.sourcepoint.mobile_core.models.InvalidAPICode.*
+import com.sourcepoint.mobile_core.models.InvalidRequestAPIError
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPCampaignType
+import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
 import com.sourcepoint.mobile_core.models.SPNetworkError
@@ -199,68 +203,80 @@ class SourcepointClient(
 
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
 
-    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse = http.get(
-        URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "meta-data")
-            withParams(
-                MetaDataRequest(
-                    accountId = accountId,
-                    propertyId = propertyId,
-                    metadata = campaigns
-                )
-            )
-        }.build()
-    ).bodyOr(::reportErrorAndThrow)
+    override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns): MetaDataResponse =
+        executeAPIRequest(META_DATA) {
+            http.get(
+                URLBuilder(baseWrapperUrl).apply {
+                    path("wrapper", "v2", "meta-data")
+                    withParams(
+                        MetaDataRequest(
+                            accountId = accountId,
+                            propertyId = propertyId,
+                            metadata = campaigns
+                        )
+                    )
+                }.build()
+            ).bodyOr(::reportErrorAndThrow)
+        }
 
     override suspend fun postPvData(request: PvDataRequest): PvDataResponse =
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "pv-data")
-            withParams(DefaultRequest())
+        executeAPIRequest(PV_DATA) {
+            http.post(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "v2", "pv-data")
+                withParams(DefaultRequest())
             }.build()) {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }.bodyOr(::reportErrorAndThrow)
+        }
 
     override suspend fun getConsentStatus(authId: String?, metadata: ConsentStatusRequest.MetaData): ConsentStatusResponse =
-        http.get(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "consent-status")
-            withParams(
-                ConsentStatusRequest(
-                    propertyId = propertyId,
-                    authId = authId,
-                    metadata = metadata
-                )
-            )
-        }.build()
-        ).bodyOr(::reportErrorAndThrow)
+        executeAPIRequest(CONSENT_STATUS) {
+            http.get(
+                URLBuilder(baseWrapperUrl).apply {
+                    path("wrapper", "v2", "consent-status")
+                    withParams(
+                        ConsentStatusRequest(
+                            propertyId = propertyId,
+                            authId = authId,
+                            metadata = metadata
+                        )
+                    )
+                }.build()
+            ).bodyOr(::reportErrorAndThrow)
+        }
 
     @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     private suspend inline fun <reified ChoiceRequest, reified ChoiceResponse> genericPostChoiceAction(
         actionType: SPActionType,
+        endpoint: InvalidAPICode,
         fromCampaign: String,
         request: ChoiceRequest
-    ): ChoiceResponse = http.post(URLBuilder(baseWrapperUrl).apply {
-        path("wrapper", "v2", "choice", fromCampaign, actionType.type.toString())
-        withParams(DefaultRequest())
-    }.build()) {
-        contentType(ContentType.Application.Json)
-        setBody(request)
-    }.bodyOr(::reportErrorAndThrow)
+    ): ChoiceResponse =
+        executeAPIRequest(endpoint) {
+            http.post(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "v2", "choice", fromCampaign, actionType.type.toString())
+                withParams(DefaultRequest())
+            }.build()) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.bodyOr(::reportErrorAndThrow)
+        }
 
     override suspend fun postChoiceGDPRAction(actionType: SPActionType, request: GDPRChoiceRequest): GDPRChoiceResponse =
-        genericPostChoiceAction(actionType, "gdpr", request)
+        genericPostChoiceAction(actionType, GDPR_ACTION, "gdpr", request)
 
     override suspend fun postChoiceUSNatAction(actionType: SPActionType, request: USNatChoiceRequest): USNatChoiceResponse =
-        genericPostChoiceAction(actionType, "usnat", request)
+        genericPostChoiceAction(actionType, USNAT_ACTION, "usnat", request)
 
     override suspend fun postChoiceGlobalCmpAction(actionType: SPActionType, request: GlobalCmpChoiceRequest): GlobalCmpChoiceResponse =
-        genericPostChoiceAction(actionType, "global-cmp", request)
+        genericPostChoiceAction(actionType, GLOBALCMP_ACTION, "global-cmp", request)
 
     override suspend fun postChoicePreferencesAction(actionType: SPActionType, request: PreferencesChoiceRequest): PreferencesChoiceResponse =
-        genericPostChoiceAction(actionType, "preferences", request)
+        genericPostChoiceAction(actionType, PREFERENCES_ACTION, "preferences", request)
 
     override suspend fun postChoiceCCPAAction(actionType: SPActionType, request: CCPAChoiceRequest): CCPAChoiceResponse =
-        genericPostChoiceAction(actionType, "ccpa", request)
+        genericPostChoiceAction(actionType, CCPA_ACTION, "ccpa", request)
 
     override suspend fun getChoiceAll(
         actionType: SPActionType,
@@ -271,17 +287,21 @@ class SourcepointClient(
             SPActionType.RejectAll -> { "reject-all" }
             else -> throw InvalidChoiceAllParamsError()
         }
-        return http.get(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "choice", choicePath)
-            withParams(ChoiceAllRequest(accountId, propertyId, campaigns))
-        }.build()).bodyOr(::reportErrorAndThrow)
+        return executeAPIRequest(CHOICE_ALL) {
+            return@executeAPIRequest http.get(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "v2", "choice", choicePath)
+                withParams(ChoiceAllRequest(accountId, propertyId, campaigns))
+            }.build()).bodyOr(::reportErrorAndThrow)
+        }
     }
 
     override suspend fun getMessages(request: MessagesRequest): MessagesResponse =
-        http.get(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "v2", "messages")
-            withParams(request)
-        }.build()).bodyOr(::reportErrorAndThrow)
+        executeAPIRequest(MESSAGES) {
+            http.get(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "v2", "messages")
+                withParams(request)
+            }.build()).bodyOr(::reportErrorAndThrow)
+        }
 
     override suspend fun postReportIdfaStatus(
         propertyId: Int?,
@@ -293,26 +313,28 @@ class SourcepointClient(
         iosVersion: String,
         partitionUUID: String?
     ) {
-        http.post(URLBuilder(baseWrapperUrl).apply {
-            path("wrapper", "metrics", "v1", "apple-tracking")
-            withParams(DefaultRequest())
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(
-                IDFAStatusReportRequest(
-                    accountId = accountId,
-                    propertyId = propertyId,
-                    uuid = uuid,
-                    uuidType = uuidType,
-                    requestUUID = requestUUID,
-                    iosVersion = iosVersion,
-                    appleTracking = IDFAStatusReportRequest.AppleTrackingPayload(
-                        appleChoice = idfaStatus,
-                        appleMsgId = messageId,
-                        messagePartitionUUID = partitionUUID
+        executeAPIRequest(IDFA_STATUS) {
+            http.post(URLBuilder(baseWrapperUrl).apply {
+                path("wrapper", "metrics", "v1", "apple-tracking")
+                withParams(DefaultRequest())
+            }.build()) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    IDFAStatusReportRequest(
+                        accountId = accountId,
+                        propertyId = propertyId,
+                        uuid = uuid,
+                        uuidType = uuidType,
+                        requestUUID = requestUUID,
+                        iosVersion = iosVersion,
+                        appleTracking = IDFAStatusReportRequest.AppleTrackingPayload(
+                            appleChoice = idfaStatus,
+                            appleMsgId = messageId,
+                            messagePartitionUUID = partitionUUID
+                        )
                     )
                 )
-            )
+            }
         }
     }
 
@@ -323,6 +345,7 @@ class SourcepointClient(
         categories: List<String>,
         legIntCategories: List<String>
     ): GDPRConsent =
+    executeAPIRequest(CUSTOM_CONSENT) {
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
             withParams(DefaultRequest())
@@ -335,8 +358,10 @@ class SourcepointClient(
                     vendors = vendors,
                     categories = categories,
                     legIntCategories = legIntCategories
-            ))
+                )
+            )
         }.bodyOr(::reportErrorAndThrow)
+    }
 
     override suspend fun deleteCustomConsentGDPR(
         consentUUID: String,
@@ -345,23 +370,26 @@ class SourcepointClient(
         categories: List<String>,
         legIntCategories: List<String>
     ): GDPRConsent =
-        http.delete(URLBuilder(baseWrapperUrl).apply {
-            path("consent", "tcfv2", "consent", "v3", "custom", propertyId.toString())
-            withParams(DeleteCustomConsentRequest(consentUUID))
-        }.build()) {
-            contentType(ContentType.Application.Json)
-            setBody(
-                CustomConsentRequest(
-                    consentUUID = consentUUID,
-                    propertyId = propertyId,
-                    vendors = vendors,
-                    categories = categories,
-                    legIntCategories = legIntCategories
-            ))
-        }.bodyOr(::reportErrorAndThrow)
+        executeAPIRequest(DELETE_CUSTOM_CONSENT) {
+            http.delete(URLBuilder(baseWrapperUrl).apply {
+                path("consent", "tcfv2", "consent", "v3", "custom", propertyId.toString())
+                withParams(DeleteCustomConsentRequest(consentUUID))
+            }.build()) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    CustomConsentRequest(
+                        consentUUID = consentUUID,
+                        propertyId = propertyId,
+                        vendors = vendors,
+                        categories = categories,
+                        legIntCategories = legIntCategories
+                    )
+                )
+            }.bodyOr(::reportErrorAndThrow)
+        }
 
     override suspend fun errorMetrics(error: SPError) {
-        try {
+        executeAPIRequest(ERROR_METRICS) {
             http.post(URLBuilder(baseWrapperUrl).apply {
                 path("wrapper", "metrics", "v1", "custom-metrics")
                 withParams(DefaultRequest())
@@ -379,7 +407,7 @@ class SourcepointClient(
                     )
                 )
             }
-        } catch (_: Exception) {}
+        }
     }
 
     private suspend fun reportErrorAndThrow(error: SPError): SPError {
@@ -387,6 +415,14 @@ class SourcepointClient(
         return error
     }
 }
+
+private suspend fun <T>executeAPIRequest(endpoint: InvalidAPICode, command: suspend () -> T): T =
+    try { command() } catch (error: Throwable) {
+        when (error) {
+            is SPUnableToParseBodyError, is SPClientTimeout, is SPNetworkError -> throw error
+            else -> throw InvalidRequestAPIError(cause = error, endpoint = endpoint)
+        }
+    }
 
 @Throws(SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
 internal suspend inline fun <reified T> HttpResponse.bodyOr(loggingFunction: KSuspendFunction1<SPError, SPError>): T =
