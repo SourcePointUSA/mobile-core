@@ -12,6 +12,7 @@ import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPUnknownNetworkError
 import com.sourcepoint.mobile_core.models.consents.SPUserData
+import com.sourcepoint.mobile_core.network.responses.UsnatLocationResponse
 import kotlinx.serialization.json.JsonObject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -58,4 +59,7 @@ interface ICoordinator {
     fun clearLocalData()
 
     fun setTranslateMessage(value: Boolean)
+
+    @Throws(CancellationException::class)
+    suspend fun getUsnatLocation(): UsnatLocationResponse
 }

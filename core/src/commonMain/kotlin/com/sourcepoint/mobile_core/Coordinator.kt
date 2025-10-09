@@ -1122,4 +1122,6 @@ class Coordinator(
     override fun setTranslateMessage(value: Boolean) {
         includeData.translateMessage = value
     }
+
+    override suspend fun getUsnatLocation() = spClient.getUsnatLocation()
 }

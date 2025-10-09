@@ -40,6 +40,7 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PreferencesChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
+import com.sourcepoint.mobile_core.network.responses.UsnatLocationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.call.body
@@ -114,6 +115,9 @@ interface SPClient {
 
     @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
     suspend fun getMessages(request: MessagesRequest): MessagesResponse
+
+    @Throws(SPNetworkError::class, SPUnableToParseBodyError::class, CancellationException::class, HttpRequestTimeoutException::class)
+    suspend fun getUsnatLocation(): UsnatLocationResponse
 
     suspend fun postReportIdfaStatus(
         propertyId: Int?,
@@ -312,6 +316,14 @@ class SourcepointClient(
                 withParams(request)
             }.build()).bodyOr(::reportErrorAndThrow)
         }
+
+    override suspend fun getUsnatLocation(): UsnatLocationResponse =
+        executeAPIRequest(USNAT_LOCATION) {
+            http.get(URLBuilder(baseWrapperUrl).apply {
+                path("usnat", "admin", "location")
+                withParams(DefaultRequest(geoOverride = internalFlags.geoOverride))
+            }.build()).bodyOr(::reportErrorAndThrow)
+    }
 
     override suspend fun postReportIdfaStatus(
         propertyId: Int?,
