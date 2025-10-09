@@ -11,6 +11,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
+import com.sourcepoint.mobile_core.models.SPInternalFlags
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
 import com.sourcepoint.mobile_core.models.consents.GDPRConsent
@@ -151,7 +152,8 @@ class SourcepointClient(
     private val propertyId: Int,
     httpEngine: HttpClientEngine?,
     private val device: DeviceInformation,
-    private val requestTimeoutInSeconds: Int
+    private val requestTimeoutInSeconds: Int,
+    private val internalFlags: SPInternalFlags
 ): SPClient {
     private val config:  HttpClientConfig<*>.() -> Unit = {
         install(HttpTimeout) { requestTimeoutMillis = requestTimeoutInSeconds.toLong() * 1000 }
@@ -180,12 +182,18 @@ class SourcepointClient(
     }
     private val http = if (httpEngine != null) HttpClient(httpEngine, config) else HttpClient(config)
 
-    constructor(accountId: Int, propertyId: Int, requestTimeoutInSeconds: Int = 5) : this(
-        accountId,
-        propertyId,
+    constructor(
+        accountId: Int,
+        propertyId: Int,
+        requestTimeoutInSeconds: Int = 5,
+        internalFlags: SPInternalFlags = SPInternalFlags()
+    ) : this(
+        accountId = accountId,
+        propertyId = propertyId,
         httpEngine = null,
         device = DeviceInformation(),
-        requestTimeoutInSeconds = requestTimeoutInSeconds
+        requestTimeoutInSeconds = requestTimeoutInSeconds,
+        internalFlags = internalFlags
     )
 
     constructor(
@@ -193,12 +201,14 @@ class SourcepointClient(
         propertyId: Int,
         httpEngine: HttpClientEngine,
         requestTimeoutInSeconds: Int = 5,
+        internalFlags: SPInternalFlags = SPInternalFlags()
     ) : this(
         accountId,
         propertyId,
         httpEngine = httpEngine,
         device = DeviceInformation(),
-        requestTimeoutInSeconds = requestTimeoutInSeconds
+        requestTimeoutInSeconds = requestTimeoutInSeconds,
+        internalFlags = internalFlags
     )
 
     private val baseWrapperUrl = "https://cdn.privacy-mgmt.com/"
@@ -223,7 +233,7 @@ class SourcepointClient(
         executeAPIRequest(PV_DATA) {
             http.post(URLBuilder(baseWrapperUrl).apply {
                 path("wrapper", "v2", "pv-data")
-                withParams(DefaultRequest())
+                withParams(DefaultRequest(geoOverride = internalFlags.geoOverride))
             }.build()) {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -256,7 +266,7 @@ class SourcepointClient(
         executeAPIRequest(endpoint) {
             http.post(URLBuilder(baseWrapperUrl).apply {
                 path("wrapper", "v2", "choice", fromCampaign, actionType.type.toString())
-                withParams(DefaultRequest())
+                withParams(DefaultRequest(geoOverride = internalFlags.geoOverride))
             }.build()) {
                 contentType(ContentType.Application.Json)
                 setBody(request)
@@ -316,7 +326,7 @@ class SourcepointClient(
         executeAPIRequest(IDFA_STATUS) {
             http.post(URLBuilder(baseWrapperUrl).apply {
                 path("wrapper", "metrics", "v1", "apple-tracking")
-                withParams(DefaultRequest())
+                withParams(DefaultRequest(geoOverride = internalFlags.geoOverride))
             }.build()) {
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -348,7 +358,7 @@ class SourcepointClient(
     executeAPIRequest(CUSTOM_CONSENT) {
         http.post(URLBuilder(baseWrapperUrl).apply {
             path("wrapper", "tcfv2", "v1", "gdpr", "custom-consent")
-            withParams(DefaultRequest())
+            withParams(DefaultRequest(geoOverride = internalFlags.geoOverride))
         }.build()) {
             contentType(ContentType.Application.Json)
             setBody(
@@ -392,7 +402,7 @@ class SourcepointClient(
         executeAPIRequest(ERROR_METRICS) {
             http.post(URLBuilder(baseWrapperUrl).apply {
                 path("wrapper", "metrics", "v1", "custom-metrics")
-                withParams(DefaultRequest())
+                withParams(DefaultRequest(geoOverride = internalFlags.geoOverride))
             }.build()) {
                 contentType(ContentType.Application.Json)
                 setBody(
