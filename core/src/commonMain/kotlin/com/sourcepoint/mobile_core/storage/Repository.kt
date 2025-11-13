@@ -3,8 +3,6 @@ package com.sourcepoint.mobile_core.storage
 import com.russhwolf.settings.Settings
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.State
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class Repository(private val storage: Settings) {
@@ -22,10 +20,8 @@ class Repository(private val storage: Settings) {
             .filter { it.startsWith(TCF_PREFIX) }
             .associateWith { storage[it]!! }
         set(value) {
-            runBlocking {
-                storage.removeKeysStartingWith(prefix = TCF_PREFIX)
-                value.entries.forEach { storage[it.key] = it.value }
-            }
+            storage.removeKeysStartingWith(prefix = TCF_PREFIX)
+            value.entries.forEach { storage[it.key] = it.value }
         }
 
     var gppData: IABData
@@ -33,10 +29,8 @@ class Repository(private val storage: Settings) {
             .filter { it.startsWith(GPP_PREFIX) }
             .associateWith { storage[it]!! }
         set(value) {
-            runBlocking {
-                storage.removeKeysStartingWith(prefix = GPP_PREFIX)
-                value.entries.forEach { storage[it.key] = it.value }
-            }
+            storage.removeKeysStartingWith(prefix = GPP_PREFIX)
+            value.entries.forEach { storage[it.key] = it.value }
         }
 
     var uspString: String?
@@ -50,11 +44,9 @@ class Repository(private val storage: Settings) {
         set(value) { storage[SP_STATE_KEY] = Json.encodeToString(value) }
 
     fun clear() {
-        runBlocking {
-            storage.removeKeysStartingWith(prefix = TCF_PREFIX)
-            storage.removeKeysStartingWith(prefix = GPP_PREFIX)
-            storage.remove(USPSTRING_KEY)
-            storage.remove(SP_STATE_KEY)
-        }
+        storage.removeKeysStartingWith(prefix = TCF_PREFIX)
+        storage.removeKeysStartingWith(prefix = GPP_PREFIX)
+        storage.remove(USPSTRING_KEY)
+        storage.remove(SP_STATE_KEY)
     }
 }

@@ -1,6 +1,7 @@
 package com.sourcepoint.mobile_core.storage
 
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import com.russhwolf.settings.set as originalSet
 import com.russhwolf.settings.get as originalGet
@@ -19,10 +20,12 @@ import kotlinx.serialization.json.longOrNull
 
 private val settingsMutex = kotlinx.coroutines.sync.Mutex()
 
-internal suspend fun Settings.removeKeysStartingWith(prefix: String) {
-    settingsMutex.withLock {
-        val toRemove = keys.filter { it.startsWith(prefix) }
-        toRemove.forEach { remove(it) }
+internal fun Settings.removeKeysStartingWith(prefix: String) {
+    runBlocking {
+        settingsMutex.withLock {
+            val toRemove = keys.filter { it.startsWith(prefix) }
+            toRemove.forEach { remove(it) }
+        }
     }
 }
 
