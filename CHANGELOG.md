@@ -1,3 +1,6 @@
+## 0.1.14 (Nov, 17, 2025)
+* [DIA-6165](https://sourcepoint.atlassian.net/browse/DIA-6165) Add a mutex to removeKeysStartingWith to avoid a race condition. PR #82
+
 ## 0.1.13 (Oct, 08, 2025)
 * [DIA-6040](https://sourcepoint.atlassian.net/browse/DIA-6040) Fix crashes Due to Unhandled HttpRequestTimeoutException PR #80
 
