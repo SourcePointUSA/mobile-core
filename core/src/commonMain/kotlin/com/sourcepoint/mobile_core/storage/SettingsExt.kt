@@ -1,6 +1,8 @@
 package com.sourcepoint.mobile_core.storage
 
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.withLock
 import com.russhwolf.settings.set as originalSet
 import com.russhwolf.settings.get as originalGet
 import kotlinx.serialization.json.JsonNull
@@ -16,8 +18,15 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.long
 import kotlinx.serialization.json.longOrNull
 
+private val settingsMutex = kotlinx.coroutines.sync.Mutex()
+
 internal fun Settings.removeKeysStartingWith(prefix: String) {
-    keys.filter { it.startsWith(prefix) }.forEach { remove(it) }
+    runBlocking {
+        settingsMutex.withLock {
+            val toRemove = keys.filter { it.startsWith(prefix) }
+            toRemove.forEach { remove(it) }
+        }
+    }
 }
 
 internal operator fun Settings.set(key: String, value: JsonPrimitive) = putJsonPrimitive(key, value)

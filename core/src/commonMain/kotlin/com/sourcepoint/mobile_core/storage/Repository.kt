@@ -3,7 +3,6 @@ package com.sourcepoint.mobile_core.storage
 import com.russhwolf.settings.Settings
 import com.sourcepoint.mobile_core.models.consents.IABData
 import com.sourcepoint.mobile_core.models.consents.State
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class Repository(private val storage: Settings) {
