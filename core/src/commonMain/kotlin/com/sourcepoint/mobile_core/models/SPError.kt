@@ -108,5 +108,6 @@ enum class InvalidAPICode(val type: String) {
     GDPR_PRIVACY_MANAGER("_GDPR-privacy-manager"),
     CCPA_MESSAGE("_CCPA-message"),
     GDPR_MESSAGE("_GDPR-message"),
+    USNAT_LOCATION(type = "_usnat_location"),
     EMPTY("")
 }

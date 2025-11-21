@@ -26,6 +26,7 @@ import com.sourcepoint.mobile_core.network.responses.MetaDataResponse
 import com.sourcepoint.mobile_core.network.responses.PreferencesChoiceResponse
 import com.sourcepoint.mobile_core.network.responses.PvDataResponse
 import com.sourcepoint.mobile_core.network.responses.USNatChoiceResponse
+import com.sourcepoint.mobile_core.network.responses.UsnatLocationResponse
 
 @Suppress("MemberVisibilityCanBePrivate")
 class SPClientMock(
@@ -41,6 +42,7 @@ class SPClientMock(
     var getMessages: (() -> MessagesResponse?)? = null,
     var customConsentGDPR: (() -> GDPRConsent?)? = null,
     var deleteCustomConsentGDPR: (() -> GDPRConsent?)? = null,
+    var getUsnatLocation: (() -> UsnatLocationResponse?)? = null,
 ) : SPClient {
     override suspend fun getMetaData(campaigns: MetaDataRequest.Campaigns) =
         getMetaData?.invoke() ?:
@@ -93,6 +95,9 @@ class SPClientMock(
         getMessages?.invoke() ?:
             original?.getMessages(request) ?:
             MessagesResponse(campaigns = emptyList(), localState = "", nonKeyedLocalState = "")
+
+    override suspend fun getUsnatLocation(): UsnatLocationResponse =
+        getUsnatLocation?.invoke() ?: original?.getUsnatLocation() ?: UsnatLocationResponse()
 
     override suspend fun postReportIdfaStatus(
         propertyId: Int?,

@@ -19,6 +19,7 @@ import com.sourcepoint.mobile_core.models.SPActionType.*
 import com.sourcepoint.mobile_core.models.SPCampaign
 import com.sourcepoint.mobile_core.models.SPCampaignType.*
 import com.sourcepoint.mobile_core.models.SPCampaigns
+import com.sourcepoint.mobile_core.models.SPInternalFlags
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPMessageLanguage.ENGLISH
 import com.sourcepoint.mobile_core.models.SPPropertyName
@@ -468,7 +469,7 @@ class CoordinatorTest {
                     sampleRate = 1.0f,
                     additionsChangeDate = consents.gdpr!!.consents!!.dateCreated + 1.days,
                     legalBasisChangeDate = originalMetaData.gdpr!!.legalBasisChangeDate,
-                    vendorListId = originalMetaData.gdpr!!.vendorListId,
+                    vendorListId = originalMetaData.gdpr.vendorListId,
                 ))
             }
         )
@@ -491,7 +492,7 @@ class CoordinatorTest {
                     sampleRate = 1.0f,
                     additionsChangeDate = originalMetaData.gdpr!!.additionsChangeDate,
                     legalBasisChangeDate = consents.gdpr!!.consents!!.dateCreated + 1.days,
-                    vendorListId = originalMetaData.gdpr!!.vendorListId,
+                    vendorListId = originalMetaData.gdpr.vendorListId,
                 ))
             }
         )
@@ -630,5 +631,19 @@ class CoordinatorTest {
         }))
         coordinator.loadMessages()
         assertTrue(pvDataCalled)
+    }
+
+    @Test
+    fun getUsnatLocation() = runTestWithRetries {
+        Coordinator(
+            accountId = 99,
+            propertyId = 99,
+            propertyName = SPPropertyName.create("foo"),
+            campaigns = SPCampaigns(),
+            internalFlags = SPInternalFlags(geoOverride = "US-FL")
+        ).getUsnatLocation().apply {
+            assertEquals("US", countryCode)
+            assertEquals("FL", stateCode)
+        }
     }
 }
