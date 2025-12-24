@@ -3,6 +3,9 @@ package com.sourcepoint.mobile_core.storage
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.internal.SynchronizedObject
+import kotlinx.coroutines.internal.synchronized
 import com.russhwolf.settings.set as originalSet
 import com.russhwolf.settings.get as originalGet
 import kotlinx.serialization.json.JsonNull
@@ -18,15 +21,20 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.long
 import kotlinx.serialization.json.longOrNull
 
-private val settingsMutex = kotlinx.coroutines.sync.Mutex()
+@OptIn(InternalCoroutinesApi::class)
+private val settingsLock = SynchronizedObject()
 
-internal fun Settings.removeKeysStartingWith(prefix: String) {
-    runBlocking {
-        settingsMutex.withLock {
-            val toRemove = keys.filter { it.startsWith(prefix) }
-            toRemove.forEach { remove(it) }
-        }
-    }
+@OptIn(InternalCoroutinesApi::class)
+internal fun <T> synchronizedLock(lock: SynchronizedObject, block: () -> T): T = synchronized(lock, block)
+
+@OptIn(InternalCoroutinesApi::class)
+internal fun <T> Settings.withLock(block: Settings.() -> T): T = synchronizedLock(settingsLock) {
+    block()
+}
+
+internal fun Settings.removeKeysStartingWith(prefix: String) = withLock {
+    val toRemove = keys.filter { it.startsWith(prefix) }
+    toRemove.forEach { remove(it) }
 }
 
 internal operator fun Settings.set(key: String, value: JsonPrimitive) = putJsonPrimitive(key, value)
