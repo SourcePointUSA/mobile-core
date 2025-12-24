@@ -1,3 +1,8 @@
+## 0.1.15-beta-1 (Dec, 24, 2025)
+* [DIA-6242](https://sourcepoint.atlassian.net/browse/DIA-6242)
+- [x] Implement experimental `InternalCoroutinesApi`
+- [x] Beta version release for Android-only
+
 ## 0.1.14 (Nov, 17, 2025)
 * [DIA-6165](https://sourcepoint.atlassian.net/browse/DIA-6165) Add a mutex to removeKeysStartingWith to avoid a race condition. PR #82
 
