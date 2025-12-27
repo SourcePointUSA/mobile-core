@@ -20,6 +20,7 @@ import com.sourcepoint.mobile_core.models.SPCampaignType.Preferences
 import com.sourcepoint.mobile_core.models.SPCampaigns
 import com.sourcepoint.mobile_core.models.SPError
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
+import com.sourcepoint.mobile_core.models.SPInternalFlags
 import com.sourcepoint.mobile_core.models.SPMessageLanguage
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.consents.CCPAConsent
@@ -64,10 +65,12 @@ class Coordinator(
     private val campaigns: SPCampaigns,
     private val repository: Repository = Repository(),
     private val timeoutInSeconds: Int = 5,
+    private val internalFlags: SPInternalFlags = SPInternalFlags(),
     private val spClient: SPClient = SourcepointClient(
         accountId = accountId,
         propertyId = propertyId,
-        requestTimeoutInSeconds = timeoutInSeconds
+        requestTimeoutInSeconds = timeoutInSeconds,
+        internalFlags = internalFlags
     ),
     internal var state: State = repository.state ?: State(accountId = accountId, propertyId = propertyId),
     private var authId: String? = state.authId,
@@ -141,13 +144,15 @@ class Coordinator(
         propertyName: SPPropertyName,
         campaigns: SPCampaigns,
         timeoutInSeconds: Int = 5,
+        internalFlags: SPInternalFlags = SPInternalFlags()
     ): this(
         accountId = accountId,
         propertyId = propertyId,
         propertyName = propertyName,
         campaigns = campaigns,
         repository = Repository(),
-        timeoutInSeconds = timeoutInSeconds
+        timeoutInSeconds = timeoutInSeconds,
+        internalFlags = internalFlags
     )
 
     @Suppress("Unused")
@@ -157,14 +162,16 @@ class Coordinator(
         propertyName: SPPropertyName,
         campaigns: SPCampaigns,
         timeoutInSeconds: Int = 5,
-        state: State? = null
+        state: State? = null,
+        internalFlags: SPInternalFlags = SPInternalFlags()
     ): this(
         accountId = accountId,
         propertyId = propertyId,
         propertyName = propertyName,
         campaigns = campaigns,
         state = state ?: Repository().state ?: State(accountId = accountId, propertyId = propertyId),
-        timeoutInSeconds = timeoutInSeconds
+        timeoutInSeconds = timeoutInSeconds,
+        internalFlags = internalFlags
     )
 
     init {
@@ -1115,4 +1122,6 @@ class Coordinator(
     override fun setTranslateMessage(value: Boolean) {
         includeData.translateMessage = value
     }
+
+    override suspend fun getUsnatLocation() = spClient.getUsnatLocation()
 }

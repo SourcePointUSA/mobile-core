@@ -8,6 +8,7 @@ import com.sourcepoint.mobile_core.asserters.assertTrue
 import com.sourcepoint.mobile_core.models.SPActionType
 import com.sourcepoint.mobile_core.models.SPClientTimeout
 import com.sourcepoint.mobile_core.models.SPIDFAStatus
+import com.sourcepoint.mobile_core.models.SPInternalFlags
 import com.sourcepoint.mobile_core.models.SPNetworkError
 import com.sourcepoint.mobile_core.models.SPPropertyName
 import com.sourcepoint.mobile_core.models.SPUnableToParseBodyError
@@ -45,11 +46,8 @@ class SourcepointClientTest {
     private val propertyName = SPPropertyName.create("mobile.multicampaign.demo")
     private val preferencesConfigId = "67e14cda9efe9bd2a90fa84a"
     private val preferencesMessageId = "1306779"
-    private val api = SourcepointClient(
-        accountId = accountId,
-        propertyId = propertyId,
-        httpEngine = PlatformHttpClient.create().engine
-    )
+    private val httpEngine = PlatformHttpClient.create().engine
+    private var api = SourcepointClient(accountId, propertyId, httpEngine)
 
     private fun mock(response: String = """{}""", status: Int = 200, delayInSeconds: Int = 0) = MockEngine { _ ->
         delay(delayInSeconds.toLong() * 1000)
@@ -89,7 +87,7 @@ class SourcepointClientTest {
         assertNotNull(response.preferences?.additionsChangeDate)
 
         assertNotNull(response.globalcmp)
-        response.globalcmp?.apply {
+        response.globalcmp.apply {
             assertNotEmpty(vendorListId)
             assertNotEmpty(applicableSections)
             assertTrue(applies)
@@ -244,7 +242,7 @@ class SourcepointClientTest {
         response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
-            assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")
+            assertNotEmpty(campaign.message.messageJson, "Empty message_json for ${campaign.type}")
             assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
             assertCampaignConsentsFromMessages(campaign)
         }
@@ -494,6 +492,19 @@ class SourcepointClientTest {
                 assertNotNull(subType)
                 assertNotEmpty(versionId)
             }
+        }
+    }
+
+    @Test
+    fun testGetUsnatLocation() = runTestWithRetries {
+        SourcepointClient(
+            accountId,
+            propertyId,
+            httpEngine,
+            internalFlags = SPInternalFlags(geoOverride = "US-FL")
+        ).getUsnatLocation().apply {
+            assertEquals("US", countryCode)
+            assertEquals("FL", stateCode)
         }
     }
 }
