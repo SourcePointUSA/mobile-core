@@ -89,7 +89,7 @@ class SourcepointClientTest {
         assertNotNull(response.preferences?.additionsChangeDate)
 
         assertNotNull(response.globalcmp)
-        response.globalcmp?.apply {
+        response.globalcmp.apply {
             assertNotEmpty(vendorListId)
             assertNotEmpty(applicableSections)
             assertTrue(applies)
@@ -244,7 +244,7 @@ class SourcepointClientTest {
         response.campaigns.forEach { campaign ->
             assertNotNull(campaign.url, "Empty url for ${campaign.type}")
             assertNotNull(campaign.message, "Empty message for ${campaign.type}")
-            assertNotEmpty(campaign.message?.messageJson, "Empty message_json for ${campaign.type}")
+            assertNotEmpty(campaign.message.messageJson, "Empty message_json for ${campaign.type}")
             assertNotNull(campaign.messageMetaData, "Empty messageMetaData for ${campaign.type}")
             assertCampaignConsentsFromMessages(campaign)
         }
@@ -294,7 +294,10 @@ class SourcepointClientTest {
         val customVendorId = "5ff4d000a228633ac048be41"
         val categoryId1 = "608bad95d08d3112188e0e36"
         val categoryId2 = "608bad95d08d3112188e0e2f"
-        val consentUUID = "uuid_36" // this uuid needs to exist in the backend, i.e. consent services
+        val consentUUID = api.postChoiceGDPRAction(
+            actionType = SPActionType.RejectAll,
+            request = GDPRChoiceRequest(sendPVData = false, propertyId = propertyId, sampleRate = 1.0f)
+        ).uuid
         val responseCustomConsent = api.customConsentGDPR(
             consentUUID = consentUUID,
             propertyId = propertyId,
@@ -376,7 +379,6 @@ class SourcepointClientTest {
         val response = api.postChoiceGDPRAction(
             actionType = SPActionType.SaveAndExit,
             request = GDPRChoiceRequest(
-                uuid = "uuid_36",
                 sendPVData = true,
                 propertyId = propertyId,
                 pmSaveAndExitVariables = """{
@@ -421,7 +423,6 @@ class SourcepointClientTest {
         val response = api.postChoiceCCPAAction(
             actionType = SPActionType.SaveAndExit,
             request = CCPAChoiceRequest(
-                uuid = "uuid_36",
                 pmSaveAndExitVariables =
                     """{"rejectedCategories":["608bae685461ff11a2c2865d"],"rejectedVendors":[],"privacyManagerId":"509688","lan":"EN"}""".encodeToJsonObject()!!,
                 sendPVData = true,
@@ -457,7 +458,6 @@ class SourcepointClientTest {
         val response = api.postChoiceUSNatAction(
             actionType = SPActionType.SaveAndExit,
             request = USNatChoiceRequest(
-                uuid = "uuid_36",
                 vendorListId = "65a01016e17a3c7a831ec515",
                 pmSaveAndExitVariables =
                     """{"categories":["648c9c48e17a3c7a82360c54"],"lan":"EN","privacyManagerId":"943886","shownCategories":["648c9c48e17a3c7a82360c54"],"vendors":[]}""".encodeToJsonObject()!!,
