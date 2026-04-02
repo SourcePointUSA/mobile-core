@@ -1,8 +1,7 @@
 package com.sourcepoint.mobile_core.storage
 
+import com.russhwolf.settings.MapSettings
 import com.russhwolf.settings.Settings
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.SynchronizedObject
 import kotlinx.coroutines.internal.synchronized
@@ -35,6 +34,33 @@ internal fun <T> Settings.withLock(block: Settings.() -> T): T = synchronizedLoc
 internal fun Settings.removeKeysStartingWith(prefix: String) = withLock {
     val toRemove = keys.filter { it.startsWith(prefix) }
     toRemove.forEach { remove(it) }
+}
+
+internal fun Settings.getKeysWithPrefix(prefix: String): Map<String, JsonPrimitive> = withLock {
+    keys.filter { it.startsWith(prefix) }
+        .associateWith { getJsonPrimitive(it) }
+}
+
+internal fun Settings.replaceKeysWithPrefix(prefix: String, data: Map<String, JsonPrimitive>) = withLock {
+    val toRemove = keys.filter { it.startsWith(prefix) }
+    toRemove.forEach { remove(it) }
+    data.forEach { (key, value) -> putJsonPrimitive(key, value) }
+}
+
+internal fun Settings.readString(key: String, defaultValue: String = ""): String = withLock {
+    getString(key, defaultValue)
+}
+
+internal fun Settings.readStringOrNull(key: String): String? = withLock {
+    getStringOrNull(key)
+}
+
+internal fun Settings.writeString(key: String, value: String?) = withLock {
+    if (value == null) remove(key) else putString(key, value)
+}
+
+internal fun Settings.delete(key: String) = withLock {
+    remove(key)
 }
 
 internal operator fun Settings.set(key: String, value: JsonPrimitive) = putJsonPrimitive(key, value)
