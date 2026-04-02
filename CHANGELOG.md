@@ -1,3 +1,6 @@
+## 0.1.15 (Apr, 2, 2026)
+* improve concurrency safety on `Settings` and `Repository` classes
+
 ## 0.1.15-beta-1 (Dec, 24, 2025)
 * [DIA-6242](https://sourcepoint.atlassian.net/browse/DIA-6242)
 - [x] Implement experimental `InternalCoroutinesApi`
