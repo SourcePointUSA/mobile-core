@@ -1,3 +1,6 @@
+## 0.1.16 (Apr, 2, 2026)
+* fix missing XCFrameworks with iOS release
+
 ## 0.1.15 (Apr, 2, 2026)
 * improve concurrency safety on `Settings` and `Repository` classes
 
