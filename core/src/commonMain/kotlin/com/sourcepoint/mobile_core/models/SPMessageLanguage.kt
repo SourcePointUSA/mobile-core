@@ -1,4 +1,3 @@
-@file:Suppress("unused")
 package com.sourcepoint.mobile_core.models
 
 import kotlinx.serialization.KSerializer
