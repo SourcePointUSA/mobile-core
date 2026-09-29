@@ -1,3 +1,6 @@
+## 0.1.17 (Sept, 29, 2026)
+* [DIA-6442](https://sourcepoint.atlassian.net/browse/DIA-6442) Fix Reporting: Messaged Users Status
+
 ## 0.1.16 (Apr, 2, 2026)
 * fix missing XCFrameworks with iOS release
 
