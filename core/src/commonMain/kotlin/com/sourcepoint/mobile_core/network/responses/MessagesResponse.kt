@@ -307,6 +307,7 @@ data class MessagesResponse(
         val categoryId: MessageCategory,
         val subCategoryId: MessageSubCategory,
         val messageId: Int,
+        @SerialName("prtnUUID")
         val messagePartitionUUID: String?
     ) {
         @Serializable(with = MessageCategory.Serializer::class)
